@@ -62,7 +62,7 @@ public class Contact extends NoteElement<Contact> {
     String result = "Contact:\n" + super.toString();
     String pc = postalCode == null ? null : postalCode.toString();
     for (String item : new String[] {phoneNumber, address1, address2, city, state, pc}) {
-      if (item != null && !item.equals("")) {
+      if (item != null && !item.isEmpty()) {
         result = result.concat("\n" + item);
       }
     }

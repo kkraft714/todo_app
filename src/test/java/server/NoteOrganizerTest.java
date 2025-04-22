@@ -6,8 +6,7 @@ import server.categories.MediaType;
 
 import java.util.*;
 
-import static org.junit.Assert.*;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 // ToDo: Figure out JUnit assertThat() with matchers (and replace assertTrue())
 // Confirm that new notes and categories (and notes in categories) are added at the end
@@ -35,7 +34,7 @@ public class NoteOrganizerTest {
     @Test
     public void addNewNote() {
         main.addTestNote();
-        assertEquals("Number of notes", 1, main.numberOfNotes());
+        assertEquals(1, main.numberOfNotes(), "Number of notes");
     }
 
     @Test
@@ -48,15 +47,15 @@ public class NoteOrganizerTest {
         Note newNote = NoteTestHelper.createGenericTestNote();
         main.addNote(newNote);
         Note deletedNote = main.deleteNote(newNote);
-        assertEquals("Number of notes", 0, main.numberOfNotes());
-        assertSame("Note removed", newNote, deletedNote);
+        assertEquals(0, main.numberOfNotes(), "Number of notes");
+        assertSame(newNote, deletedNote, "Note removed");
     }
 
     @Test
     public void addMultipleNotes() {
         int expectedCount = 3;
         main.addTestNotes(expectedCount);
-        assertEquals("Number of notes", expectedCount, main.numberOfNotes());
+        assertEquals(expectedCount, main.numberOfNotes(), "Number of notes");
     }
 
     @Test
@@ -67,8 +66,8 @@ public class NoteOrganizerTest {
             Note noteToRemove = main.getNote(0);
             // ToDo: Test the index version too: deleteNote(int index)?
             Note removedNote = main.deleteNote(noteToRemove);
-            assertEquals("Number of notes", expectedCount - i - 1, main.numberOfNotes());
-            assertSame("Note removed", noteToRemove, removedNote);
+            assertEquals(expectedCount - i - 1, main.numberOfNotes(), "Number of notes");
+            assertSame(noteToRemove, removedNote, "Note removed");
         }
     }
 
@@ -78,7 +77,7 @@ public class NoteOrganizerTest {
         int initialNoteCount = 5;
         main.addTestNotes(initialNoteCount);
         main.getNotes().clear();
-        assertEquals("Number of remaining notes after deletion", 0, main.numberOfNotes());
+        assertEquals(0, main.numberOfNotes(), "Number of remaining notes after deletion");
     }
 
     @Test
@@ -86,7 +85,7 @@ public class NoteOrganizerTest {
         int initialNoteCount = 5;
         main.addTestNotes(initialNoteCount);
         main.deleteNote(0);
-        assertEquals("Number of remaining notes after deletion", initialNoteCount - 1, main.numberOfNotes());
+        assertEquals(initialNoteCount - 1, main.numberOfNotes(), "Number of remaining notes after deletion");
     }
 
     @Test
@@ -99,28 +98,28 @@ public class NoteOrganizerTest {
         main.deleteNote(newNote);
         // Confirm that the note has been deleted from all categories
         for (String name : main.getCategories()) {
-            assertFalse("Category '" + name + "' contains note '" + newNote.getName() + "'",
-                    main.getCategory(name).contains(newNote));
+            assertFalse(main.getCategory(name).contains(newNote),
+                    "Category '" + name + "' contains note '" + newNote.getName() + "'");
         }
     }
 
     @Test
     public void tryRemovingInvalidNoteByIndex() {
         Exception ex = assertThrows(RuntimeException.class, () -> main.deleteNote(1));
-        assertEquals("Exception message", "Invalid index (1) for note list (size 0)", ex.getMessage());
+        assertEquals("Invalid index (1) for note list (size 0)", ex.getMessage(), "Exception message");
     }
 
     @Test
     public void tryRemovingInvalidNoteByObject() {
         Note newNote = NoteTestHelper.createGenericTestNote();
         Exception ex = assertThrows(RuntimeException.class, () -> main.deleteNote(newNote));
-        assertEquals("Exception message", "Failed to locate note: '" + newNote.getName() + "'", ex.getMessage());
+        assertEquals("Failed to locate note: '" + newNote.getName() + "'", ex.getMessage(), "Exception message");
     }
 
     @Test
     public void addNewCategory() {
         main.addCategory(defaultCategoryName);
-        assertEquals("Number of categories", 1, main.numberOfCategories());
+        assertEquals(1, main.numberOfCategories(), "Number of categories");
     }
 
     @Test
@@ -128,14 +127,14 @@ public class NoteOrganizerTest {
         String categoryName = "Category name with spaces";
         main.addCategory(categoryName);
         List<Note> category = main.getCategory(categoryName);
-        assertEquals("Number of notes in category", 0, category.size());
+        assertEquals(0, category.size(), "Number of notes in category");
     }
 
     @Test
     public void removeLastCategory() {
         main.addCategory(defaultCategoryName);
         main.deleteCategory(defaultCategoryName);
-        assertEquals("Number of categories", 0, main.numberOfCategories());
+        assertEquals(0, main.numberOfCategories(), "Number of categories");
     }
 
     // ToDo: addMultipleCategories()
@@ -145,24 +144,24 @@ public class NoteOrganizerTest {
     @Test
     public void tryGettingInvalidCategory() {
         Exception ex = assertThrows(RuntimeException.class, () -> main.getCategory(invalidCategory));
-        assertEquals("Exception message", "Unable to locate category '" + invalidCategory + "'",
-                ex.getMessage());
+        assertEquals("Unable to locate category '" + invalidCategory + "'", ex.getMessage(),
+                "Exception message");
     }
 
     @Test
     public void tryRemovingInvalidCategory() {
         Exception ex = assertThrows(RuntimeException.class, () -> main.deleteCategory(invalidCategory));
         String expectedMessage = "Unable to locate category '" + invalidCategory + "'";
-        assertTrue("Exception message contains '" + expectedMessage + "'",
-                ex.getMessage().contains(expectedMessage));
+        assertTrue(ex.getMessage().contains(expectedMessage),
+                "Exception message contains '" + expectedMessage + "'");
     }
 
     @Test
     public void addNoteToCategory() {
         main.addNoteToCategory(defaultCategoryName, NoteTestHelper.createGenericTestNote());
         List<Note> category = main.getCategory(defaultCategoryName);
-        assertEquals("Number of notes in category '" + defaultCategoryName + "'",
-                1, category.size());
+        assertEquals(1, category.size(),
+                "Number of notes in category '" + defaultCategoryName + "'");
     }
 
     @Test
@@ -171,8 +170,8 @@ public class NoteOrganizerTest {
         main.addNoteToCategory(defaultCategoryName, newNote);
         main.removeNoteFromCategory(defaultCategoryName, newNote);
         List<Note> category = main.getCategory(defaultCategoryName);
-        assertEquals("Number of notes in category '" + defaultCategoryName + "'",
-                0, category.size());
+        assertEquals(0, category.size(),
+                "Number of notes in category '" + defaultCategoryName + "'");
     }
 
     @Test
@@ -181,11 +180,11 @@ public class NoteOrganizerTest {
         int expectedCount = 3;
         List<Note> noteList = main.addTestNotes(expectedCount);
         main.addNotesToCategory(categoryName, noteList);
-        assertEquals("Number of notes in '" + categoryName + "'",
-                expectedCount, main.getCategory(categoryName).size());
+        assertEquals(expectedCount, main.getCategory(categoryName).size(),
+                "Number of notes in '" + categoryName + "'");
         for (Note n : noteList) {
-            assertTrue("Category " + categoryName + " contains note '" + n.getName() + "'",
-                    main.getCategory(categoryName).contains(n));
+            assertTrue(main.getCategory(categoryName).contains(n),
+                    "Category " + categoryName + " contains note '" + n.getName() + "'");
         }
     }
 
@@ -196,8 +195,8 @@ public class NoteOrganizerTest {
         main.addNotesToCategory(defaultCategoryName, noteList);
         for (int i = 0; i < expectedCount; i++) {
             main.removeNoteFromCategory(defaultCategoryName, noteList.get(i));
-            assertEquals("Number of notes in '" + defaultCategoryName + "'",
-                    expectedCount - i - 1, main.getCategory(defaultCategoryName).size());
+            assertEquals(expectedCount - i - 1, main.getCategory(defaultCategoryName).size(),
+                    "Number of notes in '" + defaultCategoryName + "'");
         }
     }
 
@@ -210,8 +209,7 @@ public class NoteOrganizerTest {
         HashSet<String> categories = new HashSet<>(Arrays.asList("category1", "category2", "category3"));
         main.addNoteToCategories(categories, newNote);
         for (String category : categories) {
-            assertTrue("Category " + category + " contains note '" + newNote.getName() + "'",
-                    main.getCategory(category).contains(newNote));
+            assertTrue(main.getCategory(category).contains(newNote), "Category " + category + " contains note '" + newNote.getName() + "'");
         }
     }
 
@@ -223,8 +221,8 @@ public class NoteOrganizerTest {
         main.addNoteToCategories(categories, newNote);
         for (String category : categories) {
             main.removeNoteFromCategory(category, newNote);
-            assertFalse("Category " + category + " contains note '" + newNote.getName() + "'",
-                    main.getCategory(category).contains(newNote));
+            assertFalse(main.getCategory(category).contains(newNote),
+                    "Category " + category + " contains note '" + newNote.getName() + "'");
         }
     }
 
@@ -233,8 +231,8 @@ public class NoteOrganizerTest {
         Note newNote = NoteTestHelper.createGenericTestNote();
         Exception ex = assertThrows(RuntimeException.class,
                 () -> main.removeNoteFromCategory(invalidCategory, newNote));
-        assertEquals("Exception message", "Unable to locate category '" + invalidCategory + "'",
-                ex.getMessage());
+        assertEquals("Unable to locate category '" + invalidCategory + "'", ex.getMessage(),
+                "Exception message");
     }
 
     @Test
@@ -243,9 +241,8 @@ public class NoteOrganizerTest {
         Note newNote = NoteTestHelper.createGenericTestNote();
         Exception ex = assertThrows(RuntimeException.class,
                 () -> main.removeNoteFromCategory(defaultCategoryName, newNote));
-        assertEquals("Exception message",
-                "Unable to locate note '" + newNote.getName() + "' in category '" + defaultCategoryName + "'",
-                ex.getMessage());
+        assertEquals("Unable to locate note '" + newNote.getName() + "' in category '" + defaultCategoryName + "'",
+                ex.getMessage(), "Exception message");
     }
 
     @Test
@@ -255,8 +252,8 @@ public class NoteOrganizerTest {
         newNote.addTag(mediaType);
         main.addNote(newNote);
         List<Note> taggedNotes = main.getNotesWithTag(mediaType);
-        assertEquals("Number of notes with media type " + mediaType, 1, taggedNotes.size());
-        assertSame("Note with media type " + mediaType, newNote, taggedNotes.get(0));
+        assertEquals(1, taggedNotes.size(), "Number of notes with media type " + mediaType);
+        assertSame(newNote, taggedNotes.get(0), "Note with media type " + mediaType);
     }
 
     @Test
@@ -265,7 +262,7 @@ public class NoteOrganizerTest {
         int numberOfNotes = 3;
         createNotesWithTags(numberOfNotes, mediaType, main.getNotes());
         List<Note> taggedNotes = main.getNotesWithTag(mediaType);
-        assertEquals("Number of notes with media type " + mediaType, numberOfNotes, taggedNotes.size());
+        assertEquals(numberOfNotes, taggedNotes.size(), "Number of notes with media type " + mediaType);
     }
 
     @Test
@@ -275,11 +272,11 @@ public class NoteOrganizerTest {
         createNotesWithTags(numberOfNotes);
         for (CategoryTag tag : tagTracker.keySet()) {
             List<Note> taggedNotes = main.getNotesWithTag(tag);
-            assertEquals("Number of notes with media type " + tag,
-                    tagTracker.get(tag).intValue(), taggedNotes.size());
+            assertEquals(tagTracker.get(tag).intValue(), taggedNotes.size(),
+                    "Number of notes with media type " + tag);
             total += taggedNotes.size();
         }
-        assertEquals("Total number of tagged notes", numberOfNotes, total);
+        assertEquals(numberOfNotes, total, "Total number of tagged notes");
     }
 
     @Test
@@ -290,33 +287,33 @@ public class NoteOrganizerTest {
         createNotesWithTags(numberOfTaggedNotes);
         // This is identical to the above test except for this line adding untagged notes
         main.addTestNotes(numberOfUntaggedNotes);
-        assertEquals("Total number of notes", numberOfTaggedNotes + numberOfUntaggedNotes, main.numberOfNotes());
+        assertEquals(numberOfTaggedNotes + numberOfUntaggedNotes, main.numberOfNotes(), "Total number of notes");
         for (CategoryTag tag : tagTracker.keySet()) {
             List<Note> taggedNotes = main.getNotesWithTag(tag);
-            assertEquals("Number of notes with media type " + tag,
-                    tagTracker.get(tag).intValue(), taggedNotes.size());
+            assertEquals(tagTracker.get(tag).intValue(), taggedNotes.size(),
+                    "Number of notes with media type " + tag);
             total += taggedNotes.size();
         }
-        assertEquals("Total number of tagged notes", numberOfTaggedNotes, total);
+        assertEquals(numberOfTaggedNotes, total, "Total number of tagged notes");
     }
 
     @Test
     public void tryGettingTaggedNotesFromListContainingOnlyUntaggedNotes() {
         main.addTestNotes(10);    // These are untagged notes
-        assertEquals("Number of test tags tracked", tagTracker.size(), 0);
+        assertEquals(tagTracker.size(), 0, "Number of test tags tracked");
         for (CategoryTag tag : MediaType.get().getTagValues()) {
             List<Note> taggedNotes = main.getNotesWithTag(tag);
-            assertEquals("Number of notes with media type " + tag, taggedNotes.size(), 0);
+            assertEquals(0, taggedNotes.size(), "Number of notes with media type " + tag);
         }
     }
 
     @Test
     public void tryGettingTaggedNotesFromEmptyList() {
         // The list of test notes is empty by default
-        assertEquals("Number of test tags tracked", tagTracker.size(), 0);
+        assertEquals(tagTracker.size(), 0, "Number of test tags tracked");
         for (CategoryTag tag : MediaType.get().getTagValues()) {
             List<Note> taggedNotes = main.getNotesWithTag(tag);
-            assertEquals("Number of notes with media type " + tag, taggedNotes.size(), 0);
+            assertEquals(taggedNotes.size(), 0, "Number of notes with media type " + tag);
         }
     }
 
@@ -326,14 +323,14 @@ public class NoteOrganizerTest {
     public void getTaggedNotesWithOrRelationship() {
         createNotesWithMultipleTags();
         List<Note> orResult = main.getNotesWithAnyTags(tagTracker.keySet());
-        assertEquals("Number of notes with any queried tags", partitionCount*3, orResult.size());
+        assertEquals(partitionCount*3, orResult.size(), "Number of notes with any queried tags");
     }
 
     @Test
     public void getTaggedNotesWithAndRelationship() {
         createNotesWithMultipleTags();
         List<Note> andResult = main.getNotesWithAllTags(tagTracker.keySet());
-        assertEquals("Number of notes with all queried tags", partitionCount, andResult.size());
+        assertEquals(partitionCount, andResult.size(), "Number of notes with all queried tags");
     }
 
     // Re-run (at least some) tagging tests with category lists instead of main

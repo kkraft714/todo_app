@@ -19,9 +19,10 @@ public class Note extends NoteElement<Note> {
     @Column(name="NOTE_ID")
     @GeneratedValue
     private Long noteId;
-    private String description;
-    // Using "? extends NoteElement" or "NoteElement<?>" here produces compile errors
+    // Using "NoteElement<?>" here produces compile errors
     private ArrayList<NoteElement> elements;
+    // Tracks the location of a NoteElement in the elements list
+    // ToDo: Not sure how/where this was supposed to be used
     private Map<Class<? extends NoteElement>, List<Integer>> elementLocator;
     private Set<String> categories;
     private Set<CategoryTag> tags;
@@ -50,7 +51,6 @@ public class Note extends NoteElement<Note> {
      * @param newElement The new Note element to be added
      */
     public void addElement(NoteElement<?> newElement) {
-        // elements.add(newElement);
         addElement(newElement, elements.size());
     }
 
@@ -74,17 +74,14 @@ public class Note extends NoteElement<Note> {
     }
 
     public void removeElement(NoteElement<?> element) {
-        elements.remove(element);   // Check for result of remove()?
+        elements.remove(element);   // ToDo: Check for result of remove()?
         updateElementLocatorAfterDelete(element);
     }
 
-
+    // ToDo: Update the element locator logic?
     private void updateElementLocatorAfterDelete(NoteElement<?> element) {
         if (elementLocator.containsKey(element.getClass())) {
-            if (!elementLocator.get(element.getClass()).remove(element)) {
-                LOG.warn("Element locator for Note '" + getName() + "' failed to remove element '"
-                        + element.getName() + "'");
-            }
+            elementLocator.remove(element.getClass());
         }
         else {
             LOG.warn("Element locator for Note '" + getName() + "' contains no element of type "
@@ -132,7 +129,7 @@ public class Note extends NoteElement<Note> {
 
     // ToDo: Add Javadoc
     public boolean hasElement(Class< NoteElement<?>> elementClass) {
-        return elementLocator.containsKey(elementClass) && elementLocator.get(elementClass).size() > 0;
+        return elementLocator.containsKey(elementClass) && !elementLocator.get(elementClass).isEmpty();
     }
 
     // ToDo: Add Javadoc
@@ -153,8 +150,8 @@ public class Note extends NoteElement<Note> {
     @Override
     public String toString() {
         String result = "Note:\n" + getName();
-        if (description != null && !description.equals("")) {
-            result += "\n" + description;
+        if (getDescription() != null && !getDescription().isEmpty()) {
+            result += "\n" + getDescription();
         }
         for (NoteElement<?> elem : elements) {
             // ToDo: Warn if element is null?

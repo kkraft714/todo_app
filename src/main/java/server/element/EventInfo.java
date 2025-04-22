@@ -12,7 +12,7 @@ public class EventInfo extends NoteElement<EventInfo> {
     private LocalDateTime eventDate;
     private CompletionStatus status;
 
-    enum CompletionStatus { COMPLETED, UNFINISHED, CANCELED, MISSED }
+    public enum CompletionStatus { COMPLETED, UNFINISHED, CANCELED, MISSED }
 
     // No-arg constructor required by Hibernate
     protected EventInfo() {

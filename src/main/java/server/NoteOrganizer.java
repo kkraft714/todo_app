@@ -3,7 +3,7 @@ package server;
 import server.categories.*;
 import java.util.*;
 
-// ToDo: Add Javadoc!
+// ToDo: Add Javadoc (this is the main program / entry point)!
 // ToDo: Add DEBUG logging (to add context for exceptions)
 // ToDo: Can (or should) this class be a static singleton (how would that work with Hibernate)?
 public class NoteOrganizer {
@@ -38,6 +38,7 @@ public class NoteOrganizer {
 
     public void addCategory(String name) { categories.put(name, new ArrayList<>()); }
     public void addNoteToCategory(String name, Note newNote) {
+        // ToDo: Check if category exists first?
         addNotesToCategory(name, List.of(newNote));
     }
     public void addNoteToCategory(String name, Note newNote, int position) {
@@ -85,6 +86,7 @@ public class NoteOrganizer {
     public void deleteCategory(String name) {
         checkForValidCategory(name);
         // ToDo: Only allow this if category is empty (doesn't contain any notes)?
+        //  Or alternately remove all notes from that category?
         categories.remove(name);
     }
 
@@ -109,6 +111,7 @@ public class NoteOrganizer {
     public List<Note> getNotesWithAnyTags(Set<CategoryTag> tags, List<Note> list) {
         return getNotesWithTags(tags, list, false);
     }
+    // ToDo: Document meaning of allTags (i.e. note must have ALL tags vs. note can have ANY tag)
     private List<Note> getNotesWithTags(Set<CategoryTag> tags, List<Note> list, boolean allTags) {
         List<Note> notesWithTags = new ArrayList<>();
         for (Note n : list) {

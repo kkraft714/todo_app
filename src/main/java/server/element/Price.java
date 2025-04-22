@@ -22,7 +22,7 @@ public class Price extends NoteElement<Price> {
     }
 
     public Price(String itemName, String description, double itemPrice) {
-        this(itemName, null, new BigDecimal(itemPrice));
+        this(itemName, description, new BigDecimal(itemPrice));
     }
 
     public Price(Double itemPrice) {

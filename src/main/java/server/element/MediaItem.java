@@ -7,9 +7,8 @@ import server.categories.MediaType;
 */
 public class MediaItem extends NoteElement<MediaItem> {
   private String creator;
+  // ToDo: This needs to be non-final (and have a setter) to work with Hibernate?
   private final MediaType type;
-
-  // public enum Category { RECORD, SONG, BOOK, FILM, TV_SHOW, VIDEO }
 
   protected MediaItem() {
     super(null, null);
@@ -32,6 +31,6 @@ public class MediaItem extends NoteElement<MediaItem> {
 
   @Override
   public String toString() {
-    return type.name() + ":\n" + super.toString() + "\n" + creator;
+    return type + ":\n" + super.toString() + "\n" + creator;
   }
 }

@@ -16,6 +16,7 @@ public class NoteElement<T extends NoteElement<T>> {
 
     public NoteElement(String newName) { this(newName, null); }
 
+    // ToDo: Create a separate NoteBuilder class?
     public String getName() { return name; }
     public T setName(String newName) { this.name = newName; return (T)this; }
     public String getDescription() { return description; }
@@ -26,7 +27,7 @@ public class NoteElement<T extends NoteElement<T>> {
     @Override
     public String toString() {
         String result = name;
-        if (description != null && !description.equals("")) {
+        if (description != null && !description.isEmpty()) {
             result += "\n" + description;
         }
         return result;

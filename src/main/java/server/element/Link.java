@@ -19,18 +19,21 @@ public class Link extends NoteElement<Link> {
 
   public Link(String linkName, String linkNote, String url) {
     super(linkName, linkNote);
-    try {
-      this.linkURL = new URL(url);
-    } catch (MalformedURLException e) {
-      throw new RuntimeException("Failed to create link for malformed URL: " + url);
-    }
+    setURL(url);
   }
 
   public Link(String name, String url) { this(name, null, url); }
 
   public URL getUrl() { return linkURL; }
-  // ToDo: Need setter for Hibernate?
+  public void setURL(String linkURL) {
+    try {
+      this.linkURL = new URL(linkURL);
+    } catch (MalformedURLException e) {
+      throw new RuntimeException("Failed to create link for malformed URL: " + linkURL);
+    }
+  }
 
+  // ToDo: Add testLink() and set broken = true if it can't be accessed?
   public boolean isBroken() { return broken; }
   public void setBroken(boolean value) { broken = value; }
 
