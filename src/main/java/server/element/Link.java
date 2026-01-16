@@ -6,10 +6,11 @@ import java.net.URL;
 /**
  * Represents a web link.
  */
+// ToDo: Support entering a link as free text and storing and displaying it as a URL
 public class Link extends NoteElement<Link> {
   // ToDo: See if I can set this to final once I get the Hibernate stuff working
   private URL linkURL;
-  private boolean broken = false;
+  private boolean broken = false;   // Defines whether the link can be accessed
 
   // No-arg constructor required by Hibernate
   protected Link() {

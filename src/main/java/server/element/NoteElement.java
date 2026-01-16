@@ -2,8 +2,14 @@ package server.element;
 
 import java.time.LocalDateTime;
 
+/**
+ * This is the base class for Note elements.
+ *
+ * @param <T>
+ */
 public class NoteElement<T extends NoteElement<T>> {
     // Because Hibernate uses a no-arg constructor with setters I can't make properties final
+    // ToDo: See if I can make name (and other required fields) final
     private String name;
     private String description;
     private final LocalDateTime created;

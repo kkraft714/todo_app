@@ -4,7 +4,9 @@ import server.categories.*;
 import java.util.*;
 
 // ToDo: Add Javadoc (this is the main program / entry point)!
-// ToDo: Add DEBUG logging (to add context for exceptions)
+//   I think "categories" might be for user-defined (String-based) categories
+//   while tags are pre-defined by the program?
+// ToDo: Add DEBUG logging (for exception context)
 // ToDo: Can (or should) this class be a static singleton (how would that work with Hibernate)?
 public class NoteOrganizer {
     // ToDo: Try making these final once I've got the Hibernate stuff working
@@ -38,7 +40,8 @@ public class NoteOrganizer {
 
     public void addCategory(String name) { categories.put(name, new ArrayList<>()); }
     public void addNoteToCategory(String name, Note newNote) {
-        // ToDo: Check if category exists first?
+        // ToDo: If I add the category check 5 tests fail
+        // checkForValidCategory(name);
         addNotesToCategory(name, List.of(newNote));
     }
     public void addNoteToCategory(String name, Note newNote, int position) {
@@ -101,7 +104,7 @@ public class NoteOrganizer {
 
     public List<Note> getNotesWithTag(CategoryTag tag) { return getNotesWithTag(tag, notes); }
     public List<Note> getNotesWithTag(CategoryTag tag, List<Note> list) {
-        return getNotesWithTags(Set.of(tag), list, true);
+        return getNotesWithTags(Set.of(tag), list, true);    // ToDo: Use List.of() here?
     }
     public List<Note> getNotesWithAllTags(Set<CategoryTag> tags) { return getNotesWithAllTags(tags, notes); }
     public List<Note> getNotesWithAllTags(Set<CategoryTag> tags, List<Note> list) {

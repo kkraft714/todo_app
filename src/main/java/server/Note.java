@@ -9,6 +9,8 @@ import java.util.*;
 import org.apache.logging.log4j.*;
 
 // Need tags to indicate relevant search categories
+// Why is this defined under server and not server.element?
+// This is the base of the "Note tree"
 /**
  * This is the base class for notes and to-do items.
  */
@@ -19,13 +21,14 @@ public class Note extends NoteElement<Note> {
     @Column(name="NOTE_ID")
     @GeneratedValue
     private Long noteId;
-    // Using "NoteElement<?>" here produces compile errors
-    private ArrayList<NoteElement> elements;
+    private ArrayList<NoteElement<?>> elements;
     // Tracks the location of a NoteElement in the elements list
     // ToDo: Not sure how/where this was supposed to be used
+    // I get a compile error from updateElementLocatorAfterAdd() if I use NoteElement<?>>
+    // ToDo: Explain what elementLocator is for
     private Map<Class<? extends NoteElement>, List<Integer>> elementLocator;
-    private Set<String> categories;
-    private Set<CategoryTag> tags;
+    private Set<String> categories;    // User-defined categories
+    private Set<CategoryTag> tags;     // Internally defined categories
     private static final Logger LOG = LogManager.getLogger(Note.class);
 
     // ToDo: Will this update the created date every time a note is retrieved from the DB?
@@ -44,7 +47,7 @@ public class Note extends NoteElement<Note> {
 
     public Note(String title) { this(title, null); }
 
-    public ArrayList<NoteElement> getElements() { return elements; }
+    public ArrayList<NoteElement<?>> getElements() { return elements; }
 
     /**
      * Add new Note element at the end of the current note.
@@ -64,7 +67,7 @@ public class Note extends NoteElement<Note> {
         updateElementLocatorAfterAdd(newElement, index);
     }
 
-    // Explain how this works?
+    // ToDo: Explain how this works? This is a lookup over all notes by class?
     // I get weird generic errors if I attempt to pass the class here
     private void updateElementLocatorAfterAdd(NoteElement<?> element, int index) {
         if (!elementLocator.containsKey(element.getClass())) {
@@ -73,6 +76,7 @@ public class Note extends NoteElement<Note> {
         elementLocator.get(element.getClass()).add(index);
     }
 
+    // Return element that was removed?
     public void removeElement(NoteElement<?> element) {
         elements.remove(element);   // ToDo: Check for result of remove()?
         updateElementLocatorAfterDelete(element);
@@ -81,6 +85,7 @@ public class Note extends NoteElement<Note> {
     // ToDo: Update the element locator logic?
     private void updateElementLocatorAfterDelete(NoteElement<?> element) {
         if (elementLocator.containsKey(element.getClass())) {
+            // ToDo: Why am I removing the whole look-up list?
             elementLocator.remove(element.getClass());
         }
         else {

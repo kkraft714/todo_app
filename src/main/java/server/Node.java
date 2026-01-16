@@ -1,5 +1,7 @@
 package server;
 
+// This class is not currently used anywhere?
+
 import javax.persistence.MappedSuperclass;
 import java.util.ArrayList;
 
