@@ -3,6 +3,8 @@ package server;
 import javax.persistence.MappedSuperclass;
 import java.util.ArrayList;
 
+// This class is not currently used anywhere?
+
 /**
 ** Generic class for implementing a tree structure.
  */

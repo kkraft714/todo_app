@@ -6,7 +6,8 @@ For now it is just project notes.
 ## To do items
 
 * Must fill out the Javadoc coverage!
-* Remove the CategoryList class?
+* Define builders instead of constructors (how would this work with Hibernate?)
+* Use my "extensible enum" trick with CategoryTag?
 * There is an issue with categories since the note categories are tightly coupled
   with the category lists in the main program
 
