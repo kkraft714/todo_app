@@ -14,7 +14,7 @@ COPY src ./src
 RUN gradle build -x test --no-daemon
 
 # Stage 2: Runtime stage
-FROM eclipse-temurin:17-jdk
+FROM eclipse-temurin:17-jre
 
 WORKDIR /app
 
@@ -27,16 +27,9 @@ COPY --from=builder /app/build/libs/*.jar app.jar
 # Expose the port your application will run on
 EXPOSE 8080
 
-# Set environment variables for database connection
-ENV DB_HOST=postgres
-ENV DB_PORT=5455
-ENV DB_NAME=todo_db
-ENV DB_USER=postgres
-ENV DB_PASSWORD=postgres
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD curl -f http://localhost:8080/health || exit 1
+# Health check (not implemented, as there is no server component yet)
+#HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+#  CMD curl -f http://localhost:8080/health || exit 1
 
 # Run the application
 ENTRYPOINT ["java", "-jar", "app.jar"]

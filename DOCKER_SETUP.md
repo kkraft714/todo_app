@@ -43,7 +43,9 @@ Edit the following values in `docker-compose.yml` or create a `.env` file based 
 - `DB_NAME`: PostgreSQL database name (default: `todo_db`)
 - `DB_USER`: PostgreSQL user (default: `postgres`)
 - `DB_PASSWORD`: PostgreSQL password (default: `postgres`)
-- `DB_PORT`: PostgreSQL port (default: `5432`)
+- `DB_PORT`: PostgreSQL host port (default: `5455`)
+
+**Note**: `DB_PORT` controls which port on your host machine maps to PostgreSQL. Inside the Docker network, the app always connects to PostgreSQL on the standard port 5432.
 
 ### Custom Configuration
 
@@ -58,9 +60,11 @@ docker-compose up
 
 ### PostgreSQL (postgres)
 - **Image**: postgres:16-alpine
-- **Port**: 5432 (mapped from container)
+- **Host Port**: 5455 (default, configurable via `DB_PORT`)
+- **Container Port**: 5432 (standard PostgreSQL port inside the container)
 - **Data Storage**: Persisted in `postgres_data` volume
-- **Connection String**: `jdbc:postgresql://postgres:5432/todo_db`
+- **Connection String (from host)**: `jdbc:postgresql://localhost:5455/todo_db`
+- **Connection String (from app container)**: `jdbc:postgresql://postgres:5432/todo_db`
 
 ### Application (app)
 - **Built from**: Dockerfile (multi-stage build)
@@ -99,15 +103,19 @@ To initialize the database with a custom SQL script:
 
 ## Connecting to PostgreSQL
 
-From your host machine:
+From your host machine (using the custom port):
 ```bash
-psql -h localhost -U postgres -d todo_db
+psql -h localhost -p 5455 -U postgres -d todo_db
 ```
 
-From inside the app container:
+From inside the app container (uses standard port):
 ```bash
 docker exec -it todo_postgres psql -U postgres -d todo_db
 ```
+
+**Note**: The port varies depending on where you're connecting from:
+- **Host machine**: Use the port defined in `DB_PORT` (default: 5455)
+- **Inside Docker network**: Always use standard port 5432
 
 ## Troubleshooting
 
@@ -117,10 +125,15 @@ docker exec -it todo_postgres psql -U postgres -d todo_db
 - Wait a few seconds after starting (see `depends_on.condition`)
 
 ### Port Already in Use
-Change the port mapping in `docker-compose.yml`:
+If port 5455 is already in use on your host, change the `DB_PORT` in your `.env` file:
+```bash
+DB_PORT=5456
+```
+
+Or modify the port mapping directly in `docker-compose.yml`:
 ```yaml
 ports:
-  - "5433:5432"  # Maps container port 5432 to host port 5433
+  - "5456:5432"  # Maps container port 5432 to host port 5456
 ```
 
 ### Rebuild Without Cache
