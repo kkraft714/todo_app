@@ -1,4 +1,4 @@
-package server.element;
+package server.note;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -8,23 +8,24 @@ import java.util.ArrayList;
  *
  * @param <T>
  */
-public class NoteElement<T extends NoteElement<T>> {
+// ToDo: Can probably delete this class
+// ToDo: Needs to be mapped to DB with Hibernate annotations
+public class LeafNode<T extends LeafNode<T>> {
     // Because Hibernate uses a no-arg constructor with setters I can't make properties final
     // ToDo: See if I can make name (and other required fields) final
     private String name;
     private String description;
+    // ToDo: Can completed be moved up to Note?
     private Boolean completed;
     private final LocalDateTime created;
-    protected ArrayList<NoteElement<?>> elements;
 
-    public NoteElement(String newName, String newDescription) {
+    public LeafNode(String newName, String newDescription) {
         this.name = newName;
         this.description = newDescription;
-        this.elements = new ArrayList<>();
         created = LocalDateTime.now();
     }
 
-    public NoteElement(String newName) { this(newName, null); }
+    public LeafNode(String newName) { this(newName, null); }
 
     // ToDo: Create a separate NoteBuilder class?
     public String getName() { return name; }
@@ -36,6 +37,8 @@ public class NoteElement<T extends NoteElement<T>> {
 
     public LocalDateTime getDateCreated() { return created; }
 
+    // ToDo: Add more info to this (e.g. categories, tags, elements)?
+    // ToDo: Add loop over elements
     @Override
     public String toString() {
         String result = name;

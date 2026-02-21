@@ -7,26 +7,21 @@ import java.security.PublicKey;
 /**
  * Represents an item price.
  */
-public class Price extends NoteElement<Price> {
+// ToDo: Make this an internal class in Product?
+public class Price {
     private BigDecimal price;
 
     // No-arg constructor required by Hibernate
     protected Price() {
-        super(null, null);
         this.price = null;
     }
 
-    public Price(String itemName, String description, BigDecimal itemPrice) {
-        super(itemName, description);
+    public Price(BigDecimal itemPrice) {
         this.price = itemPrice.setScale(2, RoundingMode.UNNECESSARY);
     }
 
-    public Price(String itemName, String description, double itemPrice) {
-        this(itemName, description, new BigDecimal(itemPrice));
-    }
-
-    public Price(Double itemPrice) {
-        this("Price:", null, new BigDecimal(itemPrice));
+    public Price(double itemPrice) {
+        this(new BigDecimal(itemPrice));
     }
 
     public BigDecimal getPrice() { return price; }

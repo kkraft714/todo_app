@@ -7,6 +7,7 @@ import java.net.MalformedURLException;
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+// Todo: Change the name to make this a unit test?
 public class NoteTest {
     // ToDo: MP: Why are these test objects static?
     private static final int defaultElementCount = 5;
@@ -43,7 +44,7 @@ public class NoteTest {
 */
         // testNote.addElement(new Contact("Contact1", "234-5678", "123 4th St.", "Menlo Park"));
         emptyTestNote.addElement(new MediaItem("Blind Alley", "Fanny", MediaType.SONG));
-        emptyTestNote.addElement(new Price(5.00));
+        // emptyTestNote.addElement(new Price(5.00));
         emptyTestNote.addElement(new Link("Google", "http://google.com"));
         emptyTestNote.addElement(new EventInfo("Deadline", null, "2020-06-12 00:00:00"));
         emptyTestNote.addElement(new Note("Note1"));
@@ -55,8 +56,10 @@ public class NoteTest {
                 "Expected Contact type at position 0");
         assertSame(emptyTestNote.getElement(1), emptyTestNote.getElement(MediaItem.class, 0),
                 "Expected MediaItem type at position 1");
+/*
         assertSame(emptyTestNote.getElement(2), emptyTestNote.getElement(Price.class, 0),
                 "Expected Price type at position 2");
+*/
         assertSame(emptyTestNote.getElement(3), emptyTestNote.getElement(Link.class, 0),
                 "Expected Link type at position 3");
         assertSame(emptyTestNote.getElement(4), emptyTestNote.getElement(EventInfo.class, 0),

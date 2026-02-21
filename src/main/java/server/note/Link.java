@@ -1,23 +1,18 @@
-package server.element;
+package server.note;
+
+import server.element.NoteElement;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
- *
  * Represents a web link.
  */
 // ToDo: Support entering a link as free text and storing and displaying it as a URL
-public class Link extends NoteElement<Link> {
+public class Link extends NoteBase<Link> {
   // ToDo: See if I can set this to final once I get the Hibernate stuff working
   private URL linkURL;
   private boolean broken = false;   // True if the link is inaccessible/broken
-
-  // No-arg constructor required by Hibernate
-  protected Link() {
-    super(null, null);
-    this.linkURL = null;
-  }
 
   public Link(String linkName, String linkNote, String url) {
     super(linkName, linkNote);

@@ -3,11 +3,11 @@ package server;
 import javax.persistence.MappedSuperclass;
 import java.util.ArrayList;
 
-// This class is not currently used anywhere?
 
 /**
 ** Generic class for implementing a tree structure.
  */
+// ToDo: Delete this class (not currently used anywhere)?
 @MappedSuperclass
 public class Node<T> {
   String name;

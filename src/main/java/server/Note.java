@@ -1,15 +1,15 @@
 package server;
 
-import server.categories.MediaType;
 import server.element.*;
 import server.categories.CategoryTag;
 
 import javax.persistence.*;
+import javax.persistence.Entity;
 import java.util.*;
 import org.apache.logging.log4j.*;
 
 // Need tags to indicate relevant search categories
-// This is the base of the "Note tree"
+// This is the base of a "Note tree"
 /**
  * This is the base class for notes and to-do items.
  */
@@ -20,11 +20,11 @@ public class Note extends NoteElement<Note> {
     @Column(name="NOTE_ID")
     @GeneratedValue
     private Long noteId;
-    private ArrayList<NoteElement<?>> elements;
     // Tracks the location of a NoteElement in the elements list
     // ToDo: Not sure how/where this was supposed to be used
     // I get a compile error from updateElementLocatorAfterAdd() if I use NoteElement<?>>
     // ToDo: Explain what elementLocator is for
+    // ToDo: Move search/locator and Note tracking code to NoteOrganizer?
     private Map<Class<? extends NoteElement>, List<Integer>> elementLocator;
     private Set<String> categories;    // User-defined categories
     private Set<CategoryTag> tags;     // Internally defined categories
@@ -38,7 +38,7 @@ public class Note extends NoteElement<Note> {
     // ToDo: Replace this with a NoteBuilder class?
     public Note(String title, String desc) {
         super(title, desc);
-        elements = new ArrayList<>();
+        this.elements = new ArrayList<>();
         // This contains a map from Note element class to element indexes in the elements list
         elementLocator = new HashMap<>();
         this.categories = new HashSet<>();
@@ -111,6 +111,7 @@ public class Note extends NoteElement<Note> {
      *              (for elements of the same class type)
      * @return The requested {@link Note} element (or an exception)
      */
+    // ToDo: Pass in Note from which to begin search?
     public NoteElement<?> getElement(Class<? extends NoteElement<?>> elementClass, int index) {
         if (!elementLocator.containsKey(elementClass)) {
             throw new RuntimeException("No " + elementClass.getSimpleName() + " element found in this note");
@@ -173,7 +174,7 @@ public class Note extends NoteElement<Note> {
         return result;
     }
 
-    // For testing purposes
+    // For testing purposes (Extend with test-only version?)
     protected void clear() {
         elements.clear();
         elementLocator.clear();

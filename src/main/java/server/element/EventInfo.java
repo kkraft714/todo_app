@@ -7,6 +7,8 @@ import java.time.format.DateTimeFormatter;
  * Represents an event date or deadline with completion status.
  */
 // ToDo: Support Date or DateTime?
+// ToDo: Support recurring events?
+// ToDo: Move date and status to another class (e.g. Note) and delete this one?
 public class EventInfo extends NoteElement<EventInfo> {
     private static final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private LocalDateTime eventDate;
