@@ -27,6 +27,6 @@ public class ScheduleItem extends Note<ScheduleItem> {
 
     @Override
     public String toString() {
-        return "EventInfo:\n" + super.toString() + "\n" + dateFormat.format(date) + "\n" + status;
+        return "Scheduled Item:\n" + super.toString() + "\n" + dateFormat.format(date) + "\n" + status;
     }
 }

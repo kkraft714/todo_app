@@ -1,5 +1,8 @@
 package server.note;
 
+/**
+ * Defines a category that can be used to group and organize notes.
+ */
 // ToDo: Needs to be mapped to DB with Hibernate annotations
 public class Category extends Note<Category> {
     // ToDo: Define Category types (or will just the name be sufficient)?
