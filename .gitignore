@@ -8,6 +8,7 @@ gradle*
 */pom.xml
 */.idea
 .idea/*
+*.log
 # Config files with sensitive data that can't be checked in
 *.dev
 

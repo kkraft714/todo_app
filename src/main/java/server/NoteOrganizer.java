@@ -1,18 +1,28 @@
 package server;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import server.categories.*;
+import server.element.NoteElement;
+
 import java.util.*;
 
+// ToDo: Update this to ise the new Note class
 // ToDo: Add Javadoc (this is the main program / entry point)!
 //   I think categories might be for the user to define custom categories
 //   while tags are pre-defined by the program?
+// ToDo: Move search/locator and Note tracking code here?
 // ToDo: Add DEBUG logging (for exception context)
 // ToDo: Can (or should) this class be a static singleton (how would that work with Hibernate)?
 public class NoteOrganizer {
     // ToDo: Try making these final once I've got the Hibernate stuff working
     // Note: using List because Set isn't ordered
+    // ToDo: Change this to <? extends Note> (and use the new Note class)
     protected List<Note> notes;
+    // ToDo: Change this to extent Note
+    private Map<Class<? extends NoteElement>, List<Integer>> elementLocator;
     protected Map<String, List<Note>> categories;
+    private static final Logger LOG = LogManager.getLogger(NoteOrganizer.class);
 
     public NoteOrganizer() {
         notes = new ArrayList<>();
@@ -24,8 +34,28 @@ public class NoteOrganizer {
         return notes.get(index);
     }
 
+    private void updateElementLocatorAfterAdd(NoteElement<?> element, int index) {
+        if (!elementLocator.containsKey(element.getClass())) {
+            elementLocator.put(element.getClass(), new ArrayList<>());
+        }
+        elementLocator.get(element.getClass()).add(index);
+    }
+
+    // ToDo: Update the element locator logic?
+    private void updateElementLocatorAfterDelete(NoteElement<?> element) {
+        if (elementLocator.containsKey(element.getClass())) {
+            // ToDo: Why am I removing the whole look-up list?
+            elementLocator.remove(element.getClass());
+        }
+        else {
+            LOG.warn("Element locator for Note '" + element.getName() + "' contains no element of type "
+                    + element.getClass().getSimpleName());
+        }
+    }
+
     public List<Note> getNotes() { return notes; }
 
+    // ToDo: Rename getNotesInCatogory()?
     public List<Note> getCategory(String name) {
         checkForValidCategory(name);
         return categories.get(name);

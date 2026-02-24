@@ -9,7 +9,7 @@ public class NoteTestHelper {
     private static final Random rand = new Random();
     private static final int defaultElementCount = 5;
     private static int noteNumber = 0;
-    
+
     // ======================== Note Test Helper Methods ======================
     public static void resetNoteNumber() {
         noteNumber = 0;
@@ -31,34 +31,41 @@ public class NoteTestHelper {
     private static int contactCount = 0, songCount = 0, linkCount = 0, priceCount = 0, eventCount = 0, noteCount = 0;
     public static NoteElement<?> getRandomNoteElement() {
         int elementTypeIndex = rand.nextInt(numberOfElementTypes);
-        switch (elementTypeIndex) {
-            case 0:
+        return switch (elementTypeIndex) {
+            case 0 -> {
                 contactCount++;
-                return new Contact().setName("Contact" + contactCount).setPhoneNumber("345-5679")
+                yield new Contact().setName("Contact" + contactCount).setPhoneNumber("345-5679")
                         .setAddress1("222 2nd St.").setCity("Menlo Park");
-            case 1:
+            }
+            case 1 -> {
                 songCount++;
-                return new MediaItem("Who Song #" + songCount, "The Who", MediaType.SONG);
-            case 2:
+                yield new MediaItem("Who Song #" + songCount, "The Who", MediaType.SONG);
+            }
+            case 2 -> {
                 linkCount++;
-                return new Link("Web Site #" + linkCount, "http://website" + linkCount + ".com");
-            case 3:
+                yield new Link("Web Site #" + linkCount, "http://website" + linkCount + ".com");
+            }
+/*
+            case 3 -> {
                 priceCount++;
-                return new Price("Item" + priceCount, null, 10.00);
-            case 4:
+                yield new Price("Item" + priceCount, null, 10.00);
+            }
+*/
+            case 4 -> {
                 eventCount++;
-                return new EventInfo("Event #" + eventCount, null, "2020-07-03 00:00:00");
-            case 5:
+                yield new EventInfo("Event #" + eventCount, null, "2020-07-03 00:00:00");
+            }
+            case 5 -> {
                 noteCount++;
-                return new Note("Note Element #" + noteCount);
-            default:
-                throw new RuntimeException("Illegal note element index: " + elementTypeIndex
-                        + " (maximum is " + (numberOfElementTypes - 1) + ")");
-        }
+                yield new Note("Note Element #" + noteCount);
+            }
+            default -> throw new RuntimeException("Illegal note element index: " + elementTypeIndex
+                    + " (maximum is " + (numberOfElementTypes - 1) + ")");
+        };
     }
 
     // ToDo: Replace these methods with a NoteBuilder class?
-    //  * Will thi work with polymorphism? Need a factory instead?
+    //  * Will this work with polymorphism? Need a factory instead?
     //  * Define a constructor taking required parameters (title)
     //  * Define methods for adding other parameters
     //  * Define a build() method that calls the constructor and returns the note object

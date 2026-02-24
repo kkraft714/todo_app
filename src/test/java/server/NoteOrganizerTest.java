@@ -18,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 // Test adding duplicate Category or Tags
 // ToDo: MP objects to testing the TestOrganizer instead of the NoteOrganizer
 //  Suggests creating a new NoteOrganizer before each test (removing the need for clear() methods)
+// Todo: Change the name to make this a unit test?
 public class NoteOrganizerTest {
     private static final TestOrganizer main = new TestOrganizer();
     private static final Map<CategoryTag, Integer> tagTracker = new HashMap<>();

@@ -3,6 +3,14 @@ package server.element;
 /**
 ** Represents a contact (person or business entity).
 */
+// Todo: Support person or business types?
+// Todo: Add email address?
+// ToDo: Support multiple phone numbers and addresses?
+// ToDo: Add name fields and remove "extends NoteElement<Contact>"?
+//  A Contact can be a leaf but it needs to extend Note to be added to the Note tree
+//  Define LeafNode and extend it with Note containing an elements sub-list?
+//
+// ToDo: Define phone number class with type (mobile, home, work)?
 public class Contact extends NoteElement<Contact> {
   private String phoneNumber;
   private String address1;
@@ -11,7 +19,7 @@ public class Contact extends NoteElement<Contact> {
   private String state;
   private Integer postalCode;
 
-  // No-arg constructor required by Hibernate
+  // No-arg constructor required by Hibernate (ToDo: Is this still true?)
   public Contact() {
     super(null, null);
     this.phoneNumber = null;
