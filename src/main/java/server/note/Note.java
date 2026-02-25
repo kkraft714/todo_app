@@ -13,6 +13,7 @@ import java.util.ArrayList;
 // ToDo: Needs to be mapped to DB with Hibernate annotations
 public class Note<T extends NoteBase<T>> extends NoteBase<T> {
     private Boolean completed;
+    // ToDo: Rename elements to subNotes?
     protected ArrayList<Note<?>> elements;
     protected ArrayList<Link> links;
 
@@ -22,11 +23,12 @@ public class Note<T extends NoteBase<T>> extends NoteBase<T> {
         this.links = new ArrayList<>();
     }
 
+    // ToDo: Can lose this constructor?
     public Note(String newName) { this(newName, null); }
 
-    // ToDo: Create a separate NoteBuilder class?
     public boolean getCompleted() { return completed != null && completed; }
-    public T setCompleted(boolean isCompleted) { this.completed = isCompleted; return (T)this; }
+    public Note<T> setCompleted(boolean isCompleted) { this.completed = isCompleted; return this; }
+    // ToDo: Add methods for adding/removing sub-notes and links (see old Note class)
 
     // ToDo: Add more info to this (e.g. categories, tags, elements)?
     // ToDo: Add loop over elements

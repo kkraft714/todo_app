@@ -3,7 +3,7 @@ package server.note;
 import java.time.LocalDateTime;
 
 /**
- * This is the base class for all Note object.
+ * This is the base class for all Note objects.
  *
  * @param <T>
  */
@@ -19,9 +19,10 @@ public class NoteBase<T extends NoteBase<T>> {
         created = LocalDateTime.now();
     }
 
+    // ToDo: Update the spec doc to note that I am overloading the setter methods as builders
     public String getName() { return name; }
-    public T setName(String newName) { this.name = newName; return (T)this; }
+    public NoteBase<T> setName(String newName) { this.name = newName; return this; }
     public String getDescription() { return description; }
-    public T setDescription(String newDescription) { description = newDescription; return (T)this; }
+    public NoteBase<T> setDescription(String newDescription) { description = newDescription; return this; }
     public LocalDateTime getDateCreated() { return created; }
 }

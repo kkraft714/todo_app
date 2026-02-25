@@ -7,11 +7,10 @@ import server.element.NoteElement;
 
 import java.util.*;
 
-// ToDo: Update this to ise the new Note class
+// ToDo: Update this to use the new Note class
 // ToDo: Add Javadoc (this is the main program / entry point)!
 //   I think categories might be for the user to define custom categories
 //   while tags are pre-defined by the program?
-// ToDo: Move search/locator and Note tracking code here?
 // ToDo: Add DEBUG logging (for exception context)
 // ToDo: Can (or should) this class be a static singleton (how would that work with Hibernate)?
 public class NoteOrganizer {
@@ -34,6 +33,7 @@ public class NoteOrganizer {
         return notes.get(index);
     }
 
+    // ToDo: Move all search/locator and Note tracking code here?
     private void updateElementLocatorAfterAdd(NoteElement<?> element, int index) {
         if (!elementLocator.containsKey(element.getClass())) {
             elementLocator.put(element.getClass(), new ArrayList<>());
@@ -55,7 +55,7 @@ public class NoteOrganizer {
 
     public List<Note> getNotes() { return notes; }
 
-    // ToDo: Rename getNotesInCatogory()?
+    // ToDo: Rename to getNotesInCategory(), getNotesForCategory(), getNotesFromCategory()?
     public List<Note> getCategory(String name) {
         checkForValidCategory(name);
         return categories.get(name);

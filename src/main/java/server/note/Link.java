@@ -1,16 +1,15 @@
 package server.note;
 
-import server.element.NoteElement;
-
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URI;
 
 /**
  * Represents a web link.
  */
 // ToDo: Support entering a link as free text and storing and displaying it as a URL
 public class Link extends NoteBase<Link> {
-  // ToDo: See if I can set this to final once I get the Hibernate stuff working
   private URL linkURL;
   private boolean broken = false;   // True if the link is inaccessible/broken
 
@@ -24,9 +23,9 @@ public class Link extends NoteBase<Link> {
   public URL getUrl() { return linkURL; }
   public void setURL(String linkURL) {
     try {
-      this.linkURL = new URL(linkURL);
-    } catch (MalformedURLException e) {
-      throw new RuntimeException("Failed to create link for malformed URL: " + linkURL);
+      this.linkURL = new URI(linkURL).toURL();
+    } catch (URISyntaxException|MalformedURLException ex) {
+      throw new RuntimeException("Failed to create link for URL: " + linkURL, ex);
     }
   }
 
