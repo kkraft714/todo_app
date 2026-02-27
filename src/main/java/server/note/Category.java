@@ -4,7 +4,7 @@ package server.note;
  * Defines a category that can be used to group and organize notes.
  */
 // ToDo: Needs to be mapped to DB with Hibernate annotations
-public class Category extends Note<Category> {
+public class Category extends Note {
     // ToDo: Define Category types (or will just the name be sufficient)?
     //  Is it worth trying to define a taxonomy of categories? Or just let users define their own categories as needed?
     //  Define internal categories as enums that covert to String (along with user-defined categories)?

@@ -8,6 +8,7 @@ import java.security.PublicKey;
  * Represents an item price.
  */
 // ToDo: Make this an internal class in Product?
+// ToDo: Move to notes (and extend NoteBase)?
 public class Price {
     private BigDecimal price;
 
@@ -21,7 +22,7 @@ public class Price {
     }
 
     public Price(double itemPrice) {
-        this(new BigDecimal(itemPrice));
+        this(new BigDecimal(itemPrice).setScale(2, RoundingMode.HALF_DOWN));
     }
 
     public BigDecimal getPrice() { return price; }
