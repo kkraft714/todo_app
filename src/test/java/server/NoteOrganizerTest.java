@@ -1,8 +1,12 @@
 package server;
 
+// Apparently need to include this until I delete the old Note class under server
+import server.note.Note;
 import server.categories.CategoryTag;
 import server.categories.MediaType;
 import org.junit.jupiter.api.*;
+import server.note.NoteBase;
+
 import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -51,9 +55,9 @@ public class NoteOrganizerTest {
     @Test
     // Remove the only note in the list
     public void removeOnlyNote() {
-        Note newNote = NoteTestHelper.createGenericTestNote();
+        NoteBase newNote = NoteTestHelper.createGenericTestNote();
         main.addNote(newNote);
-        Note deletedNote = main.deleteNote(newNote);
+        NoteBase deletedNote = main.deleteNote(newNote);
         // ToDo: MP suggests using notes.size() directly and losing main.numberOfNotes()
         assertEquals(0, main.numberOfNotes(), "Number of notes");
         assertSame(newNote, deletedNote, "Note removed");
@@ -73,9 +77,9 @@ public class NoteOrganizerTest {
         int expectedCount = 3;
         main.addTestNotes(expectedCount);
         for (int i = 0; i < expectedCount; i++) {
-            Note noteToRemove = main.getNote(0);
+            NoteBase noteToRemove = main.getNote(0);
             // ToDo: Test the index version too: deleteNote(int index)?
-            Note removedNote = main.deleteNote(noteToRemove);
+            NoteBase removedNote = main.deleteNote(noteToRemove);
             assertEquals(expectedCount - i - 1, main.numberOfNotes(), "Number of notes");
             assertSame(noteToRemove, removedNote, "Note removed");
         }
@@ -138,7 +142,7 @@ public class NoteOrganizerTest {
     public void addCategoryWithSpaceInName() {
         String categoryName = "Category name with spaces";
         main.addCategory(categoryName);
-        List<Note> category = main.getCategory(categoryName);
+        List<NoteBase> category = main.getCategory(categoryName);
         assertEquals(0, category.size(), "Number of notes in category");
     }
 
@@ -172,7 +176,7 @@ public class NoteOrganizerTest {
     @Test
     public void addNoteToCategory() {
         main.addNoteToCategory(defaultCategoryName, NoteTestHelper.createGenericTestNote());
-        List<Note> category = main.getCategory(defaultCategoryName);
+        List<NoteBase> category = main.getCategory(defaultCategoryName);
         assertEquals(1, category.size(),
                 "Number of notes in category '" + defaultCategoryName + "'");
     }
@@ -182,7 +186,7 @@ public class NoteOrganizerTest {
         Note newNote = NoteTestHelper.createGenericTestNote();
         main.addNoteToCategory(defaultCategoryName, newNote);
         main.removeNoteFromCategory(defaultCategoryName, newNote);
-        List<Note> category = main.getCategory(defaultCategoryName);
+        List<NoteBase> category = main.getCategory(defaultCategoryName);
         assertEquals(0, category.size(),
                 "Number of notes in category '" + defaultCategoryName + "'");
     }
@@ -191,11 +195,11 @@ public class NoteOrganizerTest {
     public void addMultipleNotesToCategory() {
         String categoryName = "testCategory";
         int expectedCount = 3;
-        List<Note> noteList = main.addTestNotes(expectedCount);
+        List<NoteBase> noteList = main.addTestNotes(expectedCount);
         main.addNotesToCategory(categoryName, noteList);
         assertEquals(expectedCount, main.getCategory(categoryName).size(),
                 "Number of notes in '" + categoryName + "'");
-        for (Note n : noteList) {
+        for (NoteBase n : noteList) {
             assertTrue(main.getCategory(categoryName).contains(n),
                     "Category " + categoryName + " contains note '" + n.getName() + "'");
         }
@@ -204,7 +208,7 @@ public class NoteOrganizerTest {
     @Test
     public void removeMultipleNotesFromCategory() {
         int expectedCount = 3;
-        List<Note> noteList = main.addTestNotes(expectedCount);
+        List<NoteBase> noteList = main.addTestNotes(expectedCount);
         main.addNotesToCategory(defaultCategoryName, noteList);
         for (int i = 0; i < expectedCount; i++) {
             main.removeNoteFromCategory(defaultCategoryName, noteList.get(i));
@@ -251,7 +255,7 @@ public class NoteOrganizerTest {
     @Test
     public void tryRemovingInvalidNoteFromCategory() {
         main.addCategory(defaultCategoryName);
-        Note newNote = NoteTestHelper.createGenericTestNote();
+        NoteBase newNote = NoteTestHelper.createGenericTestNote();
         Exception ex = assertThrows(RuntimeException.class,
                 () -> main.removeNoteFromCategory(defaultCategoryName, newNote));
         assertEquals("Unable to locate note '" + newNote.getName() + "' in category '" + defaultCategoryName + "'",
@@ -264,7 +268,7 @@ public class NoteOrganizerTest {
         CategoryTag mediaType = MediaType.SONG;
         newNote.addTag(mediaType);
         main.addNote(newNote);
-        List<Note> taggedNotes = main.getNotesWithTag(mediaType);
+        List<NoteBase> taggedNotes = main.getNotesWithTag(mediaType);
         assertEquals(1, taggedNotes.size(), "Number of notes with media type " + mediaType);
         assertSame(newNote, taggedNotes.get(0), "Note with media type " + mediaType);
     }
@@ -274,7 +278,7 @@ public class NoteOrganizerTest {
         CategoryTag mediaType = MediaType.SONG;
         int numberOfNotes = 3;
         createNotesWithTags(numberOfNotes, mediaType, main.getNotes());
-        List<Note> taggedNotes = main.getNotesWithTag(mediaType);
+        List<NoteBase> taggedNotes = main.getNotesWithTag(mediaType);
         assertEquals(numberOfNotes, taggedNotes.size(), "Number of notes with media type " + mediaType);
     }
 
@@ -284,7 +288,7 @@ public class NoteOrganizerTest {
         int total = 0;
         createNotesWithTags(numberOfNotes);
         for (CategoryTag tag : tagTracker.keySet()) {
-            List<Note> taggedNotes = main.getNotesWithTag(tag);
+            List<NoteBase> taggedNotes = main.getNotesWithTag(tag);
             assertEquals(tagTracker.get(tag).intValue(), taggedNotes.size(),
                     "Number of notes with media type " + tag);
             total += taggedNotes.size();
@@ -302,7 +306,7 @@ public class NoteOrganizerTest {
         main.addTestNotes(numberOfUntaggedNotes);
         assertEquals(numberOfTaggedNotes + numberOfUntaggedNotes, main.numberOfNotes(), "Total number of notes");
         for (CategoryTag tag : tagTracker.keySet()) {
-            List<Note> taggedNotes = main.getNotesWithTag(tag);
+            List<NoteBase> taggedNotes = main.getNotesWithTag(tag);
             assertEquals(tagTracker.get(tag).intValue(), taggedNotes.size(),
                     "Number of notes with media type " + tag);
             total += taggedNotes.size();
@@ -315,7 +319,7 @@ public class NoteOrganizerTest {
         main.addTestNotes(10);    // These are untagged notes
         assertEquals(tagTracker.size(), 0, "Number of test tags tracked");
         for (CategoryTag tag : MediaType.get().getTagValues()) {
-            List<Note> taggedNotes = main.getNotesWithTag(tag);
+            List<NoteBase> taggedNotes = main.getNotesWithTag(tag);
             assertEquals(0, taggedNotes.size(), "Number of notes with media type " + tag);
         }
     }
@@ -325,8 +329,8 @@ public class NoteOrganizerTest {
         // The list of test notes is empty by default
         assertEquals(tagTracker.size(), 0, "Number of test tags tracked");
         for (CategoryTag tag : MediaType.get().getTagValues()) {
-            List<Note> taggedNotes = main.getNotesWithTag(tag);
-            assertEquals(taggedNotes.size(), 0, "Number of notes with media type " + tag);
+            List<NoteBase> taggedNotes = main.getNotesWithTag(tag);
+            assertEquals(0, taggedNotes.size(), "Number of notes with media type " + tag);
         }
     }
 
@@ -335,14 +339,14 @@ public class NoteOrganizerTest {
     @Test
     public void getTaggedNotesWithOrRelationship() {
         createNotesWithMultipleTags();
-        List<Note> orResult = main.getNotesWithAnyTags(tagTracker.keySet());
+        List<NoteBase> orResult = main.getNotesWithAnyTags(tagTracker.keySet());
         assertEquals(partitionCount*3, orResult.size(), "Number of notes with any queried tags");
     }
 
     @Test
     public void getTaggedNotesWithAndRelationship() {
         createNotesWithMultipleTags();
-        List<Note> andResult = main.getNotesWithAllTags(tagTracker.keySet());
+        List<NoteBase> andResult = main.getNotesWithAllTags(tagTracker.keySet());
         assertEquals(partitionCount, andResult.size(), "Number of notes with all queried tags");
     }
 
@@ -361,15 +365,15 @@ public class NoteOrganizerTest {
         createNotesWithTags(numberOfNotes, tag, main.getNotes());
     }
     // ToDo: Add Category parameter to pass in and test other lists
-    public void createNotesWithTags(int numberOfNotes, CategoryTag tag, List<Note> noteList) {
+    public void createNotesWithTags(int numberOfNotes, CategoryTag tag, List<NoteBase> noteList) {
         for (int i = 0; i < numberOfNotes; i++) {
             createNoteWithTag(tag, noteList);
         }
     }
     public void createNoteWithTag(CategoryTag tag) { createNoteWithTag(tag, main.getNotes()); }
-    public void createNoteWithTag(CategoryTag tag, List<Note> noteList) {
+    public void createNoteWithTag(CategoryTag tag, List<NoteBase> noteList) {
         CategoryTag newTag = tag == null ? MediaType.get().getRandomTag() : tag;
-        Note newNote = NoteTestHelper.createGenericTestNote().addTag(newTag);
+        NoteBase newNote = NoteTestHelper.createGenericTestNote().addTag(newTag);
         updateTagTracker(newTag);
         System.out.println(newNote);
         noteList.add(newNote);

@@ -1,5 +1,9 @@
 package server;
 
+import server.note.*;
+// Apparently need to include this until I delete the old Note class under server
+import server.note.NoteBase;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,13 +11,13 @@ import java.util.List;
 ** Extends the NoteOrganizer class with test APIs
 */
 public class TestOrganizer extends NoteOrganizer {
-    protected Note addTestNote() {
+    protected NoteBase addTestNote() {
         Note testNote = NoteTestHelper.createGenericTestNote();
         addNote(testNote);
         return testNote;
     }
-    protected List<Note> addTestNotes(int noteCount) {
-        List<Note> noteList = new ArrayList<>();
+    protected List<NoteBase> addTestNotes(int noteCount) {
+        List<NoteBase> noteList = new ArrayList<>();
         for (int i = 0; i < noteCount; i++) {
             noteList.add(addTestNote());
         }
