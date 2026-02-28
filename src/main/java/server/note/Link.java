@@ -25,7 +25,7 @@ public class Link extends NoteBase {
   public void setURL(String linkURL) {
     try {
       this.linkURL = new URI(linkURL).toURL();
-    } catch (URISyntaxException | MalformedURLException ex) {
+    } catch (URISyntaxException|MalformedURLException ex) {
       throw new RuntimeException("Failed to create link for URL: " + linkURL, ex);
     }
   }

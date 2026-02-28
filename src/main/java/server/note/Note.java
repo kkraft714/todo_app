@@ -14,7 +14,7 @@ import java.util.Set;
 // ToDo: Needs to be mapped to DB with Hibernate annotations
 public class Note extends NoteBase {
     private Boolean completed;
-    protected ArrayList<NoteBase> childNotes;
+    protected ArrayList<NoteBase> childNotes;   // ToDo: Rename "children"?
     protected ArrayList<Link> links;
 
     public Note(String newName, String newDescription) {
