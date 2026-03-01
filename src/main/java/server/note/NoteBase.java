@@ -13,6 +13,7 @@ import java.util.Set;
 public class NoteBase {
     protected String name;
     protected String description;
+    // ToDo: Should a child Note inherit its parent's categories and tags?
     protected Set<String> categories;    // User-defined categories
     protected Set<CategoryTag> tags;     // Internally defined categories
     private final LocalDateTime created;

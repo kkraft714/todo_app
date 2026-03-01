@@ -1,5 +1,6 @@
 package server;
 
+import server.element.Address;
 import server.note.*;
 // Apparently need to include this until I delete the old Note class under server
 import server.note.Note;
