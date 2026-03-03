@@ -3,11 +3,11 @@ package server.element;
 /**
 ** Contains contact information.
 */
-// Todo: Add email address?
 // ToDo: Support multiple phone numbers and addresses?
-// ToDo: Define phone number class with type (mobile, home, work)?
-public class ContactInfo {
+// ToDo: Define separate phone number class with type (mobile, home, work)?
+public class Address {
   private String phoneNumber;
+  private String email;
   private String address1;
   private String address2;
   private String city;
@@ -15,13 +15,9 @@ public class ContactInfo {
   private Integer postalCode;
 
   // No-arg constructor required by Hibernate (ToDo: Is this still true?)
-  public ContactInfo() {
-    this.phoneNumber = null;
-    this.address1 = null;
-    this.city = null;
-  }
+  public Address() {}
 
-  public ContactInfo(String newPhone, String addr1, String addr2, String cityName, String stateName, Integer newCode) {
+  public Address(String newPhone, String addr1, String addr2, String cityName, String stateName, Integer newCode) {
     this.phoneNumber = newPhone;
     this.address1 = addr1;
     this.address2 = addr2;
@@ -31,29 +27,32 @@ public class ContactInfo {
   }
 
   public String getPhoneNumber() { return phoneNumber; }
-  public ContactInfo setPhoneNumber(String newPhone) { this.phoneNumber = newPhone; return this; }
+  public Address setPhoneNumber(String newPhone) { this.phoneNumber = newPhone; return this; }
+
+  public String getEmail() { return email; }
+  public Address setEmail(String newEmail) { this.email = newEmail; return this; }
 
   public String getAddress1() { return address1; }
-  public ContactInfo setAddress1(String addr1) { this.address1 = addr1; return this; }
+  public Address setAddress1(String addr1) { this.address1 = addr1; return this; }
 
   public String getAddress2() { return address2; }
-  public ContactInfo setAddress2(String addr2) { this.address2 = addr2; return this; }
+  public Address setAddress2(String addr2) { this.address2 = addr2; return this; }
 
   public String getCity() { return city; }
-  public ContactInfo setCity(String newCity) { this.city = newCity; return this; }
+  public Address setCity(String newCity) { this.city = newCity; return this; }
 
   public String getState() { return state; }
-  public ContactInfo setState(String newState) { this.state = newState; return this; }
+  public Address setState(String newState) { this.state = newState; return this; }
 
   public Integer getPostalCode() { return postalCode; }
-  public ContactInfo setPostalCode(Integer code) { this.postalCode = code; return this; }
+  public Address setPostalCode(Integer code) { this.postalCode = code; return this; }
 
   @Override
   public String toString() {
     // ToDo: Could turn this into a toString() utility (takes a list of Strings)
     String result = "Contact:\n" + super.toString();
     String pc = postalCode == null ? null : postalCode.toString();
-    for (String item : new String[] {phoneNumber, address1, address2, city, state, pc}) {
+    for (String item : new String[] {phoneNumber, email, address1, address2, city, state, pc}) {
       if (item != null && !item.isEmpty()) {
         result = result.concat("\n" + item);
       }

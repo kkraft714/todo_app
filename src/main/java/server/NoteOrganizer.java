@@ -7,15 +7,18 @@ import server.note.NoteBase;
 
 import java.util.*;
 
+// ToDo: Track categories and schedule items in this class (will need to be stored in DB)?
+//  Also track contacts (people and businesses)?
+// ToDo: Can just load all Notes from the DB each time (because presumably it's a small app)?
+//  Have a mechanism to complete/deactivate notes and don't load them by default
 // ToDo: Add Javadoc (this is the main program / entry point)!
-//   I think categories might be for the user to define custom categories
-//   while tags are pre-defined by the program?
+//   Categories are for the user to define custom categories
+//   while tags combine user-defined and pre-defined by the program?
 // ToDo: Add DEBUG logging (for exception context)
 // ToDo: Can (or should) this class be a static singleton (how would that work with Hibernate)?
 public class NoteOrganizer {
     // Note: using List because Set isn't ordered
-    protected List<NoteBase> notes;
-    // ToDo: Do I need categories?
+    protected List<NoteBase> notes;   // This structure defines the note tree
     protected Map<String, List<NoteBase>> categories;
     private static final Logger LOG = LogManager.getLogger(NoteOrganizer.class);
 

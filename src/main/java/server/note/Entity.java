@@ -1,7 +1,10 @@
 package server.note;
 
+import server.element.Address;
+
 // Includes Contact, Person, Company, Artist, etc.
 public class Entity extends Note {
+    // ToDo: Add ORGANIZATION?
     public enum EntityType { PERSON, BUSINESS, ARTIST };
     private final EntityType type;
     // ToDo: Define getter/setter for contactInfo
