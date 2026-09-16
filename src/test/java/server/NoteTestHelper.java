@@ -32,17 +32,18 @@ public class NoteTestHelper {
     private static final int numberOfElementTypes = 5;
     private static int contactCount = 0, songCount = 0, linkCount = 0, eventCount = 0, noteCount = 0;
     // ToDo: Make sure all Note-type objects are covered
+    // ToDo: Rename to getRandomNoteType()?
     public static NoteBase getRandomNoteElement() {
         int elementTypeIndex = rand.nextInt(numberOfElementTypes);
         return switch (elementTypeIndex) {
             case 0 -> {
                 contactCount++;
-                yield Entity.newContact("Contact" + contactCount, null).setAddress(
+                yield Contact.newContact("First", "Contact" + contactCount, null).addAddress(
                         new Address().setPhoneNumber("345-5679").setAddress1("222 2nd St.").setCity("Menlo Park"));
             }
             case 1 -> {
                 songCount++;
-                Entity owner = Entity.newArtist("The Who", null);
+                Entity owner = new Entity("The Who", null, Entity.EntityType.ARTIST);
                 yield new Product("Who Song #" + songCount).setOwner(owner).setType(MediaType.SONG).setPrice(5.99);
             }
             case 2 -> {

@@ -1,55 +1,66 @@
 package server;
 
-// Apparently need to include this until I delete the old Note class under server
-import server.note.Note;
+import server.note.*;
 import server.categories.CategoryTag;
 import server.categories.MediaType;
 import org.junit.jupiter.api.*;
-import server.note.NoteBase;
 
 import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+// ToDo: Add tests:
+//  Confirm that new notes and categories (and notes in categories) are added at the end
+//  Add multiple notes to a category at a specified position
+//  Test standard Note categories (set up in initialize())
+//  Test adding duplicate Category or Tags
 // ToDo: Figure out JUnit assertThat() with matchers (and replace assertTrue())
 // ToDo: Switch to TestNG Test annotations (instead of JUnit)?
 //   If so use the description attribute to document the tests
 // ToDo: Is it an issue that tags and categories are handled separately but are conceptually the same?
 // ToDo: Per MP should categories be statically defined and Tags be user defined (i.e. switch them)?
-// ToDo: Get the Gradle stuff figured out (why the test config claims to be effed up)
-// Confirm that new notes and categories (and notes in categories) are added at the end
-// Add multiple notes to a category at a specified position
-// Test standard Note categories (set up in initialize())
-// Test adding duplicate Category or Tags
-// ToDo: MP objects to testing the TestOrganizer instead of the NoteOrganizer
-//  Suggests creating a new NoteOrganizer before each test (removing the need for clear() methods)
 // Todo: Change the name to make this a unit test?
 public class NoteOrganizerTest {
-    private static final TestOrganizer main = new TestOrganizer();
+    private static NoteOrganizer main; // = new NoteOrganizer();
     private static final Map<CategoryTag, Integer> tagTracker = new HashMap<>();
     private static final String defaultCategoryName = "NewCategory";
 
-    @BeforeAll
-    public static void setUpTests() { }    // Currently doesn't seem to be needed
-    // ToDo: Put in @BeforeEach?
-    // Note newNote = NoteTestHelper.createGenericTestNote();
+    @BeforeEach
+    public void initialize() {main = new NoteOrganizer(); }
 
     @AfterEach
     public void testCleanup() {
-        main.clearNotes();
-        main.clearCategories();
         tagTracker.clear();
         NoteTestHelper.resetNoteNumber();
     }
 
+    protected static NoteBase addTestNote() {
+        NoteBase testNote = NoteTestHelper.createGenericTestNote();
+        main.addNote(testNote);
+        return testNote;
+    }
+
+    protected static List<NoteBase> addTestNotes(int noteCount) {
+        List<NoteBase> noteList = new ArrayList<>();
+        for (int i = 0; i < noteCount; i++) {
+            noteList.add(addTestNote());
+        }
+        return noteList;
+    }
+
+
+    protected static int numberOfNotes() { return main.notes.size(); }
+
+    protected static int numberOfCategories() { return main.getCategories().size(); }
+
     @Test
     public void addNewNote() {
-        main.addTestNote();
-        assertEquals(1, main.numberOfNotes(), "Number of notes");
+        addTestNote();
+        assertEquals(1, numberOfNotes(), "Number of notes");
     }
 
     @Test
     public void addNewNoteAtASpecifiedLocation() {
-        // ToDo: Need new API for this
+        // ToDo: Need new NoteOrganizer API for this
     }
 
     @Test
@@ -59,15 +70,15 @@ public class NoteOrganizerTest {
         main.addNote(newNote);
         NoteBase deletedNote = main.deleteNote(newNote);
         // ToDo: MP suggests using notes.size() directly and losing main.numberOfNotes()
-        assertEquals(0, main.numberOfNotes(), "Number of notes");
+        assertEquals(0, numberOfNotes(), "Number of notes");
         assertSame(newNote, deletedNote, "Note removed");
     }
 
     @Test
     public void addMultipleNotes() {
         int expectedCount = 3;
-        main.addTestNotes(expectedCount);
-        assertEquals(expectedCount, main.numberOfNotes(), "Number of notes");
+        addTestNotes(expectedCount);
+        assertEquals(expectedCount, numberOfNotes(), "Number of notes");
     }
 
     @Test
@@ -75,12 +86,12 @@ public class NoteOrganizerTest {
     //   What this is REALLY testing is removing the note at index 0
     public void removeMultipleNotes() {
         int expectedCount = 3;
-        main.addTestNotes(expectedCount);
+        addTestNotes(expectedCount);
         for (int i = 0; i < expectedCount; i++) {
             NoteBase noteToRemove = main.getNote(0);
             // ToDo: Test the index version too: deleteNote(int index)?
             NoteBase removedNote = main.deleteNote(noteToRemove);
-            assertEquals(expectedCount - i - 1, main.numberOfNotes(), "Number of notes");
+            assertEquals(expectedCount - i - 1, numberOfNotes(), "Number of notes");
             assertSame(noteToRemove, removedNote, "Note removed");
         }
     }
@@ -89,18 +100,18 @@ public class NoteOrganizerTest {
     @Test
     public void removeAllNotes() {
         int initialNoteCount = 5;
-        main.addTestNotes(initialNoteCount);
+        addTestNotes(initialNoteCount);
         main.getNotes().clear();
-        assertEquals(0, main.numberOfNotes(), "Number of remaining notes after deletion");
+        assertEquals(0, numberOfNotes(), "Number of remaining notes after deletion");
     }
 
     @Test
     public void removeOneOfMultipleNotes() {
         int initialNoteCount = 5;
-        main.addTestNotes(initialNoteCount);
+        addTestNotes(initialNoteCount);
         // ToDo: Verify that I deleted the RIGHT note
         main.deleteNote(0);
-        assertEquals(initialNoteCount - 1, main.numberOfNotes(), "Number of remaining notes after deletion");
+        assertEquals(initialNoteCount - 1, numberOfNotes(), "Number of remaining notes after deletion");
     }
 
     @Test
@@ -135,7 +146,7 @@ public class NoteOrganizerTest {
     @Test
     public void addNewCategory() {
         main.addCategory(defaultCategoryName);
-        assertEquals(1, main.numberOfCategories(), "Number of categories");
+        assertEquals(1, numberOfCategories(), "Number of categories");
     }
 
     @Test
@@ -151,7 +162,7 @@ public class NoteOrganizerTest {
     public void removeLastCategory() {
         main.addCategory(defaultCategoryName);
         main.deleteCategory(defaultCategoryName);
-        assertEquals(0, main.numberOfCategories(), "Number of categories");
+        assertEquals(0, numberOfCategories(), "Number of categories");
     }
 
     // ToDo: addMultipleCategories()
@@ -195,7 +206,7 @@ public class NoteOrganizerTest {
     public void addMultipleNotesToCategory() {
         String categoryName = "testCategory";
         int expectedCount = 3;
-        List<NoteBase> noteList = main.addTestNotes(expectedCount);
+        List<NoteBase> noteList = addTestNotes(expectedCount);
         main.addNotesToCategory(categoryName, noteList);
         assertEquals(expectedCount, main.getCategory(categoryName).size(),
                 "Number of notes in '" + categoryName + "'");
@@ -208,7 +219,7 @@ public class NoteOrganizerTest {
     @Test
     public void removeMultipleNotesFromCategory() {
         int expectedCount = 3;
-        List<NoteBase> noteList = main.addTestNotes(expectedCount);
+        List<NoteBase> noteList = addTestNotes(expectedCount);
         main.addNotesToCategory(defaultCategoryName, noteList);
         for (int i = 0; i < expectedCount; i++) {
             main.removeNoteFromCategory(defaultCategoryName, noteList.get(i));
@@ -303,8 +314,8 @@ public class NoteOrganizerTest {
         int total = 0;
         createNotesWithTags(numberOfTaggedNotes);
         // This is identical to the above test except for this line adding untagged notes
-        main.addTestNotes(numberOfUntaggedNotes);
-        assertEquals(numberOfTaggedNotes + numberOfUntaggedNotes, main.numberOfNotes(), "Total number of notes");
+        addTestNotes(numberOfUntaggedNotes);
+        assertEquals(numberOfTaggedNotes + numberOfUntaggedNotes, numberOfNotes(), "Total number of notes");
         for (CategoryTag tag : tagTracker.keySet()) {
             List<NoteBase> taggedNotes = main.getNotesWithTag(tag);
             assertEquals(tagTracker.get(tag).intValue(), taggedNotes.size(),
@@ -316,7 +327,7 @@ public class NoteOrganizerTest {
 
     @Test
     public void tryGettingTaggedNotesFromListContainingOnlyUntaggedNotes() {
-        main.addTestNotes(10);    // These are untagged notes
+        addTestNotes(10);    // These are untagged notes
         assertEquals(tagTracker.size(), 0, "Number of test tags tracked");
         for (CategoryTag tag : MediaType.get().getTagValues()) {
             List<NoteBase> taggedNotes = main.getNotesWithTag(tag);
@@ -384,7 +395,7 @@ public class NoteOrganizerTest {
     // Creates notes for testing AND and OR tag queries
     static final int partitionCount = 4;
     public void createNotesWithMultipleTags() {
-        main.addTestNotes(partitionCount*3);
+        addTestNotes(partitionCount*3);
         for (int i = 0; i < partitionCount*3; i++) {
             if (i < partitionCount*2) {
                 main.getNote(i).addTag(MediaType.BOOK);
