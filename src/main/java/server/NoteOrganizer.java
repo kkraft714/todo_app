@@ -18,6 +18,7 @@ import java.util.*;
 // ToDo: Can (or should) this class be a static singleton (how would that work with Hibernate)?
 public class NoteOrganizer {
     // Note: using List because Set isn't ordered
+    // ToDo: Support one map (or other data structure) for each view type (category, schedule item, contact, etc.)?
     protected List<NoteBase> notes;   // This structure defines the note tree
     protected Map<String, List<NoteBase>> categories;
     private static final Logger LOG = LogManager.getLogger(NoteOrganizer.class);
@@ -33,6 +34,7 @@ public class NoteOrganizer {
     }
 
     // ToDo: Move all search/locator and Note tracking code here?
+    // ToDo: I think I can remove this element locator code (and add search methods using the Note search code)
 /*
     private void updateElementLocatorAfterAdd(NoteElement<?> element, int index) {
         if (!elementLocator.containsKey(element.getClass())) {

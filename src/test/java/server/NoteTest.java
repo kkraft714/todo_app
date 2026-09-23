@@ -2,8 +2,6 @@ package server;
 
 import server.element.Address;
 import server.note.*;
-// Apparently need to include this until I delete the old Note class under server
-import server.note.Note;
 import server.categories.MediaType;
 import java.net.MalformedURLException;
 import java.util.NoSuchElementException;
@@ -13,7 +11,7 @@ import static server.NoteTestHelper.*;
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-// Todo: Change the name to make this a unit test?
+// Todo: Change the name to make this a unit test (and add to a test suite)?
 public class NoteTest {
     // ToDo: MP: Why are these test objects static?
     private static final int defaultElementCount = 5;
@@ -21,7 +19,7 @@ public class NoteTest {
     private static Note emptyTestNote;
     private static Note subNote1;
     private static Note subNote2;
-    private static final Entity artist = Entity.newArtist("Grand Funk", null);
+    private static final Entity artist = new Entity("Grand Funk", null, Entity.EntityType.ARTIST);
 
     @BeforeAll
     public static void setUpTests() throws MalformedURLException {
@@ -42,36 +40,32 @@ public class NoteTest {
     // ToDo: Add test for each Note type
 
     @Test
-    // ToDo: MP points out that this implicitly tests the items ORDER as well
     //  Need separate tests for ordering
-    public void createNoteWithEachElementType() throws MalformedURLException {
-        emptyTestNote.addChildNote(Entity.newContact("Contact1", null).setAddress(
+    public void createNoteWithEachElementTypeAndVerifyResult() throws MalformedURLException {
+        emptyTestNote.addChildNote(Contact.newContact("First1", "Last1", null).addAddress(
                 new Address().setPhoneNumber("234-5678").setAddress1("123 4th St.").setCity("Menlo Park")));
-        emptyTestNote.addChildNote(new Product("Blind Alley", null, Entity.newArtist("Fanny", null))
-                .setType(MediaType.SONG));
+        emptyTestNote.addChildNote(new Product("Blind Alley", null,
+                new Entity("Fanny", null, Entity.EntityType.ARTIST)).setType(MediaType.SONG));
         // emptyTestNote.addElement(new Price(5.00));
         emptyTestNote.addChildNote(new Link("Google", "http://google.com"));
         emptyTestNote.addChildNote(new ScheduleItem("Deadline", null, "2020-06-12 00:00:00"));
         emptyTestNote.addChildNote(new Note("Note1"));
+        assertEquals(5, emptyTestNote.getChildNotes().size(), "Number of child notes added");
 
-        System.out.println(emptyTestNote);
+        // System.out.println(emptyTestNote);
         // ToDo: Use fluent assertions (no need for Hamcrest matchers)?
         // assertThat("Expected Contact type at position 0", testNote.getElement(0));
         // ToDo: Rethink the the search tests (the ordering of the child-notes is less important now)
-/*
-        assertSame(emptyTestNote.getChildNotes().getFirst(), emptyTestNote.getElement(Contact.class, 0),
-                "Expected Contact type at position 0");
-        assertSame(emptyTestNote.getChildNotes().get(1), emptyTestNote.getElement(MediaItem.class, 0),
-                "Expected MediaItem type at position 1");
-        assertSame(emptyTestNote.getElement(2), emptyTestNote.getElement(Price.class, 0),
-                "Expected Price type at position 2");
-        assertSame(emptyTestNote.getElement(3), emptyTestNote.getElement(Link.class, 0),
-                "Expected Link type at position 3");
-        assertSame(emptyTestNote.getElement(4), emptyTestNote.getElement(EventInfo.class, 0),
-                "Expected EventInfo type at position 4");
-*/
+        // ToDo: MP points out that this implicitly tests the items ORDER as well (have separate tests for that)
+        String[] noteTypes = new String[] {"Contact", "Product", "Link", "ScheduleItem", "Note"};
+        for (int i = 0; i < emptyTestNote.getChildNotes().size(); i++) {
+            assertEquals(noteTypes[i], emptyTestNote.getChildNotes().get(i).getClass().getSimpleName(),
+                    "Expected type at position " + i);
+        }
+        clearChildNotes(emptyTestNote);
     }
 
+    // ToDo: How is this different from the previous test? Do we need both (if I keep it add verification)?
     @Test
     public void createNoteWithTwoSubNotes() {
         emptyTestNote.addChildNote(subNote1);
@@ -86,7 +80,6 @@ public class NoteTest {
         assertSame(emptyTestNote.getElement(1), emptyTestNote.getElement(Note.class, 1),
                 "Expected Contact type at position 0");
 */
-        // ToDo: Assert size of sub-note list = 2
     }
 
     @Test

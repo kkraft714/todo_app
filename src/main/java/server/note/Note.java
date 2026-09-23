@@ -27,6 +27,7 @@ public class Note extends NoteBase {
 
     // ToDo: Add addLink() and addElement() methods (or addSubNote() or addChildNote()?)
     public ArrayList<NoteBase> getChildNotes() { return childNotes; }
+    public NoteBase getChildNote(int index) { return childNotes.get(index); }
     public Note addChildNote(NoteBase childNote) { childNotes.add(childNote); return this; }
     public Note addChildNote(NoteBase childNote, int index) { childNotes.add(index, childNote); return this; }
     public Note removeChildNote(NoteBase childNote) { childNotes.remove(childNote); return this; }
@@ -34,23 +35,34 @@ public class Note extends NoteBase {
     public boolean getCompleted() { return completed != null && completed; }
     public Note setCompleted(boolean isCompleted) { completed = isCompleted; return this; }
 
+    // ToDo: Make SearchCriteria an inner class and add a version of findMatchingNotes() that takes a SearchCriteria object
     private <T extends NoteBase> void findMatchingNotes(
-            NoteBase note, T noteClass, Set<CategoryTag> tags, boolean allTags, List<NoteBase> results) {
+            NoteBase note, String nameMatch, T noteClass, Set<CategoryTag> tags, Set<String> categories,
+            boolean joinWithAnd, List<NoteBase> results) {
         // Ignore class and search just by tag if noteClass is null
-        if ((noteClass == null || noteClass.getClass().isInstance(note))
-                && ((allTags && note.containsAllTags(tags) || (!allTags && note.containsAnyTags(tags))))) {
+        // ToDo: Almost need different methods for AND-search and OR-search
+        if ((noteClass == null || note.getClass().isInstance(noteClass)
+                || (nameMatch == null || note.getName().toLowerCase().contains(nameMatch.toLowerCase())))
+                && ((joinWithAnd && note.containsAllTags(tags) || (!joinWithAnd && note.containsAnyTags(tags))))
+                && (categories == null || note.getCategories().containsAll(categories))) {
             results.add(note);
         }
         if (note instanceof Note) {
             for (NoteBase childNote : ((Note) note).childNotes) {
-                findMatchingNotes(childNote, noteClass, tags, allTags, results);
+                findMatchingNotes(childNote, nameMatch, noteClass, tags, categories, joinWithAnd, results);
             }
         }
     }
-
-    public <T extends NoteBase> ArrayList<NoteBase> findNotes(T noteClass, Set<CategoryTag> tags, boolean allTags) {
+    // ToDo: Test cases:
+    //  * Search by name only
+    //  * Search by class only
+    //  * Search by one or multiple tags only (with both allTags true and false)
+    //  * Search by name and class
+    //  * Search by name and tags
+    public <T extends NoteBase> ArrayList<NoteBase> findNotes(T noteClass, String nameMatch, Set<CategoryTag> tags,
+            Set<String> categories, boolean joinWithAnd) {
         ArrayList<NoteBase> matchingNotes = new ArrayList<>();
-        findMatchingNotes(this, noteClass, tags, allTags, matchingNotes);
+        findMatchingNotes(this, nameMatch, noteClass, tags, categories, joinWithAnd, matchingNotes);
         return matchingNotes;
     }
 
