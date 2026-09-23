@@ -1,18 +1,20 @@
 package server;
 
+import server.categories.CategoryTag;
 import server.categories.MediaType;
 import server.element.Address;
 import server.note.*;
-// Apparently need to include this until I delete the old Note class under server
-import server.note.Note;
 import java.util.*;
 
 public class NoteTestHelper {
     private static final Random rand = new Random();
     private static final int defaultElementCount = 5;
     private static int noteNumber = 0;
+    private static final Map<CategoryTag, Integer> tagTracker = new HashMap<>();
+
 
     // ======================== Note Test Helper Methods ======================
+    // ToDo: Will static variables work if the tests are run in parallel?
     public static void resetNoteNumber() {
         noteNumber = 0;
     }
@@ -56,7 +58,6 @@ public class NoteTestHelper {
             }
             case 4 -> {
                 noteCount++;
-                // ToDo: Not sure why it's picking up the Note class from server.element instead of server.note
                 yield new Note("Note #" + noteCount);
             }
             default -> throw new RuntimeException("Illegal note element index: " + elementTypeIndex
@@ -92,5 +93,62 @@ public class NoteTestHelper {
 
     protected static void clearChildNotes(Note note) {
         note.getChildNotes().clear();
+    }
+
+    protected static NoteBase addTestNote(List<NoteBase> noteList) {
+        NoteBase testNote = createGenericTestNote();
+        noteList.add(testNote);
+        return testNote;
+    }
+
+    protected static List<NoteBase> addTestNotes(int noteCount, List<NoteBase> noteList) {
+        for (int i = 0; i < noteCount; i++) {
+            addTestNote(noteList);
+        }
+        return noteList;
+    }
+
+    public static Set<CategoryTag> getTags() { return tagTracker.keySet(); }
+    public static int numberOfTags() { return tagTracker.size(); }
+    public static int numberOfTags(CategoryTag tag) { return tagTracker.get(tag); }
+    public static void clearTags() { tagTracker.clear(); }
+
+    // ToDo: Add Category parameter to pass in and test other lists
+    public static void createNotesWithTags(int numberOfNotes, CategoryTag tag, List<NoteBase> noteList) {
+        for (int i = 0; i < numberOfNotes; i++) {
+            createNoteWithTag(tag, noteList);
+        }
+    }
+
+    public static void createNoteWithTag(CategoryTag tag, List<NoteBase> noteList) {
+        CategoryTag newTag = tag == null ? MediaType.get().getRandomTag() : tag;
+        NoteBase newNote = NoteTestHelper.createGenericTestNote().addTag(newTag);
+        updateTagTracker(newTag);
+        System.out.println(newNote);
+        noteList.add(newNote);
+    }
+
+    // ToDo: Create addNote() API that automatically updates tagTracker
+    // Creates notes for testing AND and OR tag queries
+    static final int partitionCount = 4;
+    public static void createNotesWithMultipleTags(List<NoteBase> noteList) {
+        addTestNotes(partitionCount*3, noteList);
+        for (int i = 0; i < partitionCount*3; i++) {
+            if (i < partitionCount*2) {
+                noteList.get(i).addTag(MediaType.BOOK);
+                updateTagTracker(MediaType.BOOK);
+            }
+            if (i >= partitionCount) {
+                noteList.get(i).addTag(MediaType.FILM);
+                updateTagTracker(MediaType.FILM);
+            }
+        }
+    }
+
+    private static void updateTagTracker(CategoryTag newTag) {
+        if (!tagTracker.containsKey(newTag)) {
+            tagTracker.put(newTag, 0);
+        }
+        tagTracker.put(newTag, tagTracker.get(newTag) + 1);
     }
 }

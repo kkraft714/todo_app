@@ -81,18 +81,15 @@ We will need to support detail views for the following `Note` types:
 
 ### **Code Walkthrough**
 
-* Note class hierarchy  
-  NoteElement (Contains name, description, created – classes below extend it)  
-  	Note (Contains elements – a list of NoteElement, categories, and tags)  
-  		Main class which acts as a “bag” of note element fields  
-  	Contact (contains phoneNumber, address1, address2, city, state, postalCode)  
-  	EventInfo (contains eventDate, status)  
-  	Link (contains linkUrl, broken)  
-  	MediaItem (contains creator, type)  
-  	Price (contains price)  
+* Note class hierarchy
+  NoteBase (Contains name, description, categories, tags, created)
+    Note (Contains childNotes, links, completed – classes below extend it)  
+      Entity (Contains type, address)  
+      ScheduleItem (Contains date, status)  
+      Product (Contains owner, type, productPrice)
 * Other classes  
   CategoryTag (interface for category type)  
-  	MediaType (enum implements CategoryTag)  
+  	MediaType (enum implements CategoryTag)
   NoteOrganizer (main class containing all notes, and entry point for the program)  
 * Test classes  
   	NoteOrganizerTest (main test class – tests NoteOrganizer)  
