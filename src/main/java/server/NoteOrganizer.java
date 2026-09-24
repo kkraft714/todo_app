@@ -20,7 +20,9 @@ public class NoteOrganizer {
     // Note: using List because Set isn't ordered
     // ToDo: Support one map (or other data structure) for each view type (category, schedule item, contact, etc.)?
     protected List<NoteBase> notes;   // This structure defines the note tree
+    // ToDo: Need to track internal and user-defined categories here
     protected Map<String, List<NoteBase>> categories;
+    // ToDo: Create one universal logger for the whole app?
     private static final Logger LOG = LogManager.getLogger(NoteOrganizer.class);
 
     public NoteOrganizer() {
