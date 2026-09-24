@@ -1,8 +1,9 @@
 package server.categories;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
-// ToDo: Implement extensible enums like at Shutterfly
+// ToDo: Implement extensible enums like at Shutterfly (do I really need this)?
 //  * Define a category class with data fields (name, other?) and getters/setters
 //  * Define an interface with a get() method for returning a data class object
 //  * Define separate classes for internal and external (user-defined) categories?
@@ -13,7 +14,11 @@ public interface CategoryTag {
 
     // Used for testing
     default CategoryTag getRandomTag() {
-        return getCategories().get(rand.nextInt(getCategories().size()));
+        int itemNumber = rand.nextInt(getCategories().size());
+        return getCategories().stream().skip(itemNumber).findFirst().orElse(null);
     }
-    List<CategoryTag> getCategories();
+    default Set<String> convertToStrings() {
+        return getCategories().stream().map(CategoryTag::toString).collect(Collectors.toSet());
+    };
+    Set<CategoryTag> getCategories();
 }
