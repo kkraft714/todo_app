@@ -7,6 +7,7 @@ import java.util.List;
 
 // ToDo: Do we need this (seems like it's covered by the findNotes() method in Note)?
 public class SearchCriteria {
+    // ToDo: Combine tags and categories (why do I need two separate things)?
     List<CategoryTag> tags;
     List<String> categories;
     Class<? extends server.note.NoteBase> noteClass;

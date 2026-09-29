@@ -3,6 +3,7 @@ package server.categories;
 import java.util.*;
 import java.util.stream.Collectors;
 
+// ToDo: Rename to Category or InternalCategory?
 // ToDo: Implement extensible enums like at Shutterfly (do I really need this)?
 //  * Define a category class with data fields (name, other?) and getters/setters
 //  * Define an interface with a get() method for returning a data class object
@@ -19,6 +20,6 @@ public interface CategoryTag {
     }
     default Set<String> convertToStrings() {
         return getCategories().stream().map(CategoryTag::toString).collect(Collectors.toSet());
-    };
+    }
     Set<CategoryTag> getCategories();
 }

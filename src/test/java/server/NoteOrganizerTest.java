@@ -9,6 +9,7 @@ import java.util.*;
 import static server.NoteTestHelper.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+// ToDo: Create a TestBase class with common setup and teardown (and helper) methods?
 // ToDo: Add tests:
 //  Confirm that new notes and categories (and notes in categories) are added at the end
 //  Add multiple notes to a category at a specified position

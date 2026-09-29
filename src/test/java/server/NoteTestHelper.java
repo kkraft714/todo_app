@@ -102,10 +102,11 @@ public class NoteTestHelper {
     }
 
     protected static List<NoteBase> addTestNotes(int noteCount, List<NoteBase> noteList) {
+        List<NoteBase> newNotes = new ArrayList<>(noteCount);
         for (int i = 0; i < noteCount; i++) {
-            addTestNote(noteList);
+            noteList.add(addTestNote(newNotes));
         }
-        return noteList;
+        return newNotes;
     }
 
     public static Set<CategoryTag> getTags() { return tagTracker.keySet(); }
@@ -124,22 +125,24 @@ public class NoteTestHelper {
         CategoryTag newTag = tag == null ? MediaType.get().getRandomTag() : tag;
         NoteBase newNote = NoteTestHelper.createGenericTestNote().addTag(newTag);
         updateTagTracker(newTag);
-        System.out.println(newNote);
+        // System.out.println(newNote);
         noteList.add(newNote);
     }
 
+    // ToDo: Document this method (I think the idea is to return notes with BOOK, FILM, or no tags)
     // ToDo: Create addNote() API that automatically updates tagTracker
     // Creates notes for testing AND and OR tag queries
     static final int partitionCount = 4;
     public static void createNotesWithMultipleTags(List<NoteBase> noteList) {
+        int offset = noteList.size();
         addTestNotes(partitionCount*3, noteList);
         for (int i = 0; i < partitionCount*3; i++) {
             if (i < partitionCount*2) {
-                noteList.get(i).addTag(MediaType.BOOK);
+                noteList.get(i + offset).addTag(MediaType.BOOK);
                 updateTagTracker(MediaType.BOOK);
             }
             if (i >= partitionCount) {
-                noteList.get(i).addTag(MediaType.FILM);
+                noteList.get(i + offset).addTag(MediaType.FILM);
                 updateTagTracker(MediaType.FILM);
             }
         }
