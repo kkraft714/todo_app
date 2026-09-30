@@ -1,6 +1,5 @@
 package server;
 
-import server.categories.CategoryTag;
 import server.categories.MediaType;
 import server.element.Address;
 import server.note.*;
@@ -10,7 +9,6 @@ public class NoteTestHelper {
     private static final Random rand = new Random();
     private static final int defaultElementCount = 5;
     private static int noteNumber = 0;
-    private static final Map<CategoryTag, Integer> tagTracker = new HashMap<>();
 
 
     // ======================== Note Test Helper Methods ======================
@@ -33,6 +31,7 @@ public class NoteTestHelper {
     // ToDo: Create test API that can add a specified list of Element types?
     private static final int numberOfElementTypes = 5;
     private static int contactCount = 0, songCount = 0, linkCount = 0, eventCount = 0, noteCount = 0;
+
     // ToDo: Make sure all Note-type objects are covered
     // ToDo: Rename to getRandomNoteType()?
     public static NoteBase getRandomNoteElement() {
@@ -66,6 +65,7 @@ public class NoteTestHelper {
     }
 
     // ToDo: Replace these methods with a NoteBuilder class?
+    //  * Can probably delete these next four methods (but need a way to mass-produce test note data)
     //  * Will this work with polymorphism? Need a factory instead?
     //  * Define a constructor taking required parameters (title)
     //  * Define methods for adding other parameters
@@ -95,63 +95,63 @@ public class NoteTestHelper {
         note.getChildNotes().clear();
     }
 
-    protected static NoteBase addTestNote(List<NoteBase> noteList) {
+    protected static NoteBase addTestNote(NoteOrganizer main) {
         NoteBase testNote = createGenericTestNote();
-        noteList.add(testNote);
+        main.addNote(testNote);
         return testNote;
     }
 
-    protected static List<NoteBase> addTestNotes(int noteCount, List<NoteBase> noteList) {
+    protected static List<NoteBase> addTestNotes(int noteCount, NoteOrganizer main) {
         List<NoteBase> newNotes = new ArrayList<>(noteCount);
+        // ToDo: Use index in note name?
         for (int i = 0; i < noteCount; i++) {
-            noteList.add(addTestNote(newNotes));
+            newNotes.add(createGenericTestNote());
         }
+        main.addNotes(newNotes);
         return newNotes;
     }
 
-    public static Set<CategoryTag> getTags() { return tagTracker.keySet(); }
-    public static int numberOfTags() { return tagTracker.size(); }
-    public static int numberOfTags(CategoryTag tag) { return tagTracker.get(tag); }
-    public static void clearTags() { tagTracker.clear(); }
+    public static Set<String> getCategories(NoteOrganizer main) {
+        return main.getCategories();
+    }
 
-    // ToDo: Add Category parameter to pass in and test other lists
-    public static void createNotesWithTags(int numberOfNotes, CategoryTag tag, List<NoteBase> noteList) {
+    public static int numberOfCategories(NoteOrganizer main) {
+        return getCategories(main).size();
+    }
+
+    public static int numberOfNotesForCategory(String cat, NoteOrganizer main) {
+        return main.getNotesForCategory(cat).size();
+    }
+
+    public static void addNotesWithCategory(int numberOfNotes, String category, NoteOrganizer main) {
         for (int i = 0; i < numberOfNotes; i++) {
-            createNoteWithTag(tag, noteList);
+            // ToDo: Use index in note name?
+            addNoteWithCategory(category, main);
         }
     }
 
-    public static void createNoteWithTag(CategoryTag tag, List<NoteBase> noteList) {
-        CategoryTag newTag = tag == null ? MediaType.get().getRandomTag() : tag;
-        NoteBase newNote = NoteTestHelper.createGenericTestNote().addTag(newTag);
-        updateTagTracker(newTag);
+    public static void addNoteWithCategory(String cat, NoteOrganizer main) {
+        String newCat = cat == null ? MediaType.get().getRandomTag().toString() : cat;
+        NoteBase newNote = NoteTestHelper.createGenericTestNote().addCategory(newCat);
         // System.out.println(newNote);
-        noteList.add(newNote);
+        main.addNote(newNote);
     }
 
-    // ToDo: Document this method (I think the idea is to return notes with BOOK, FILM, or no tags)
-    // ToDo: Create addNote() API that automatically updates tagTracker
-    // Creates notes for testing AND and OR tag queries
+    // ToDo: Document this method (I think the idea is to return notes with BOOK, FILM, both, or no tags)
     static final int partitionCount = 4;
-    public static void createNotesWithMultipleTags(List<NoteBase> noteList) {
-        int offset = noteList.size();
-        addTestNotes(partitionCount*3, noteList);
+    // Creates notes for testing AND and OR category queries
+    public static Set<String> createNotesWithMultipleCategories(NoteOrganizer main) {
+        int offset = main.getNotes().size();
+        addTestNotes(partitionCount*3, main);
         for (int i = 0; i < partitionCount*3; i++) {
+            NoteBase note = main.getNotes().get(i + offset);
             if (i < partitionCount*2) {
-                noteList.get(i + offset).addTag(MediaType.BOOK);
-                updateTagTracker(MediaType.BOOK);
+                main.addCategoryToNote(MediaType.BOOK.name(), note);
             }
             if (i >= partitionCount) {
-                noteList.get(i + offset).addTag(MediaType.FILM);
-                updateTagTracker(MediaType.FILM);
+                main.addCategoryToNote(MediaType.FILM.name(), note);
             }
         }
-    }
-
-    private static void updateTagTracker(CategoryTag newTag) {
-        if (!tagTracker.containsKey(newTag)) {
-            tagTracker.put(newTag, 0);
-        }
-        tagTracker.put(newTag, tagTracker.get(newTag) + 1);
+        return Set.of(MediaType.BOOK.name(), MediaType.FILM.name());
     }
 }

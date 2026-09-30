@@ -8,20 +8,19 @@ import server.note.NoteBase;
 import java.util.*;
 
 // ToDo: Track categories and schedule items in this class (will need to be stored in DB)?
+//  Need to add some kind of calendar property?
 //  Also track contacts (people and businesses)?
 // ToDo: Can just load all Notes from the DB each time (because presumably it's a small app)?
 //  Have a mechanism to complete/deactivate notes and don't load them by default
 // ToDo: Add Javadoc (this is the main program / entry point)!
-//   Categories are for the user to define custom categories
-//   while tags combine user-defined and pre-defined by the program?
+//   E.g. user-defined versus internal categories
 // ToDo: Add DEBUG logging (for exception context)
 // ToDo: Can (or should) this class be a static singleton (how would that work with Hibernate)?
 public class NoteOrganizer {
     // Note: using List because Set isn't ordered
     // ToDo: Support one map (or other data structure) for each view type (category, schedule item, contact, etc.)?
     protected List<NoteBase> notes;   // This structure defines the note tree
-    // ToDo: Need to track internal and user-defined categories here
-    protected Map<String, List<NoteBase>> categories;
+    protected Map<String, Set<NoteBase>> categories;
     // ToDo: Create one universal logger for the whole app?
     private static final Logger LOG = LogManager.getLogger(NoteOrganizer.class);
 
@@ -59,50 +58,55 @@ public class NoteOrganizer {
 */
 
     public List<NoteBase> getNotes() { return notes; }
-
-    // ToDo: Rename to getNotesInCategory(), getNotesForCategory(), getNotesFromCategory()?
-    public List<NoteBase> getCategory(String name) {
-        checkForValidCategory(name);
-        return categories.get(name);
-    }
-
     public Set<String> getCategories() { return categories.keySet(); }
-
-    public void addNote(NoteBase newNote) { notes.add(newNote); }
-    public void addNote(NoteBase newNote, int index) {
-
+    public Set<NoteBase> getNotesForCategory(String name) {
+        // ToDo: If I add the category check 6 tests fail (because the category hasn't been added yet?)
+        // checkForValidCategory(name);
+        return categories.get(name) != null ? categories.get(name) : new HashSet<>();
     }
 
-    public void addCategory(String name) { categories.put(name, new ArrayList<>()); }
+    public void addNote(NoteBase newNote) {
+        notes.add(newNote);
+        updateCategoryTracker(newNote);
+    }
+
+    public void addNotes(List<NoteBase> newNotes) {
+        newNotes.forEach(this::addNote);
+    }
+
+    // ToDo: If I implement this I also need to update categories
+    public void addNote(NoteBase newNote, int index) { }
+
+    protected void updateCategoryTracker(NoteBase newNote) {
+        newNote.getCategories().forEach(cat -> {
+            if (!categories.containsKey(cat)) {
+                addCategory(cat);
+            }
+            categories.get(cat).add(newNote);
+        });
+    }
+
+    public void addCategory(String name) { categories.put(name, new HashSet<>()); }
+    // ToDo: Can I lose these next three methods?
+    public void addCategoryToNote(String cat,  NoteBase note) {
+        notes.add(note);
+        addNoteToCategory(cat, note);
+    }
     public void addNoteToCategory(String name, NoteBase newNote) {
-        // ToDo: If I add the category check 5 tests fail
+        // ToDo: If I add the category check 6 tests fail (because the category hasn't been added yet?)
         // checkForValidCategory(name);
         addNotesToCategory(name, List.of(newNote));
     }
-    public void addNoteToCategory(String name, NoteBase newNote, int position) {
-        addNotesToCategory(name, List.of(newNote), position);
-    }
 
-    // ToDo: Change this to use CategoryTag?
     public void addNoteToCategories(Set<String> categories, NoteBase newNote) {
         categories.forEach(cat -> addNoteToCategory(cat, newNote));
-        // newNote.addCategories(categories);
     }
 
-    // Add Notes at the front by default
     public void addNotesToCategory(String name, List<NoteBase> notes) {
-        addNotesToCategory(name, notes, 0);
-    }
-    
-    public void addNotesToCategory(String name, List<NoteBase> notes, int position) {
         if (!categories.containsKey(name)) {
             addCategory(name);
         }
-        if (position > categories.get(name).size()) {
-            throw new RuntimeException("Invalid index (" + position + ") for " + name
-                    + " category (size " + categories.get(name).size() + ")");
-        }
-        categories.get(name).addAll(position, notes);
+        categories.get(name).addAll(notes);
         notes.forEach(n -> n.addCategory(name));
     }
 
@@ -111,6 +115,7 @@ public class NoteOrganizer {
         removeNoteFromAllCategories(notes.get(index));
         return notes.remove(index);
     }
+
     // ToDo: Will this work for notes that have been retrieved from the DB?
     public NoteBase deleteNote(NoteBase n) {
         checkForValidNoteObject(n);
@@ -120,7 +125,6 @@ public class NoteOrganizer {
     }
 
     // Used when deleting a note
-    // ToDo: Change this to use CategoryTag?
     private void removeNoteFromAllCategories(NoteBase n) {
         n.getCategories().forEach(cat -> removeNoteFromCategory(cat, n));
     }
@@ -128,7 +132,9 @@ public class NoteOrganizer {
     public void deleteCategory(String name) {
         checkForValidCategory(name);
         // ToDo: Only allow this if category is empty (doesn't contain any notes)?
-        //  Or alternately remove all notes from that category?
+        if (categories.containsKey(name)) {
+            LOG.warn("Deleting category '{}' will remove it from all notes", name);
+        }
         categories.remove(name);
     }
 
@@ -143,28 +149,30 @@ public class NoteOrganizer {
     }
 
     // ToDo: Define a NoteSearch object (with root Note, lists of categories and tags, and search type (e.g. all vs. any))?
-    public List<NoteBase> getNotesWithTag(CategoryTag tag) { return getNotesWithTag(tag, notes); }
-    public List<NoteBase> getNotesWithTag(CategoryTag tag, List<NoteBase> list) {
-        return getNotesWithTags(Set.of(tag), list, true);    // ToDo: Use List.of() here?
+    public Set<NoteBase> getNotesWithAllCategories(Set<String> cats) { return getNotesForCategories(cats, true); }
+    // ToDo: Test this on a list of sub-notes in the tree
+    public Set<NoteBase> getNotesWithAllCategories(Set<String> cats, List<NoteBase> list) {
+        return getNotesForCategories(cats, list, true);
     }
-    public List<NoteBase> getNotesWithAllTags(Set<CategoryTag> tags) { return getNotesWithAllTags(tags, notes); }
-    public List<NoteBase> getNotesWithAllTags(Set<CategoryTag> tags, List<NoteBase> list) {
-        return getNotesWithTags(tags, list, true);
+    public Set<NoteBase> getNotesWithAnyCategories(Set<String> cats) { return getNotesForCategories(cats, false); }
+    // ToDo: Test this on a list of sub-notes in the tree
+    public Set<NoteBase> getNotesWithAnyCategories(Set<String> cats, List<NoteBase> list) {
+        return getNotesForCategories(cats, list, false);
     }
-    public List<NoteBase> getNotesWithAnyTags(Set<CategoryTag> tags) { return getNotesWithAnyTags(tags, notes); }
-    public List<NoteBase> getNotesWithAnyTags(Set<CategoryTag> tags, List<NoteBase> list) {
-        return getNotesWithTags(tags, list, false);
+
+    // ToDo: Document meaning of allCategories (i.e. note must have ALL categories vs. note can have ANY category)
+    private Set<NoteBase> getNotesForCategories(Set<String> cats, boolean allCategories) {
+        return getNotesForCategories(cats, notes, allCategories);
     }
-    // ToDo: Document meaning of allTags (i.e. note must have ALL tags vs. note can have ANY tag)
-    // ToDo: Pass in rootNote?
-    private List<NoteBase> getNotesWithTags(Set<CategoryTag> tags, List<NoteBase> list, boolean allTags) {
-        List<NoteBase> notesWithTags = new ArrayList<>();
+
+    private Set<NoteBase> getNotesForCategories(Set<String> cats, List<NoteBase> list, boolean allCategories) {
+        Set<NoteBase> notesForCategories = new HashSet<>();
         for (NoteBase n : list) {
-            if ((allTags && n.containsAllTags(tags)) || (!allTags && n.containsAnyTags(tags))) {
-                notesWithTags.add(n);
+            if ((allCategories && n.hasAllCategories(cats)) || (!allCategories && n.hasAnyCategory(cats))) {
+                notesForCategories.add(n);
             }
         }
-        return notesWithTags;
+        return notesForCategories;
     }
 
     public void initialize() {
@@ -183,6 +191,8 @@ public class NoteOrganizer {
         }
     }
 
+    // ToDo: Can I remove this (if the category doesn't exist we just create it)?
+    //  But may still be useful when deleting categories
     private void checkForValidCategory(String name) {
         if (!categories.containsKey(name)) {
             throw new RuntimeException("Unable to locate category '" + name + "'");
