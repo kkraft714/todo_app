@@ -1,7 +1,5 @@
 package server.note;
 
-import server.categories.CategoryTag;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
