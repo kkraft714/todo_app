@@ -40,6 +40,15 @@ public class NoteOrganizerTest {
     }
 
     @Test
+    public void addMultipleNotes() {
+        int expectedCount = 3;
+        addTestNotes(expectedCount, main);
+        assertEquals(expectedCount, main.getNotes().size(), "Number of notes");
+    }
+
+    // ToDo: Add test for addNoteWithCategories() (and verify categories are updated)
+
+    @Test
     // Remove the only note in the list
     public void removeOnlyNote() {
         NoteBase newNote = NoteTestHelper.createGenericTestNote();
@@ -48,13 +57,6 @@ public class NoteOrganizerTest {
         // ToDo: MP suggests using notes.size() directly and losing main.numberOfNotes()
         assertEquals(0, main.getNotes().size(), "Number of notes");
         assertSame(newNote, deletedNote, "Note removed");
-    }
-
-    @Test
-    public void addMultipleNotes() {
-        int expectedCount = 3;
-        addTestNotes(expectedCount, main);
-        assertEquals(expectedCount, main.getNotes().size(), "Number of notes");
     }
 
     @Test
@@ -86,11 +88,11 @@ public class NoteOrganizerTest {
         addTestNotes(initialNoteCount,  main);
         // ToDo: Verify that I deleted the RIGHT note
         main.deleteNote(0);
-        assertEquals(initialNoteCount - 1, main.getNotes().size(), "Number of remaining notes after deletion");
+        assertEquals(initialNoteCount - 1, main.getNotes().size(), "Number of remaining notes after deletion");;
     }
 
     @Test
-    public void addNoteWithCategories() {
+    public void removeNoteWithCategories() {
         Note newNote = NoteTestHelper.createGenericTestNote();
         main.addNote(newNote);
         String[] categories = new String[] {"category1", "category2", "category3"};
@@ -137,7 +139,6 @@ public class NoteOrganizerTest {
     public void removeLastCategory() {
         main.addCategory(defaultCategoryName);
         main.deleteCategory(defaultCategoryName);
-        // assertEquals(0, numberOfCategories(main), "Number of categories");
         assertEquals(0, main.getCategories().size(), "Number of categories");
     }
 
@@ -147,8 +148,8 @@ public class NoteOrganizerTest {
     static final String invalidCategory = "invalidCategory";
     @Test
     public void tryGettingInvalidCategory() {
-        // ToDo: Replace this with categories from main
-        assertEquals(0, numberOfCategories(main), "Number of categories");
+        Set<NoteBase> notes = main.getNotesForCategory(invalidCategory);
+        assertEquals(0, notes.size(), "Number of notes in category " + invalidCategory);
      }
 
     @Test
@@ -256,6 +257,8 @@ public class NoteOrganizerTest {
         main.addNote(newNote);
         Set<NoteBase> notes = main.getNotesForCategory(mediaType);
         assertEquals(1, notes.size(), "Number of notes with media type " + mediaType);
+        assertTrue(notes.contains(newNote), "Note list contains new note with media type " + mediaType);
+        // ToDo: Why do I have this remove test here?
         assertTrue(notes.remove(newNote), "New note with media type " + mediaType + " is in list");
     }
 
@@ -279,7 +282,7 @@ public class NoteOrganizerTest {
                     "Number of notes with media type " + cat);
             total += notes.size();
         }
-        assertEquals(numberOfNotes, total, "Total number of tagged notes");
+        assertEquals(numberOfNotes, total, "Total number of categorized notes");
     }
 
     @Test
@@ -315,7 +318,6 @@ public class NoteOrganizerTest {
     @Test
     public void tryGettingCategorizedNotesFromEmptyList() {
         // The list of test notes is empty by default
-        // ToDo: Replace this with categories
         assertEquals(0, numberOfCategories(main), "Number of test categories tracked");
         for (String cat : MediaType.get().convertToStrings()) {
             Set<NoteBase> notes = main.getNotesForCategory(cat);

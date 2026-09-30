@@ -60,14 +60,12 @@ public class NoteOrganizer {
     public List<NoteBase> getNotes() { return notes; }
     public Set<String> getCategories() { return categories.keySet(); }
     public Set<NoteBase> getNotesForCategory(String name) {
-        // ToDo: If I add the category check 6 tests fail (because the category hasn't been added yet?)
-        // checkForValidCategory(name);
         return categories.get(name) != null ? categories.get(name) : new HashSet<>();
     }
 
     public void addNote(NoteBase newNote) {
         notes.add(newNote);
-        updateCategoryTracker(newNote);
+        addNoteToCategories(newNote);
     }
 
     public void addNotes(List<NoteBase> newNotes) {
@@ -77,25 +75,23 @@ public class NoteOrganizer {
     // ToDo: If I implement this I also need to update categories
     public void addNote(NoteBase newNote, int index) { }
 
-    protected void updateCategoryTracker(NoteBase newNote) {
-        newNote.getCategories().forEach(cat -> {
-            if (!categories.containsKey(cat)) {
-                addCategory(cat);
-            }
-            categories.get(cat).add(newNote);
-        });
-    }
-
     public void addCategory(String name) { categories.put(name, new HashSet<>()); }
-    // ToDo: Can I lose these next three methods?
     public void addCategoryToNote(String cat,  NoteBase note) {
-        notes.add(note);
+        note.addCategory(cat);
         addNoteToCategory(cat, note);
     }
+
     public void addNoteToCategory(String name, NoteBase newNote) {
-        // ToDo: If I add the category check 6 tests fail (because the category hasn't been added yet?)
-        // checkForValidCategory(name);
-        addNotesToCategory(name, List.of(newNote));
+        newNote.addCategory(name);
+        if (!categories.containsKey(name)) {
+            addCategory(name);
+        }
+        categories.get(name).add(newNote);
+        // addNotesToCategory(name, List.of(newNote));
+    }
+
+    public void addNoteToCategories(NoteBase newNote) {
+        newNote.getCategories().forEach(cat -> addNoteToCategory(cat, newNote));
     }
 
     public void addNoteToCategories(Set<String> categories, NoteBase newNote) {
@@ -103,11 +99,7 @@ public class NoteOrganizer {
     }
 
     public void addNotesToCategory(String name, List<NoteBase> notes) {
-        if (!categories.containsKey(name)) {
-            addCategory(name);
-        }
-        categories.get(name).addAll(notes);
-        notes.forEach(n -> n.addCategory(name));
+        notes.forEach(nb -> addNoteToCategory(name, nb));
     }
 
     public NoteBase deleteNote(int index) {
@@ -135,6 +127,7 @@ public class NoteOrganizer {
         if (categories.containsKey(name)) {
             LOG.warn("Deleting category '{}' will remove it from all notes", name);
         }
+        categories.get(name).forEach(n -> n.getCategories().remove(name));
         categories.remove(name);
     }
 

@@ -35,11 +35,12 @@ public class Note extends NoteBase {
     public boolean getCompleted() { return completed != null && completed; }
     public Note setCompleted(boolean isCompleted) { completed = isCompleted; return this; }
 
+    // ToDo: Shouldn't these find methods be moved to NoteOrganizer?
     // ToDo: Make SearchCriteria an inner class and add a version of findMatchingNotes() that takes a SearchCriteria object
     // ToDo: Why am I not just returning results here (too tricky with recursion)?
     private <T extends NoteBase> void findMatchingNotes(NoteBase note, String nameMatch, T noteClass,
             Set<String> cats, boolean joinWithAnd, List<NoteBase> results) {
-        // Ignore class and search just by tag if noteClass is null
+        // Ignore class and search just by category if noteClass is null
         // ToDo: Almost need different methods for AND-search and OR-search
         if ((noteClass == null || note.getClass().isInstance(noteClass)
                 || (nameMatch == null || note.getName().toLowerCase().contains(nameMatch.toLowerCase())))
