@@ -76,10 +76,6 @@ public class NoteOrganizer {
     public void addNote(NoteBase newNote, int index) { }
 
     public void addCategory(String name) { categories.put(name, new HashSet<>()); }
-    public void addCategoryToNote(String cat,  NoteBase note) {
-        note.addCategory(cat);
-        addNoteToCategory(cat, note);
-    }
 
     public void addNoteToCategory(String name, NoteBase newNote) {
         newNote.addCategory(name);
@@ -87,7 +83,6 @@ public class NoteOrganizer {
             addCategory(name);
         }
         categories.get(name).add(newNote);
-        // addNotesToCategory(name, List.of(newNote));
     }
 
     public void addNoteToCategories(NoteBase newNote) {

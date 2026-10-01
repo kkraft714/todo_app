@@ -258,7 +258,7 @@ public class NoteOrganizerTest {
         Set<NoteBase> notes = main.getNotesForCategory(mediaType);
         assertEquals(1, notes.size(), "Number of notes with media type " + mediaType);
         assertTrue(notes.contains(newNote), "Note list contains new note with media type " + mediaType);
-        // ToDo: Why do I have this remove test here?
+        // ToDo: Why do I have this remove assertion here?
         assertTrue(notes.remove(newNote), "New note with media type " + mediaType + " is in list");
     }
 
@@ -291,7 +291,7 @@ public class NoteOrganizerTest {
         int numberOfUncategorizedNotes = 5;
         int total = 0;
         addNotesWithCategory(numberOfCategorizedNotes, null, main);
-        // This is identical to the above test except for this line adding untagged notes
+        // This is identical to the above test except for this line adding uncategorized notes
         addTestNotes(numberOfUncategorizedNotes, main);
         assertEquals(numberOfCategorizedNotes + numberOfUncategorizedNotes, main.getNotes().size(),
                 "Total number of notes");

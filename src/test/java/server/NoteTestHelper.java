@@ -146,10 +146,10 @@ public class NoteTestHelper {
         for (int i = 0; i < partitionCount*3; i++) {
             NoteBase note = main.getNotes().get(i + offset);
             if (i < partitionCount*2) {
-                main.addCategoryToNote(MediaType.BOOK.name(), note);
+                main.addNoteToCategory(MediaType.BOOK.name(), note);
             }
             if (i >= partitionCount) {
-                main.addCategoryToNote(MediaType.FILM.name(), note);
+                main.addNoteToCategory(MediaType.FILM.name(), note);
             }
         }
         return Set.of(MediaType.BOOK.name(), MediaType.FILM.name());

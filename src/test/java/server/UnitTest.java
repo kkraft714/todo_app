@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class UnitTest {
     @Test
+    // ToDo: Is this really a useful test (just testing the Java internals)?
     public void testConvertToStringsFromMediaType() {
         Set<String> mediaTypes = MediaType.get().convertToStrings();
         for (InternalCategory mediaType : MediaType.values()) {
