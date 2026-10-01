@@ -36,6 +36,8 @@ public class Note extends NoteBase {
     // ToDo: Shouldn't these find methods be moved to NoteOrganizer?
     // ToDo: Make SearchCriteria an inner class and add a version of findMatchingNotes() that takes a SearchCriteria object
     // ToDo: Why am I not just returning results here (too tricky with recursion)?
+    // ToDo: Need Javadoc! (I think nameMatch is a name substring to match)
+    // ToDo: Need tests for this! (e.g. null cats etc.)
     private <T extends NoteBase> void findMatchingNotes(NoteBase note, String nameMatch, T noteClass,
             Set<String> cats, boolean joinWithAnd, List<NoteBase> results) {
         // Ignore class and search just by category if noteClass is null

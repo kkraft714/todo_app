@@ -60,6 +60,7 @@ public class NoteOrganizer {
     public List<NoteBase> getNotes() { return notes; }
     public Set<String> getCategories() { return categories.keySet(); }
     public Set<NoteBase> getNotesForCategory(String name) {
+        // ToDo: Return copies instead of the actual internal category list?
         return categories.get(name) != null ? categories.get(name) : new HashSet<>();
     }
 
@@ -99,8 +100,7 @@ public class NoteOrganizer {
 
     public NoteBase deleteNote(int index) {
         checkForValidNoteIndex(index);
-        removeNoteFromAllCategories(notes.get(index));
-        return notes.remove(index);
+        return deleteNote(notes.get(index));
     }
 
     // ToDo: Will this work for notes that have been retrieved from the DB?
@@ -113,13 +113,14 @@ public class NoteOrganizer {
 
     // Used when deleting a note
     private void removeNoteFromAllCategories(NoteBase n) {
-        n.getCategories().forEach(cat -> removeNoteFromCategory(cat, n));
+        // We make a copy of note categories to avoid ConcurrentModificationException
+        new HashSet<>(n.getCategories()).forEach(cat -> removeNoteFromCategory(cat, n));
     }
 
     public void deleteCategory(String name) {
         checkForValidCategory(name);
         // ToDo: Only allow this if category is empty (doesn't contain any notes)?
-        if (categories.containsKey(name)) {
+        if (!categories.get(name).isEmpty()) {
             LOG.warn("Deleting category '{}' will remove it from all notes", name);
         }
         categories.get(name).forEach(n -> n.getCategories().remove(name));
@@ -134,6 +135,7 @@ public class NoteOrganizer {
         }
         System.out.println("Removing note '" + n.getName() + "' from category '" + name + "'");
         categories.get(name).remove(n);
+        n.getCategories().remove(name);
     }
 
     // ToDo: Define a NoteSearch object (with root Note, lists of categories and tags, and search type (e.g. all vs. any))?

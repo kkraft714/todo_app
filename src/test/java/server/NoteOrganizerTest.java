@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 // ToDo: Create a TestBase class with common setup and teardown (and helper) methods?
 // ToDo: Add tests:
+//  - Remove note by object and index
 //  Confirm that new notes and categories (and notes in categories) are added at the end
 //  Add multiple notes to a category at a specified position (why do we need this test?)
 //  Test standard Note categories (set up in initialize())
@@ -174,6 +175,8 @@ public class NoteOrganizerTest {
         main.addNoteToCategory(defaultCategoryName, newNote);
         main.removeNoteFromCategory(defaultCategoryName, newNote);
         Set<NoteBase> category = main.getNotesForCategory(defaultCategoryName);
+        assertFalse(newNote.hasCategory(defaultCategoryName), "Note '" + newNote.getName() +
+                "' has category '" + defaultCategoryName + "'");
         assertEquals(0, category.size(),
                 "Number of notes in category '" + defaultCategoryName + "'");
     }

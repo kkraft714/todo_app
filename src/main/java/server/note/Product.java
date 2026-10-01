@@ -9,7 +9,7 @@ public class Product extends Note {
     private InternalCategory type;
     private Price productPrice;
 
-    // ToDo: Include ProductType (extends InternalCategory)
+    // ToDo: Include ProductType (extends InternalCategory) in constructor
     public Product(String name, String description, Entity owner) {
         super(name, description);
         this.owner = owner;
@@ -20,7 +20,11 @@ public class Product extends Note {
     public Entity getOwner() { return owner; }
     public Product setOwner(Entity newOwner) { owner = newOwner; return this; }
     public InternalCategory getType() { return type; }
-    public Product setType(InternalCategory type) { this.type = type; return this; }
+    public Product setType(InternalCategory type) {
+        this.type = type;
+        this.addCategory(type.toString());
+        return this;
+    }
     public Price getPrice() { return productPrice; }
     public Product setPrice(Price productPrice) { this.productPrice = productPrice; return this; }
     public Product setPrice(double price) { this.productPrice = new Price(price); return this; }
