@@ -37,9 +37,9 @@ public class NoteBase {
 
     // ToDo: Need Javadoc!
     public boolean hasCategory(String category) { return categories.contains(category); }
-    public boolean hasAllCategories(Set<String> cats) { return categories.containsAll(cats); }
+    public boolean hasAllCategories(Set<String> cats) { return cats == null || categories.containsAll(cats); }
     public boolean hasAnyCategory(Set<String> cats) {
-        return cats == null || cats.stream().anyMatch(cat -> categories.contains(cat));
+        return cats == null || cats.isEmpty() || cats.stream().anyMatch(cat -> categories.contains(cat));
     }
     // ToDo: Support toString() method
 }
