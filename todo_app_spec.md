@@ -88,8 +88,8 @@ We will need to support detail views for the following `Note` types:
       ScheduleItem (Contains date, status)  
       Product (Contains owner, type, productPrice)
 * Other classes  
-  CategoryTag (interface for category type)  
-  	MediaType (enum implements CategoryTag)
+  InternalCategory (interface for internally defined categories)  
+  	MediaType (enum implements InternalCategory)
   NoteOrganizer (main class containing all notes, and entry point for the program)  
 * Test classes  
   	NoteOrganizerTest (main test class – tests NoteOrganizer)  

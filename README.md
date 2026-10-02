@@ -6,7 +6,7 @@ For now it is just project notes.
 ## To do items
 
 * Must fill out the Javadoc coverage!
-* Use my "extensible enum" trick with CategoryTag?
+* Use my "extensible enum" trick with InternalCategory?
 * There is an issue with categories since the note categories are tightly coupled
   with the category lists in the main program
 
