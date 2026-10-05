@@ -11,12 +11,11 @@ import java.util.Set;
 public class NoteBase {
     protected String name;
     protected String description;
-    // ToDo: Should a child Note inherit its parent's categories and tags?
+    // ToDo: Should a child Note inherit its parent's categories (maybe conceptually but not literally)?
     // ToDo: Do I really need to track categories here?
     protected Set<String> categories;
     private final LocalDateTime created;
 
-    // ToDo: Make name required but editable (i.e. not final)
     public NoteBase(String newName, String newDescription) {
         this.name = newName;
         this.description = newDescription;
@@ -31,12 +30,12 @@ public class NoteBase {
     // ToDo: Add Javadoc
     public Set<String> getCategories() { return categories; }
     public NoteBase addCategory(String category) { categories.add(category); return this; }
-    // ToDo: Add removeCategory()?
+    public NoteBase removeCategory(String cat) { categories.remove(cat); return this; }
     public NoteBase addCategories(Set<String> cats) { categories.addAll(cats); return this; }
     public LocalDateTime getDateCreated() { return created; }
 
-    // ToDo: Need Javadoc!
     public boolean hasCategory(String category) { return categories.contains(category); }
+    // ToDo: Need Javadoc (e.g. no categories automatically returns true)
     public boolean hasAllCategories(Set<String> cats) { return cats == null || categories.containsAll(cats); }
     public boolean hasAnyCategory(Set<String> cats) {
         return cats == null || cats.isEmpty() || cats.stream().anyMatch(cat -> categories.contains(cat));

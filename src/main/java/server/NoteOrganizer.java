@@ -3,13 +3,11 @@ package server;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import server.categories.*;
-import server.note.NoteBase;
+import server.note.*;
 
 import java.util.*;
 
-// ToDo: Track categories and schedule items in this class (will need to be stored in DB)?
-//  Need to add some kind of calendar property?
-//  Also track contacts (people and businesses)?
+// ToDo: Also track contacts (people and businesses)?
 // ToDo: Can just load all Notes from the DB each time (because presumably it's a small app)?
 //  Have a mechanism to complete/deactivate notes and don't load them by default
 // ToDo: Add Javadoc (this is the main program / entry point)!
@@ -20,12 +18,18 @@ public class NoteOrganizer {
     // Note: using List because Set isn't ordered
     // ToDo: Support one map (or other data structure) for each view type (category, schedule item, contact, etc.)?
     protected List<NoteBase> notes;   // This structure defines the note tree
+    protected List<ScheduleItem> schedule;
+    protected List<Contact> contacts;
+    protected Map<Class<? extends NoteBase>, List<? extends NoteBase>> noteTypes;
     protected Map<String, Set<NoteBase>> categories;
     // ToDo: Create one universal logger for the whole app?
     private static final Logger LOG = LogManager.getLogger(NoteOrganizer.class);
 
     public NoteOrganizer() {
         notes = new ArrayList<>();
+        schedule = new ArrayList<>();
+        contacts = new ArrayList<>();
+        noteTypes = new HashMap<>();
         categories = new HashMap<>();
     }
 
@@ -66,6 +70,14 @@ public class NoteOrganizer {
 
     public void addNote(NoteBase newNote) {
         notes.add(newNote);
+        noteTypes.put(newNote.getClass(), notes);
+        if (newNote instanceof ScheduleItem) {
+            // ToDo: Order list based on date/time (insertScheduleItem(ScheduleItem item))
+            schedule.add((ScheduleItem) newNote);
+        }
+        if (newNote instanceof Contact) {
+            contacts.add((Contact) newNote);
+        }
         addNoteToCategories(newNote);
     }
 
@@ -104,17 +116,24 @@ public class NoteOrganizer {
     }
 
     // ToDo: Will this work for notes that have been retrieved from the DB?
-    public NoteBase deleteNote(NoteBase n) {
-        checkForValidNoteObject(n);
-        removeNoteFromAllCategories(n);
-        notes.remove(n);
-        return n;
+    public NoteBase deleteNote(NoteBase note) {
+        checkForValidNoteObject(note);
+        noteTypes.get(note.getClass()).remove(note);
+        if (note instanceof ScheduleItem) {
+            schedule.remove(note);
+        }
+        if (note instanceof Contact) {
+            contacts.remove(note);
+        }
+        removeNoteFromAllCategories(note);
+        notes.remove(note);
+        return note;
     }
 
     // Used when deleting a note
-    private void removeNoteFromAllCategories(NoteBase n) {
+    private void removeNoteFromAllCategories(NoteBase note) {
         // We make a copy of note categories to avoid ConcurrentModificationException
-        new HashSet<>(n.getCategories()).forEach(cat -> removeNoteFromCategory(cat, n));
+        new HashSet<>(note.getCategories()).forEach(cat -> removeNoteFromCategory(cat, note));
     }
 
     public void deleteCategory(String name) {
@@ -128,16 +147,42 @@ public class NoteOrganizer {
     }
 
     // ToDo: Add version that takes a note index? Also return the note?
-    public void removeNoteFromCategory(String name, NoteBase n) {
+    public void removeNoteFromCategory(String name, NoteBase note) {
         checkForValidCategory(name);
-        if (!categories.get(name).contains(n)) {
-            throw new RuntimeException("Unable to locate note '" + n.getName() + "' in category '" + name + "'");
+        if (!categories.get(name).contains(note)) {
+            throw new RuntimeException("Unable to locate note '" + note.getName() + "' in category '" + name + "'");
         }
-        System.out.println("Removing note '" + n.getName() + "' from category '" + name + "'");
-        categories.get(name).remove(n);
-        n.getCategories().remove(name);
+        System.out.println("Removing note '" + note.getName() + "' from category '" + name + "'");
+        categories.get(name).remove(note);
+        note.removeCategory(name);
     }
 
+    // ToDo: Test with various note types, categories, and child notes (need to set up test data)
+    //  * Search by name only
+    //  * Search by class only
+    //  * Search by one or multiple categories only (with both joinWithAnd true and false)
+    //  * Search by name and class
+    //  * Search by name and categories
+    public List<NoteBase> findMatchingNotes(List<NoteBase> list, SearchCriteria criteria,
+                boolean searchChildNotes) {
+        List<NoteBase> matchingNotes = new ArrayList<>();
+        for (NoteBase note : list) {
+            if (criteria.match(note)) {
+                matchingNotes.add(note);
+                if (searchChildNotes && note instanceof Note) {
+                    matchingNotes.addAll(findMatchingNotes(((Note) note).getChildNotes(), criteria, true));
+                }
+            }
+        }
+        return matchingNotes;
+    }
+
+    // Search from the top level notes
+    public List<NoteBase> findMatchingNotes(SearchCriteria criteria, boolean searchChildNotes) {
+        return findMatchingNotes(notes, criteria, searchChildNotes);
+    }
+
+    // ToDo: Can maybe get rid of the 6 methods below?
     // ToDo: Define a NoteSearch object (with root Note, lists of categories and tags, and search type (e.g. all vs. any))?
     public Set<NoteBase> getNotesWithAllCategories(Set<String> cats) { return getNotesForCategories(cats, true); }
     // ToDo: Test this on a list of sub-notes in the tree
@@ -175,9 +220,9 @@ public class NoteOrganizer {
         }
     }
 
-    private void checkForValidNoteObject(NoteBase n) {
-        if (!notes.contains(n)) {
-            throw new RuntimeException("Failed to locate note: '" + n.getName() + "'");
+    private void checkForValidNoteObject(NoteBase note) {
+        if (!notes.contains(note)) {
+            throw new RuntimeException("Failed to locate note: '" + note.getName() + "'");
         }
     }
 
