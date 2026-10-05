@@ -149,7 +149,7 @@ public class NoteOrganizer {
             if (criteria.match(note)) {
                 matchingNotes.add(note);
                 if (searchChildNotes && note instanceof Note) {
-                    matchingNotes.addAll(findMatchingNotes(((Note) note).getChildNotes(), criteria, true));
+                    matchingNotes.addAll(findMatchingNotes(((Note)note).getChildNotes(), criteria, true));
                 }
             }
         }
