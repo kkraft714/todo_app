@@ -252,13 +252,16 @@ public class NoteOrganizerTest {
                 ex.getMessage(), "Exception message");
     }
 
+    // ToDo: Set up data providers for search tests after moving to TestNG
+    // ToDo: Move this to a separate SearchTest class?
     @Test
     public void getSingleNoteWithCategory() {
         Note newNote = NoteTestHelper.createGenericTestNote();
         String mediaType = MediaType.SONG.toString();
         newNote.addCategory(mediaType);
         main.addNote(newNote);
-        Set<NoteBase> notes = main.getNotesForCategory(mediaType);
+        SearchCriteria criteria = new SearchCriteria(Set.of(mediaType), null, false, null);
+        List<NoteBase> notes = main.findMatchingNotes(criteria, false);
         assertEquals(1, notes.size(), "Number of notes with media type " + mediaType);
         assertTrue(notes.contains(newNote), "Note list contains new note with media type " + mediaType);
         // ToDo: Why do I have this remove assertion here?
@@ -270,7 +273,8 @@ public class NoteOrganizerTest {
         String mediaType = MediaType.SONG.name();
         int numberOfNotes = 3;
         addNotesWithCategory(numberOfNotes, mediaType, main);
-        Set<NoteBase> notes = main.getNotesForCategory(mediaType);
+        SearchCriteria criteria = new SearchCriteria(Set.of(mediaType), null, false, null);
+        List<NoteBase> notes = main.findMatchingNotes(criteria, false);
         assertEquals(numberOfNotes, notes.size(), "Number of notes with media type " + mediaType);
     }
 
@@ -280,7 +284,8 @@ public class NoteOrganizerTest {
         int total = 0;
         addNotesWithCategory(numberOfNotes, null, main);
         for (String cat : getCategories(main)) {
-            Set<NoteBase> notes = main.getNotesForCategory(cat);
+            SearchCriteria criteria = new SearchCriteria(Set.of(cat), null, false, null);
+            List<NoteBase> notes = main.findMatchingNotes(criteria, false);
             assertEquals(numberOfNotesForCategory(cat, main), notes.size(),
                     "Number of notes with media type " + cat);
             total += notes.size();
@@ -299,7 +304,8 @@ public class NoteOrganizerTest {
         assertEquals(numberOfCategorizedNotes + numberOfUncategorizedNotes, main.getNotes().size(),
                 "Total number of notes");
         for (String cat : getCategories(main)) {
-            Set<NoteBase> notes = main.getNotesForCategory(cat);
+            SearchCriteria criteria = new SearchCriteria(Set.of(cat), null, false, null);
+            List<NoteBase> notes = main.findMatchingNotes(criteria, false);
             assertEquals(numberOfNotesForCategory(cat, main), notes.size(),
                     "Number of notes with media type " + cat);
             total += notes.size();
@@ -312,8 +318,8 @@ public class NoteOrganizerTest {
         addTestNotes(10, main);     // These are uncategorized notes
         assertEquals(0, NoteTestHelper.numberOfCategories(main), "Number of test categories tracked");
         for (String cat : MediaType.get().convertToStrings()) {
-            Set<NoteBase> notes = main.getNotesForCategory(cat);
-            // ToDo: Add assertNotNull()?
+            SearchCriteria criteria = new SearchCriteria(Set.of(cat), null, false, null);
+            List<NoteBase> notes = main.findMatchingNotes(criteria, false);
             assertEquals(0, notes.size(), "Number of notes with media type " + cat);
         }
     }
@@ -323,7 +329,8 @@ public class NoteOrganizerTest {
         // The list of test notes is empty by default
         assertEquals(0, numberOfCategories(main), "Number of test categories tracked");
         for (String cat : MediaType.get().convertToStrings()) {
-            Set<NoteBase> notes = main.getNotesForCategory(cat);
+            SearchCriteria criteria = new SearchCriteria(Set.of(cat), null, false, null);
+            List<NoteBase> notes = main.findMatchingNotes(criteria, false);
             assertEquals(0, notes.size(), "Number of notes with media type " + cat);
         }
     }
@@ -333,14 +340,16 @@ public class NoteOrganizerTest {
     @Test
     public void getCategorizedNotesWithOrRelationship() {
         Set<String> categories = createNotesWithMultipleCategories(main);
-        Set<NoteBase> orResult = main.getNotesWithAnyCategories(categories);
+        SearchCriteria criteria = new SearchCriteria(categories, null, false, null);
+        List<NoteBase> orResult = main.findMatchingNotes(criteria, false);
         assertEquals(partitionCount*3, orResult.size(), "Number of notes with any queried categories");
     }
 
     @Test
     public void getCategorizedNotesWithAndRelationship() {
         Set<String> categories = createNotesWithMultipleCategories(main);
-        Set<NoteBase> andResult = main.getNotesWithAllCategories(categories);
+        SearchCriteria criteria = new SearchCriteria(categories, null, true, null);
+        List<NoteBase> andResult = main.findMatchingNotes(criteria, false);
         assertEquals(partitionCount, andResult.size(), "Number of notes with all queried categories");
     }
 

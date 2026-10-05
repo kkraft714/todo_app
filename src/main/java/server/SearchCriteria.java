@@ -1,21 +1,23 @@
 package server;
 
-import java.util.ArrayList;
 import server.note.NoteBase;
-import java.util.List;
+
+import java.util.HashSet;
+import java.util.Set;
 
 // ToDo: Add option to search by date created or date modified?
 // ToDo: Add method for searching and returning matching notes
 public class SearchCriteria {
-    List<String> categories;
+    // ToDo: Create getters for these and make them final?
+    Set<String> categories;
     Class<? extends NoteBase> noteClass;
     String nameMatch;
     // Currently this only applies to categories
     boolean joinWithAnd = true;     // Whether to search using AND or OR criteria
     // ToDo: Add partial match on title
 
-    public SearchCriteria(List<String> cats, Class<? extends NoteBase> cls, boolean joinWithAnd, String name) {
-        this.categories = cats != null ? new ArrayList<>(cats) : new ArrayList<>();
+    public SearchCriteria(Set<String> cats, Class<? extends NoteBase> cls, boolean joinWithAnd, String name) {
+        this.categories = cats != null ? new HashSet<>(cats) : new HashSet<>();
         this.noteClass = cls;
         this.joinWithAnd = joinWithAnd;
         this.nameMatch = name;
@@ -31,8 +33,10 @@ public class SearchCriteria {
         return nameMatches && classMatch && categoryMatch;
     }
 
+    boolean hasCategories() { return categories != null && !categories.isEmpty(); }
+
     // ToDo: Probably don't need these because we will just initialize SearchCriteria once
-    public SearchCriteria addCategories(List<String> newCategories) { categories.addAll(newCategories); return this; }
+    public SearchCriteria addCategories(Set<String> newCategories) { categories.addAll(newCategories); return this; }
     public SearchCriteria setNoteClass(Class<? extends server.note.NoteBase> noteClass) {
         this.noteClass = noteClass;
         return this;

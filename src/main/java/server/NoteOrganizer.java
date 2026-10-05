@@ -38,29 +38,6 @@ public class NoteOrganizer {
         return notes.get(index);
     }
 
-    // ToDo: Move all search/locator and Note tracking code here?
-    // ToDo: I think I can remove this element locator code (and add search methods using the Note search code)
-/*
-    private void updateElementLocatorAfterAdd(NoteElement<?> element, int index) {
-        if (!elementLocator.containsKey(element.getClass())) {
-            elementLocator.put(element.getClass(), new ArrayList<>());
-        }
-        elementLocator.get(element.getClass()).add(index);
-    }
-
-    // ToDo: Update the element locator logic?
-    private void updateElementLocatorAfterDelete(NoteElement<?> element) {
-        if (elementLocator.containsKey(element.getClass())) {
-            // ToDo: Why am I removing the whole look-up list?
-            elementLocator.remove(element.getClass());
-        }
-        else {
-            LOG.warn("Element locator for Note '" + element.getName() + "' contains no element of type "
-                    + element.getClass().getSimpleName());
-        }
-    }
-*/
-
     public List<NoteBase> getNotes() { return notes; }
     public Set<String> getCategories() { return categories.keySet(); }
     public Set<NoteBase> getNotesForCategory(String name) {
@@ -163,6 +140,8 @@ public class NoteOrganizer {
     //  * Search by one or multiple categories only (with both joinWithAnd true and false)
     //  * Search by name and class
     //  * Search by name and categories
+    //  * Search by various combinations of the above
+    //  * Search in sub-notes
     public List<NoteBase> findMatchingNotes(List<NoteBase> list, SearchCriteria criteria,
                 boolean searchChildNotes) {
         List<NoteBase> matchingNotes = new ArrayList<>();
@@ -178,36 +157,12 @@ public class NoteOrganizer {
     }
 
     // Search from the top level notes
+    // ToDo: Should this return Set or List (if a note is in the list more than once should we return it multiple times)?
     public List<NoteBase> findMatchingNotes(SearchCriteria criteria, boolean searchChildNotes) {
-        return findMatchingNotes(notes, criteria, searchChildNotes);
-    }
-
-    // ToDo: Can maybe get rid of the 6 methods below?
-    // ToDo: Define a NoteSearch object (with root Note, lists of categories and tags, and search type (e.g. all vs. any))?
-    public Set<NoteBase> getNotesWithAllCategories(Set<String> cats) { return getNotesForCategories(cats, true); }
-    // ToDo: Test this on a list of sub-notes in the tree
-    public Set<NoteBase> getNotesWithAllCategories(Set<String> cats, List<NoteBase> list) {
-        return getNotesForCategories(cats, list, true);
-    }
-    public Set<NoteBase> getNotesWithAnyCategories(Set<String> cats) { return getNotesForCategories(cats, false); }
-    // ToDo: Test this on a list of sub-notes in the tree
-    public Set<NoteBase> getNotesWithAnyCategories(Set<String> cats, List<NoteBase> list) {
-        return getNotesForCategories(cats, list, false);
-    }
-
-    // ToDo: Document meaning of allCategories (i.e. note must have ALL categories vs. note can have ANY category)
-    private Set<NoteBase> getNotesForCategories(Set<String> cats, boolean allCategories) {
-        return getNotesForCategories(cats, notes, allCategories);
-    }
-
-    private Set<NoteBase> getNotesForCategories(Set<String> cats, List<NoteBase> list, boolean allCategories) {
-        Set<NoteBase> notesForCategories = new HashSet<>();
-        for (NoteBase n : list) {
-            if ((allCategories && n.hasAllCategories(cats)) || (!allCategories && n.hasAnyCategory(cats))) {
-                notesForCategories.add(n);
-            }
-        }
-        return notesForCategories;
+        List<NoteBase> searchNotes = criteria.hasCategories() ? criteria.categories.stream()
+                .flatMap(cat -> getNotesForCategory(cat).stream()).distinct().toList() : notes;
+        // ToDo: Also filter on class type?
+        return findMatchingNotes(searchNotes, criteria, searchChildNotes);
     }
 
     public void initialize() {
