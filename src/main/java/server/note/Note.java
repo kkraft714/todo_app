@@ -24,10 +24,12 @@ public class Note extends NoteBase {
     // ToDo: Add addLink() and addElement() methods (or addSubNote() or addChildNote()?)
     public ArrayList<NoteBase> getChildNotes() { return childNotes; }
     public NoteBase getChildNote(int index) { return childNotes.get(index); }
+    // We call these from wrapper methods in NoteOrganizer in order to update note tracking
     public Note addChildNote(NoteBase childNote) { childNotes.add(childNote); return this; }
     public Note addChildNote(NoteBase childNote, int index) { childNotes.add(index, childNote); return this; }
     public Note removeChildNote(NoteBase childNote) { childNotes.remove(childNote); return this; }
     public Note addLink(Link link) { links.add(link); return this; }
+    public boolean hasChildNotes() { return !childNotes.isEmpty(); }
     public boolean getCompleted() { return completed != null && completed; }
     public Note setCompleted(boolean isCompleted) { completed = isCompleted; return this; }
 

@@ -7,7 +7,7 @@ import server.note.*;
 
 import java.util.*;
 
-// ToDo: Also track contacts (people and businesses)?
+// ToDo: Track contacts by type (e.g. people and businesses)?
 // ToDo: Can just load all Notes from the DB each time (because presumably it's a small app)?
 //  Have a mechanism to complete/deactivate notes and don't load them by default
 // ToDo: Add Javadoc (this is the main program / entry point)!
@@ -16,18 +16,15 @@ import java.util.*;
 // ToDo: Can (or should) this class be a static singleton (how would that work with Hibernate)?
 public class NoteOrganizer {
     // Note: using List because Set isn't ordered
-    // ToDo: Support one map (or other data structure) for each view type (category, schedule item, contact, etc.)?
     protected List<NoteBase> notes;   // This structure defines the note tree
-    protected List<ScheduleItem> schedule;
     protected List<Contact> contacts;
-    protected Map<Class<? extends NoteBase>, List<? extends NoteBase>> noteTypes;
+    protected Map<Class<? extends NoteBase>, List<NoteBase>> noteTypes;
     protected Map<String, Set<NoteBase>> categories;
     // ToDo: Create one universal logger for the whole app?
     private static final Logger LOG = LogManager.getLogger(NoteOrganizer.class);
 
     public NoteOrganizer() {
         notes = new ArrayList<>();
-        schedule = new ArrayList<>();
         contacts = new ArrayList<>();
         noteTypes = new HashMap<>();
         categories = new HashMap<>();
@@ -47,10 +44,18 @@ public class NoteOrganizer {
 
     public void addNote(NoteBase newNote) {
         notes.add(newNote);
-        noteTypes.put(newNote.getClass(), notes);
+        updateTrackerProperties(newNote);
+    }
+
+    public void addChildNote(Note note, NoteBase newNote) {
+        note.addChildNote(newNote);
+        updateTrackerProperties(newNote);
+    }
+
+    private void updateTrackerProperties(NoteBase newNote) {
+        noteTypes.computeIfAbsent(newNote.getClass(), cls -> new ArrayList<>()).add(newNote);
         if (newNote instanceof ScheduleItem) {
-            // ToDo: Order list based on date/time (insertScheduleItem(ScheduleItem item))
-            schedule.add((ScheduleItem) newNote);
+            // ToDo: Order noteTypes.get(ScheduleItem.class) list by timestamp
         }
         if (newNote instanceof Contact) {
             contacts.add((Contact) newNote);
@@ -96,9 +101,6 @@ public class NoteOrganizer {
     public NoteBase deleteNote(NoteBase note) {
         checkForValidNoteObject(note);
         noteTypes.get(note.getClass()).remove(note);
-        if (note instanceof ScheduleItem) {
-            schedule.remove(note);
-        }
         if (note instanceof Contact) {
             contacts.remove(note);
         }
@@ -134,35 +136,27 @@ public class NoteOrganizer {
         note.removeCategory(name);
     }
 
-    // ToDo: Test with various note types, categories, and child notes (need to set up test data)
-    //  * Search by name only
-    //  * Search by class only
-    //  * Search by one or multiple categories only (with both joinWithAnd true and false)
-    //  * Search by name and class
-    //  * Search by name and categories
-    //  * Search by various combinations of the above
-    //  * Search in sub-notes
-    public List<NoteBase> findMatchingNotes(List<NoteBase> list, SearchCriteria criteria,
-                boolean searchChildNotes) {
+    public List<NoteBase> findMatchingNotes(List<NoteBase> list, SearchCriteria criteria) {
         List<NoteBase> matchingNotes = new ArrayList<>();
         for (NoteBase note : list) {
             if (criteria.match(note)) {
                 matchingNotes.add(note);
-                if (searchChildNotes && note instanceof Note) {
-                    matchingNotes.addAll(findMatchingNotes(((Note)note).getChildNotes(), criteria, true));
-                }
+            }
+            // Search child notes, if any
+            if (note instanceof Note && ((Note)note).hasChildNotes()) {
+                matchingNotes.addAll(findMatchingNotes(((Note)note).getChildNotes(), criteria));
             }
         }
         return matchingNotes;
     }
 
-    // Search from the top level notes
+    // Search from the main note list
     // ToDo: Should this return Set or List (if a note is in the list more than once should we return it multiple times)?
-    public List<NoteBase> findMatchingNotes(SearchCriteria criteria, boolean searchChildNotes) {
+    public List<NoteBase> findMatchingNotes(SearchCriteria criteria) {
         List<NoteBase> searchNotes = criteria.hasCategories() ? criteria.categories.stream()
                 .flatMap(cat -> getNotesForCategory(cat).stream()).distinct().toList() : notes;
         // ToDo: Also filter on class type?
-        return findMatchingNotes(searchNotes, criteria, searchChildNotes);
+        return findMatchingNotes(searchNotes, criteria);
     }
 
     public void initialize() {

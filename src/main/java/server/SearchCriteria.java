@@ -5,16 +5,15 @@ import server.note.NoteBase;
 import java.util.HashSet;
 import java.util.Set;
 
-// ToDo: Add option to search by date created or date modified?
-// ToDo: Add method for searching and returning matching notes
+// ToDo: Add option to search by date created or date modified (or date range)?
 public class SearchCriteria {
     // ToDo: Create getters for these and make them final?
+    // ToDo: Add searchChildNotes property?
     Set<String> categories;
     Class<? extends NoteBase> noteClass;
     String nameMatch;
     // Currently this only applies to categories
     boolean joinWithAnd = true;     // Whether to search using AND or OR criteria
-    // ToDo: Add partial match on title
 
     public SearchCriteria(Set<String> cats, Class<? extends NoteBase> cls, boolean joinWithAnd, String name) {
         this.categories = cats != null ? new HashSet<>(cats) : new HashSet<>();
@@ -27,9 +26,8 @@ public class SearchCriteria {
     //  Can remove the noteClass property if I'm always passing null
     public boolean match(NoteBase note) {
         boolean nameMatches = nameMatch == null || note.getName().toLowerCase().contains(nameMatch.toLowerCase());
-        boolean classMatch = noteClass == null || note.getClass().isInstance(noteClass);
-        boolean categoryMatch = joinWithAnd ? note.hasAllCategories(new java.util.HashSet<>(categories))
-                                              : note.hasAnyCategory(new java.util.HashSet<>(categories));
+        boolean classMatch = noteClass == null || noteClass.isAssignableFrom(note.getClass());
+        boolean categoryMatch = joinWithAnd ? note.hasAllCategories(categories) : note.hasAnyCategory(categories);
         return nameMatches && classMatch && categoryMatch;
     }
 
