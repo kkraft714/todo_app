@@ -27,9 +27,9 @@ public class SearchCriteria {
     //  Can remove the noteClass property if I'm always passing null
     public boolean match(NoteBase note) {
         boolean nameMatches = nameMatch == null || note.getName().toLowerCase().contains(nameMatch.toLowerCase());
-        boolean classMatch = noteClass == null || note.getClass().isInstance(noteClass);
-        boolean categoryMatch = joinWithAnd ? note.hasAllCategories(new java.util.HashSet<>(categories))
-                                              : note.hasAnyCategory(new java.util.HashSet<>(categories));
+        boolean classMatch = noteClass == null || noteClass.isInstance(note);
+        boolean categoryMatch = joinWithAnd ? note.hasAllCategories(categories)
+                                              : note.hasAnyCategory(categories);
         return nameMatches && classMatch && categoryMatch;
     }
 

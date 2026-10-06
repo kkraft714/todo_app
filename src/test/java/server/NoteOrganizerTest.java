@@ -353,6 +353,50 @@ public class NoteOrganizerTest {
         assertEquals(partitionCount, andResult.size(), "Number of notes with all queried categories");
     }
 
+    @Test
+    public void getNotesByClass() {
+        addTestNotes(3, main);
+        Contact contact = Contact.newContact("Jane", "Doe", null);
+        main.addNote(contact);
+        SearchCriteria criteria = new SearchCriteria(null, Contact.class, true, null);
+        List<NoteBase> result = main.findMatchingNotes(criteria, false);
+        assertEquals(List.of(contact), result, "Notes matching class Contact");
+    }
+
+    @Test
+    public void getNotesByPartialName() {
+        main.addNote(new Note("Grocery list"));
+        main.addNote(new Note("Hardware list"));
+        main.addNote(new Note("Birthday ideas"));
+        SearchCriteria criteria = new SearchCriteria(null, null, true, "LIST");
+        List<NoteBase> result = main.findMatchingNotes(criteria, false);
+        assertEquals(2, result.size(), "Notes with name containing 'list' (case-insensitive)");
+    }
+
+    @Test
+    public void getMatchingChildNoteOfNonMatchingParent() {
+        String mediaType = MediaType.SONG.toString();
+        Note parent = new Note("Parent");
+        Note child = new Note("Child");
+        child.addCategory(mediaType);
+        parent.addChildNote(child);
+        main.addNote(parent);
+        SearchCriteria criteria = new SearchCriteria(Set.of(mediaType), null, true, null);
+        assertEquals(List.of(child), main.findMatchingNotes(criteria, true), "Child notes searched");
+        assertEquals(0, main.findMatchingNotes(criteria, false).size(), "Top-level notes only");
+    }
+
+    @Test
+    public void deleteNoteRemovesItFromNoteTypes() {
+        Contact contact = Contact.newContact("Jane", "Doe", null);
+        main.addNote(contact);
+        main.addNote(new Note("Plain note"));
+        assertEquals(List.of(contact), main.noteTypes.get(Contact.class), "Contacts tracked by type");
+        main.deleteNote(contact);
+        assertTrue(main.noteTypes.get(Contact.class).isEmpty(), "Contact removed from type list");
+        assertEquals(1, main.getNotes().size(), "Number of notes");
+    }
+
     // Re-run (at least some) tagging tests with category lists instead of main
 
     // @Test

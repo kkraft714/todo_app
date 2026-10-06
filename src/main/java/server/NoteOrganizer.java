@@ -20,7 +20,7 @@ public class NoteOrganizer {
     protected List<NoteBase> notes;   // This structure defines the note tree
     protected List<ScheduleItem> schedule;
     protected List<Contact> contacts;
-    protected Map<Class<? extends NoteBase>, List<? extends NoteBase>> noteTypes;
+    protected Map<Class<? extends NoteBase>, List<NoteBase>> noteTypes;
     protected Map<String, Set<NoteBase>> categories;
     // ToDo: Create one universal logger for the whole app?
     private static final Logger LOG = LogManager.getLogger(NoteOrganizer.class);
@@ -47,7 +47,7 @@ public class NoteOrganizer {
 
     public void addNote(NoteBase newNote) {
         notes.add(newNote);
-        noteTypes.put(newNote.getClass(), notes);
+        noteTypes.computeIfAbsent(newNote.getClass(), cls -> new ArrayList<>()).add(newNote);
         if (newNote instanceof ScheduleItem) {
             // ToDo: Order list based on date/time (insertScheduleItem(ScheduleItem item))
             schedule.add((ScheduleItem) newNote);
@@ -148,9 +148,10 @@ public class NoteOrganizer {
         for (NoteBase note : list) {
             if (criteria.match(note)) {
                 matchingNotes.add(note);
-                if (searchChildNotes && note instanceof Note) {
-                    matchingNotes.addAll(findMatchingNotes(((Note)note).getChildNotes(), criteria, true));
-                }
+            }
+            // Search children whether or not the parent matched
+            if (searchChildNotes && note instanceof Note) {
+                matchingNotes.addAll(findMatchingNotes(((Note)note).getChildNotes(), criteria, true));
             }
         }
         return matchingNotes;
@@ -159,10 +160,10 @@ public class NoteOrganizer {
     // Search from the top level notes
     // ToDo: Should this return Set or List (if a note is in the list more than once should we return it multiple times)?
     public List<NoteBase> findMatchingNotes(SearchCriteria criteria, boolean searchChildNotes) {
-        List<NoteBase> searchNotes = criteria.hasCategories() ? criteria.categories.stream()
-                .flatMap(cat -> getNotesForCategory(cat).stream()).distinct().toList() : notes;
-        // ToDo: Also filter on class type?
-        return findMatchingNotes(searchNotes, criteria, searchChildNotes);
+        // Always walk the note tree: the categories map only indexes top-level notes (so a category
+        // pre-filter would miss matching child notes) and its HashSet ordering isn't deterministic.
+        // match() already checks categories.
+        return findMatchingNotes(notes, criteria, searchChildNotes);
     }
 
     public void initialize() {
