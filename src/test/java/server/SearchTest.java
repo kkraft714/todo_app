@@ -1,0 +1,160 @@
+package server;
+
+import server.note.*;
+import server.categories.MediaType;
+import org.junit.jupiter.api.*;
+
+import java.util.*;
+import static server.NoteTestHelper.*;
+import static org.junit.jupiter.api.Assertions.*;
+
+public class SearchTest extends TestBase {
+    // ToDo: Set up data providers for search tests after moving to TestNG
+    @Test
+    public void getSingleNoteWithCategory() {
+        Note newNote = NoteTestHelper.createGenericTestNote();
+        String mediaType = MediaType.SONG.toString();
+        newNote.addCategory(mediaType);
+        main.addNote(newNote);
+        SearchCriteria criteria = new SearchCriteria(Set.of(mediaType), null, false, null);
+        List<NoteBase> notes = main.findMatchingNotes(criteria);
+        assertEquals(1, notes.size(), "Number of notes with media type " + mediaType);
+        assertTrue(notes.contains(newNote), "Note list contains new note with media type " + mediaType);
+        // ToDo: Why do I have this remove assertion here?
+        assertTrue(notes.remove(newNote), "New note with media type " + mediaType + " is in list");
+    }
+
+    @Test
+    public void getMultipleNotesWithSameCategory() {
+        String mediaType = MediaType.SONG.name();
+        int numberOfNotes = 3;
+        addNotesWithCategory(numberOfNotes, mediaType, main);
+        SearchCriteria criteria = new SearchCriteria(Set.of(mediaType), null, false, null);
+        List<NoteBase> notes = main.findMatchingNotes(criteria);
+        assertEquals(numberOfNotes, notes.size(), "Number of notes with media type " + mediaType);
+    }
+
+    @Test
+    public void getMultipleNotesWithVariousCategories() {
+        int numberOfNotes = 10;
+        int total = 0;
+        addNotesWithCategory(numberOfNotes, null, main);
+        for (String cat : getCategories(main)) {
+            SearchCriteria criteria = new SearchCriteria(Set.of(cat), null, false, null);
+            List<NoteBase> notes = main.findMatchingNotes(criteria);
+            assertEquals(numberOfNotesForCategory(cat, main), notes.size(),
+                    "Number of notes with media type " + cat);
+            total += notes.size();
+        }
+        assertEquals(numberOfNotes, total, "Total number of categorized notes");
+    }
+
+    @Test
+    public void getCategorizedNotesFromListContainingCategorizedAndUncategorizedNotes() {
+        int numberOfCategorizedNotes = 10;
+        int numberOfUncategorizedNotes = 5;
+        int total = 0;
+        addNotesWithCategory(numberOfCategorizedNotes, null, main);
+        // This is identical to the above test except for this line adding uncategorized notes
+        addTestNotes(numberOfUncategorizedNotes, main);
+        assertEquals(numberOfCategorizedNotes + numberOfUncategorizedNotes, main.getNotes().size(),
+                "Total number of notes");
+        for (String cat : getCategories(main)) {
+            SearchCriteria criteria = new SearchCriteria(Set.of(cat), null, false, null);
+            List<NoteBase> notes = main.findMatchingNotes(criteria);
+            assertEquals(numberOfNotesForCategory(cat, main), notes.size(),
+                    "Number of notes with media type " + cat);
+            total += notes.size();
+        }
+        assertEquals(numberOfCategorizedNotes, total, "Total number of tagged notes");
+    }
+
+    @Test
+    public void tryGettingCategorizedNotesFromListContainingOnlyUncategorizedNotes() {
+        addTestNotes(10, main);     // These are uncategorized notes
+        assertEquals(0, NoteTestHelper.numberOfCategories(main), "Number of test categories tracked");
+        for (String cat : MediaType.get().convertToStrings()) {
+            SearchCriteria criteria = new SearchCriteria(Set.of(cat), null, false, null);
+            List<NoteBase> notes = main.findMatchingNotes(criteria);
+            assertEquals(0, notes.size(), "Number of notes with media type " + cat);
+        }
+    }
+
+    @Test
+    public void tryGettingCategorizedNotesFromEmptyList() {
+        // The list of test notes is empty by default
+        assertEquals(0, numberOfCategories(main), "Number of test categories tracked");
+        for (String cat : MediaType.get().convertToStrings()) {
+            SearchCriteria criteria = new SearchCriteria(Set.of(cat), null, false, null);
+            List<NoteBase> notes = main.findMatchingNotes(criteria);
+            assertEquals(0, notes.size(), "Number of notes with media type " + cat);
+        }
+    }
+
+    // ToDo: Add test for trying to get tagged note from list that doesn't contain the tag
+
+    @Test
+    public void getCategorizedNotesWithOrRelationship() {
+        Set<String> categories = createNotesWithMultipleCategories(main);
+        SearchCriteria criteria = new SearchCriteria(categories, null, false, null);
+        List<NoteBase> orResult = main.findMatchingNotes(criteria);
+        assertEquals(partitionCount*3, orResult.size(), "Number of notes with any queried categories");
+    }
+
+    @Test
+    public void getCategorizedNotesWithAndRelationship() {
+        Set<String> categories = createNotesWithMultipleCategories(main);
+        SearchCriteria criteria = new SearchCriteria(categories, null, true, null);
+        List<NoteBase> andResult = main.findMatchingNotes(criteria);
+        assertEquals(partitionCount, andResult.size(), "Number of notes with all queried categories");
+    }
+
+    @Test
+    public void getNotesByClass() {
+        addTestNotes(3, main);
+        Contact contact = Contact.newContact("Jane", "Doe", null);
+        main.addNote(contact);
+        SearchCriteria criteria = new SearchCriteria(null, Contact.class, true, null);
+        List<NoteBase> result = main.findMatchingNotes(criteria);
+        assertEquals(List.of(contact), result, "Notes matching class Contact");
+    }
+
+    @Test
+    public void getNotesByPartialName() {
+        main.addNote(new Note("Grocery list"));
+        main.addNote(new Note("Hardware list"));
+        main.addNote(new Note("Birthday ideas"));
+        SearchCriteria criteria = new SearchCriteria(null, null, true, "LIST");
+        List<NoteBase> result = main.findMatchingNotes(criteria);
+        assertEquals(2, result.size(), "Notes with name containing 'list' (case-insensitive)");
+    }
+
+    @Test
+    public void getMatchingChildNoteOfNonMatchingParent() {
+        String mediaType = MediaType.SONG.toString();
+        Note parent = new Note("Parent");
+        Note child = new Note("Child");
+        child.addCategory(mediaType);
+        main.addNote(parent);
+        main.addChildNote(parent, child);
+        SearchCriteria criteria = new SearchCriteria(Set.of(mediaType), null, true, null);
+        assertEquals(List.of(child), main.findMatchingNotes(criteria), "Child notes searched");
+    }
+
+    @Test
+    public void deleteNoteRemovesItFromNoteTypes() {
+        Contact contact = Contact.newContact("Jane", "Doe", null);
+        main.addNote(contact);
+        main.addNote(new Note("Plain note"));
+        assertEquals(List.of(contact), main.noteTypes.get(Contact.class), "Contacts tracked by type");
+        main.deleteNote(contact);
+        assertTrue(main.noteTypes.get(Contact.class).isEmpty(), "Contact removed from type list");
+        assertEquals(1, main.getNotes().size(), "Number of notes");
+    }
+
+    // ToDo: Add tests for various note types, categories, and child notes (need to set up test data)
+    //  * Search by name and class
+    //  * Search by name and categories
+    //  * Search by various combinations of the above
+    //  * Search in sub-notes
+}

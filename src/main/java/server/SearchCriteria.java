@@ -1,31 +1,42 @@
 package server;
 
-import server.categories.InternalCategory;
+import server.note.NoteBase;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
-// ToDo: Do we need this (seems like it's covered by the findNotes() method in Note)?
+// ToDo: Add option to search by date created or date modified (or date range)?
 public class SearchCriteria {
-    // ToDo: Combine tags and categories (why do I need two separate things)?
-    List<InternalCategory> tags;
-    List<String> categories;
-    Class<? extends server.note.NoteBase> noteClass;
+    // ToDo: Create getters for these and make them final?
+    // ToDo: Add searchChildNotes property?
+    Set<String> categories;
+    Class<? extends NoteBase> noteClass;
+    String nameMatch;
+    // Currently this only applies to categories
     boolean joinWithAnd = true;     // Whether to search using AND or OR criteria
 
-    public SearchCriteria() {
-        this.tags = new ArrayList<>();
-        this.categories = new ArrayList<>();
+    public SearchCriteria(Set<String> cats, Class<? extends NoteBase> cls, boolean joinWithAnd, String name) {
+        this.categories = cats != null ? new HashSet<>(cats) : new HashSet<>();
+        this.noteClass = cls;
+        this.joinWithAnd = joinWithAnd;
+        this.nameMatch = name;
     }
 
-    public SearchCriteria addTags(List<InternalCategory> newTags) { tags.addAll(newTags); return this; }
-    public SearchCriteria addCategories(List<String> newCategories) { categories.addAll(newCategories); return this; }
+    // ToDo: Pre-filter class type using noteTypes and schedule properties from main?
+    //  Can remove the noteClass property if I'm always passing null
+    public boolean match(NoteBase note) {
+        boolean nameMatches = nameMatch == null || note.getName().toLowerCase().contains(nameMatch.toLowerCase());
+        boolean classMatch = noteClass == null || noteClass.isAssignableFrom(note.getClass());
+        boolean categoryMatch = joinWithAnd ? note.hasAllCategories(categories) : note.hasAnyCategory(categories);
+        return nameMatches && classMatch && categoryMatch;
+    }
+
+    boolean hasCategories() { return categories != null && !categories.isEmpty(); }
+
+    // ToDo: Probably don't need these because we will just initialize SearchCriteria once
+    public SearchCriteria addCategories(Set<String> newCategories) { categories.addAll(newCategories); return this; }
     public SearchCriteria setNoteClass(Class<? extends server.note.NoteBase> noteClass) {
         this.noteClass = noteClass;
         return this;
     }
-
-    // ToDo: Add option to search by partial name (or description)?
-    // ToDo: Add option to search by date created or date modified?
-    // ToDo: Add method for searching and returning matching notes
 }

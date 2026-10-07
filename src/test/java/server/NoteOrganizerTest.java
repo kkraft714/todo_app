@@ -1,33 +1,23 @@
 package server;
 
 import server.note.*;
-import server.categories.MediaType;
 import org.junit.jupiter.api.*;
 
 import java.util.*;
 import static server.NoteTestHelper.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-// ToDo: Create a TestBase class with common setup and teardown (and helper) methods?
 // ToDo: Add tests:
 //  - Remove note by object and index
-//  Confirm that new notes and categories (and notes in categories) are added at the end
-//  Add multiple notes to a category at a specified position (why do we need this test?)
-//  Test standard Note categories (set up in initialize())
-//  Test adding duplicate Categories (should have no effect?)
+//  - Confirm that new notes and categories (and notes in categories) are added at the end
+//  - Add multiple notes to a category at a specified position (why do we need this test?)?
+//  - Test standard Note categories (set up in initialize())
+//  - Test adding duplicate Categories (should have no effect?)
 // ToDo: Figure out JUnit assertThat() with matchers (and replace assertTrue())
 // ToDo: Switch to TestNG Test annotations and framework (instead of JUnit)?
 //   If so use the description attribute to document the tests
 // Todo: Change the name to make this a unit test?
-public class NoteOrganizerTest {
-    private static NoteOrganizer main;
-    private static final String defaultCategoryName = "NewCategory";
-
-    @BeforeEach
-    public void initialize() { main = new NoteOrganizer(); }
-
-    @AfterEach
-    public void testCleanup() { NoteTestHelper.resetNoteNumber(); }
+public class NoteOrganizerTest extends TestBase {
 
     @Test
     public void addNewNote() {
@@ -251,100 +241,6 @@ public class NoteOrganizerTest {
         assertEquals("Unable to locate note '" + newNote.getName() + "' in category '" + defaultCategoryName + "'",
                 ex.getMessage(), "Exception message");
     }
-
-    @Test
-    public void getSingleNoteWithCategory() {
-        Note newNote = NoteTestHelper.createGenericTestNote();
-        String mediaType = MediaType.SONG.toString();
-        newNote.addCategory(mediaType);
-        main.addNote(newNote);
-        Set<NoteBase> notes = main.getNotesForCategory(mediaType);
-        assertEquals(1, notes.size(), "Number of notes with media type " + mediaType);
-        assertTrue(notes.contains(newNote), "Note list contains new note with media type " + mediaType);
-        // ToDo: Why do I have this remove assertion here?
-        assertTrue(notes.remove(newNote), "New note with media type " + mediaType + " is in list");
-    }
-
-    @Test
-    public void getMultipleNotesWithSameCategory() {
-        String mediaType = MediaType.SONG.name();
-        int numberOfNotes = 3;
-        addNotesWithCategory(numberOfNotes, mediaType, main);
-        Set<NoteBase> notes = main.getNotesForCategory(mediaType);
-        assertEquals(numberOfNotes, notes.size(), "Number of notes with media type " + mediaType);
-    }
-
-    @Test
-    public void getMultipleNotesWithVariousCategories() {
-        int numberOfNotes = 10;
-        int total = 0;
-        addNotesWithCategory(numberOfNotes, null, main);
-        for (String cat : getCategories(main)) {
-            Set<NoteBase> notes = main.getNotesForCategory(cat);
-            assertEquals(numberOfNotesForCategory(cat, main), notes.size(),
-                    "Number of notes with media type " + cat);
-            total += notes.size();
-        }
-        assertEquals(numberOfNotes, total, "Total number of categorized notes");
-    }
-
-    @Test
-    public void getCategorizedNotesFromListContainingCategorizedAndUncategorizedNotes() {
-        int numberOfCategorizedNotes = 10;
-        int numberOfUncategorizedNotes = 5;
-        int total = 0;
-        addNotesWithCategory(numberOfCategorizedNotes, null, main);
-        // This is identical to the above test except for this line adding uncategorized notes
-        addTestNotes(numberOfUncategorizedNotes, main);
-        assertEquals(numberOfCategorizedNotes + numberOfUncategorizedNotes, main.getNotes().size(),
-                "Total number of notes");
-        for (String cat : getCategories(main)) {
-            Set<NoteBase> notes = main.getNotesForCategory(cat);
-            assertEquals(numberOfNotesForCategory(cat, main), notes.size(),
-                    "Number of notes with media type " + cat);
-            total += notes.size();
-        }
-        assertEquals(numberOfCategorizedNotes, total, "Total number of tagged notes");
-    }
-
-    @Test
-    public void tryGettingCategorizedNotesFromListContainingOnlyUncategorizedNotes() {
-        addTestNotes(10, main);     // These are uncategorized notes
-        assertEquals(0, NoteTestHelper.numberOfCategories(main), "Number of test categories tracked");
-        for (String cat : MediaType.get().convertToStrings()) {
-            Set<NoteBase> notes = main.getNotesForCategory(cat);
-            // ToDo: Add assertNotNull()?
-            assertEquals(0, notes.size(), "Number of notes with media type " + cat);
-        }
-    }
-
-    @Test
-    public void tryGettingCategorizedNotesFromEmptyList() {
-        // The list of test notes is empty by default
-        assertEquals(0, numberOfCategories(main), "Number of test categories tracked");
-        for (String cat : MediaType.get().convertToStrings()) {
-            Set<NoteBase> notes = main.getNotesForCategory(cat);
-            assertEquals(0, notes.size(), "Number of notes with media type " + cat);
-        }
-    }
-
-    // ToDo: Add test for trying to get tagged note from list that doesn't contain the tag
-
-    @Test
-    public void getCategorizedNotesWithOrRelationship() {
-        Set<String> categories = createNotesWithMultipleCategories(main);
-        Set<NoteBase> orResult = main.getNotesWithAnyCategories(categories);
-        assertEquals(partitionCount*3, orResult.size(), "Number of notes with any queried categories");
-    }
-
-    @Test
-    public void getCategorizedNotesWithAndRelationship() {
-        Set<String> categories = createNotesWithMultipleCategories(main);
-        Set<NoteBase> andResult = main.getNotesWithAllCategories(categories);
-        assertEquals(partitionCount, andResult.size(), "Number of notes with all queried categories");
-    }
-
-    // Re-run (at least some) tagging tests with category lists instead of main
 
     // @Test
     public void testTemplate() {

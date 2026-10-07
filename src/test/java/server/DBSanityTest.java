@@ -6,6 +6,7 @@ import org.hibernate.Session;
 import static org.junit.jupiter.api.Assertions.*;
 
 // ToDo: Change name to DBUnitTest?
+// ToDo: Move into server.db package?
 public class DBSanityTest {
     @Test
     public void createDBConnection() {
