@@ -137,12 +137,13 @@ public class SearchTest extends TestBase {
 
     @Test
     public void getNotesByPatternMatch() {
+        String pattern = ".* LIST$";
         main.addNote(new Note("Grocery list"));
         main.addNote(new Note("Hardware list"));
         main.addNote(new Note("Birthday ideas"));
-        SearchCriteria criteria = new SearchCriteria().setNameMatch(".* LIST$");
+        SearchCriteria criteria = new SearchCriteria().setNameMatch(pattern).doPatternMatch();
         List<NoteBase> result = main.findMatchingNotes(criteria);
-        assertEquals(2, result.size(), "Notes with name containing 'list' (case-insensitive)");
+        assertEquals(2, result.size(), "Notes with name matching pattern '" +  pattern + "'");
     }
 
     @Test

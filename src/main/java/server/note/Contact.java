@@ -15,7 +15,9 @@ public class Contact extends Entity {
 
     // ToDo: Replace this with builder pattern?
     public Contact(String firstName, String lastName, String fullName, String description, EntityType type) {
-        super(fullName, description, type);
+        // ToDo: The fullName kludge is ugly - see if I can clean it up
+        //  Maybe having Contact extend Note is a bad idea?
+        super(fullName == null || fullName.isEmpty() ? firstName + " " + lastName : fullName, description, type);
         this.firstName = firstName;
         this.lastName = lastName;
         this.addresses = new ArrayList<>();

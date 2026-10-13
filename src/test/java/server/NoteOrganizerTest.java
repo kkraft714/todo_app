@@ -58,10 +58,15 @@ public class NoteOrganizerTest extends TestBase {
     @Test
     public void leastRecentScheduleItemIsAddedAtEnd() {
         createScheduleItemTestBed(main);
-        ScheduleItem newItem = new ScheduleItem("Most Recent Event", null, LocalDateTime.MIN);
+        ScheduleItem newItem = new ScheduleItem("Least Recent Event", null, LocalDateTime.MIN);
         main.addNote(newItem);
         assertTrue(verifyScheduleItemOrder(main.getSchedule()), "Schedule items are in timestamp order");
         assertSame(newItem, main.getSchedule().getLast(), "Least recent schedule item is at the end");
+    }
+
+    @Test
+    public void callGetScheduleWithNoScheduleItemsAdded() {
+        assertEquals(0, main.getSchedule().size(), "Number of schedule items");
     }
 
     @Test

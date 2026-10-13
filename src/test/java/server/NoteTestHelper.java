@@ -7,8 +7,6 @@ import server.note.*;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 public class NoteTestHelper {
     private static final Random rand = new Random();
     private static final int defaultElementCount = 5;
@@ -57,7 +55,7 @@ public class NoteTestHelper {
             }
             case 3 -> {
                 eventCount++;
-                yield new ScheduleItem("Event #" + eventCount, null, "2020-07-03 00:00:00");
+                yield new ScheduleItem("Event #" + eventCount, null, "2020-07-03 00:00:00 AM");
             }
             case 4 -> {
                 noteCount++;
@@ -150,6 +148,7 @@ public class NoteTestHelper {
         main.addNote(new ScheduleItem("Event 5", null, "2020-07-03 10:00:01 AM"));
     }
 
+    // ToDo: Add negative test case for this (ScheduleItem list out of order)?
     public static boolean verifyScheduleItemOrder(List<ScheduleItem> schedule) {
         LocalDateTime lastDate = LocalDateTime.MAX;
         for (ScheduleItem item : schedule) {

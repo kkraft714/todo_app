@@ -14,7 +14,7 @@ import java.util.*;
 //   E.g. user-defined versus internal categories
 // ToDo: Add DEBUG logging (for exception context)
 // ToDo: Can (or should) this class be a static singleton (how would that work with Hibernate)?
-// ToDo: Add searchForContacts() API?
+// ToDo: Add searchForContacts() API (can just search with noteType Contact)?
 public class NoteOrganizer {
     // Note: using List because Set isn't ordered
     protected List<NoteBase> notes;   // This structure defines the note tree
@@ -145,7 +145,8 @@ public class NoteOrganizer {
     }
 
     public List<ScheduleItem> getSchedule() {
-        return noteTypes.get(ScheduleItem.class).stream().map(n -> (ScheduleItem)n).toList();
+        List<NoteBase> schedule = noteTypes.get(ScheduleItem.class);
+        return schedule != null ? schedule.stream().map(n -> (ScheduleItem)n).toList() : new ArrayList<>();
     }
 
     // ToDo: Add version that takes a note index? Also return the note?

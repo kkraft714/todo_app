@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter;
 
 // ToDo: Support recurring events?
 public class ScheduleItem extends Note {
+    // 12-hour timestamp format with AM/PM
     private static final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss a");
     private LocalDateTime date;
     private CompletionStatus status;

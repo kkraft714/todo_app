@@ -18,8 +18,14 @@ public class NoteBase {
     private final LocalDateTime created;
     private Boolean completed;
 
+    // ToDo: Turn this into a builder as well
+    // ToDo: Throw exception if name null/empty
     public NoteBase(String newName, String newDescription) {
-        this.name = newName;
+        this.name = newName != null && !newName.isEmpty() ? newName : newDescription;
+        if (this.name == null || this.name.isEmpty()) {
+            throw new IllegalArgumentException("Cannot create a Note with no name or description");
+        }
+        // ToDo: Set description to empty if we use it for the name?
         this.description = newDescription;
         this.categories = new HashSet<>();
         this.created = LocalDateTime.now();
