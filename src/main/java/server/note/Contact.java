@@ -15,13 +15,19 @@ public class Contact extends Entity {
 
     // ToDo: Replace this with builder pattern?
     public Contact(String firstName, String lastName, String fullName, String description, EntityType type) {
-        // ToDo: The fullName kludge is ugly - see if I can clean it up
-        //  Maybe having Contact extend Note is a bad idea?
-        super(fullName == null || fullName.isEmpty() ? firstName + " " + lastName : fullName, description, type);
+        // ToDo: The fullName kludge is kind of ugly - can I clean it up?
+        super(setFullName(fullName, firstName, lastName), description, type);
         this.firstName = firstName;
         this.lastName = lastName;
         this.addresses = new ArrayList<>();
         this.phoneNumbers = new ArrayList<>();
+    }
+
+    private static String setFullName(String full, String first, String last) {
+        if ((first == null || first.isEmpty()) && (last == null || last.isEmpty()) && (full == null || full.isEmpty())) {
+            throw new IllegalArgumentException("At least one name is required for a contact");
+        }
+        return full == null || full.isEmpty() ? first + " " + last : full;
     }
 
     // ToDo: Should type be final or do we need a setter?

@@ -158,14 +158,83 @@ public class SearchTest extends TestBase {
         assertEquals(List.of(child), main.findMatchingNotes(criteria), "Child notes searched");
     }
 
+    @Test
+    public void getNotesByNameAndClass() {
+        createScheduleItemTestBed(main);
+        String name = "Test Name 1";
+        main.getNote(0).setName(name);
+        SearchCriteria criteria = new SearchCriteria().setNoteClass(ScheduleItem.class).setNameMatch(name);
+        List<NoteBase> andResult = main.findMatchingNotes(criteria);
+        assertEquals(1, andResult.size(),
+                "Number of ScheduleItem notes with name '" + name + "'");
+    }
+
+    @Test
+    public void getNotesByNamePatternAndClass() {
+        createScheduleItemTestBed(main);
+        assertEquals(5, main.getNotesForType(ScheduleItem.class).size(), "Number of ScheduleItem notes");
+        String pattern = "Event [1-3]";
+        SearchCriteria criteria = new SearchCriteria().setNoteClass(ScheduleItem.class).setNameMatch(pattern).doPatternMatch();
+        List<NoteBase> andResult = main.findMatchingNotes(criteria);
+        assertEquals(3, andResult.size(), "Number of ScheduleItem notes with name matching pattern '" + pattern + "'");
+    }
+
+    @Test
+    public void getNotesByNameAndCategory() {
+        Set<String> categories = createNotesWithMultipleCategories(main);
+        String name = "Test Note";
+        SearchCriteria criteria = new SearchCriteria().setCategories(categories).joinWithAnd().setNameMatch(name);
+        List<NoteBase> andResult = main.findMatchingNotes(criteria);
+        assertEquals(partitionCount, andResult.size(), "Number of notes with categories and name '" + name + "'");
+    }
+
+    @Test
+    public void getNotesByNamePatternAndCategory() {
+        String pattern = "T.* N.*";
+        Set<String> categories = createNotesWithMultipleCategories(main);
+        SearchCriteria criteria = new SearchCriteria().setCategories(categories).joinWithAnd()
+                .setNameMatch(pattern).doPatternMatch();
+        List<NoteBase> andResult = main.findMatchingNotes(criteria);
+        assertEquals(partitionCount, andResult.size(), "Number of notes with categories and name matching pattern '"
+                + pattern + "'");
+    }
+
+    @Test
+    public void getNotesByNameClassAndCategory() {
+        createScheduleItemTestBed(main);
+        String name = "Event";
+        Set<String> categories = Set.of("Category1", "Category2");
+        main.addNoteToCategories(categories, main.getNote(0));
+        main.addNoteToCategories(categories, main.getNote(1));
+        main.addNoteToCategory("Category1", main.getNote(2));
+        SearchCriteria criteria = new SearchCriteria().setNoteClass(ScheduleItem.class)
+                .setCategories(categories).setNameMatch(name);
+        List<NoteBase> orResult = main.findMatchingNotes(criteria);
+        assertEquals(3, orResult.size(), "Number of ScheduleItem notes with categories "
+                + categories + " and name '" + name + "'");
+    }
+
+    @Test
+    public void getNotesByNamePatternClassAndCategory() {
+        createScheduleItemTestBed(main);
+        String pattern = "Event \\d";
+        Set<String> categories = Set.of("Category1", "Category2");
+        main.addNoteToCategories(categories, main.getNote(0));
+        main.addNoteToCategories(categories, main.getNote(1));
+        main.addNoteToCategory("Category1", main.getNote(2));
+        main.addNoteToCategory("Category2", main.getNote(3));
+        SearchCriteria criteria = new SearchCriteria().setNoteClass(ScheduleItem.class)
+                .setCategories(categories).joinWithAnd().setNameMatch(pattern).doPatternMatch();
+        List<NoteBase> andResult = main.findMatchingNotes(criteria);
+        assertEquals(2, andResult.size(), "Number of ScheduleItem notes with categories "
+                + categories + " and name matching pattern '" + pattern + "'");
+    }
+
     // @Test
     public void testTemplate() {
         throw new RuntimeException("Test not yet implemented");
     }
 
     // ToDo: Add tests for various note types, categories, and child notes (need to set up test data)
-    //  * Search by name and class
-    //  * Search by name and categories
-    //  * Search by various combinations of the above
     //  * Search in sub-notes
 }

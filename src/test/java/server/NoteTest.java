@@ -60,11 +60,29 @@ public class NoteTest {
 
     @Test
     public void noteCreationFailsIfBothNoteAndDescriptionAreUnset() {
-        String[] names = { null, "" };
-        String[] descriptions = { null, "" };
-        for (String name : names) {
-            for (String description : descriptions) {
+        String[] fields = { null, "" };
+        for (String name : fields) {
+            for (String description : fields) {
                 assertThrows(IllegalArgumentException.class, () -> new Note(name, description));
+            }
+        }
+    }
+
+    @Test
+    public void ifFullNameIsMissingContactUsesFirstAndLastName() {
+        Contact contact = Contact.newContact("First", "Last", null);
+        assertEquals("First Last", contact.getName(), "Contact name is first + last");
+    }
+
+    @Test
+    public void contactCreationFailsIfAllNamesAreNullOrEmpty() {
+        String[] names = { null, "" };
+        for (String firstName : names) {
+            for (String lastName : names) {
+                for (String fullName : names) {
+                    assertThrows(IllegalArgumentException.class,
+                            () -> new Contact(firstName, lastName, fullName, null, Entity.EntityType.PERSON));
+                }
             }
         }
     }

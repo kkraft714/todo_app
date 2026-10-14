@@ -68,7 +68,7 @@ public class NoteOrganizerTest extends TestBase {
     public void callGetScheduleWithNoScheduleItemsAdded() {
         assertEquals(0, main.getSchedule().size(), "Number of schedule items");
     }
-
+    
     @Test
     public void addProduct() {
         main.addNote(new Product("Blind Alley", null,
