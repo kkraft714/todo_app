@@ -60,11 +60,30 @@ public class NoteTest {
 
     @Test
     public void noteCreationFailsIfBothNoteAndDescriptionAreUnset() {
-        String[] names = { null, "" };
-        String[] descriptions = { null, "" };
-        for (String name : names) {
-            for (String description : descriptions) {
+        String[] fields = { null, "" };
+        for (String name : fields) {
+            for (String description : fields) {
                 assertThrows(IllegalArgumentException.class, () -> new Note(name, description));
+            }
+        }
+    }
+
+    @Test
+    public void ifFullNameIsMissingContactUsesFirstAndLastName() {
+        Contact contact = newPerson("First", "Last");
+        assertEquals("First Last", contact.getName(), "Contact name is first + last");
+    }
+
+    // ToDo: Update this test so I can get rid of the complicate Contact constructor
+    @Test
+    public void contactCreationFailsIfAllNamesAreNullOrEmpty() {
+        String[] names = { null, "" };
+        for (String firstName : names) {
+            for (String lastName : names) {
+                for (String fullName : names) {
+                    assertThrows(IllegalArgumentException.class,
+                            () -> new Contact(firstName, lastName, fullName, null, Entity.EntityType.PERSON));
+                }
             }
         }
     }
@@ -72,7 +91,7 @@ public class NoteTest {
     @Test
     // ToDo: Need separate tests for ordering
     public void createNoteWithEachElementTypeAndVerifyResult() throws MalformedURLException {
-        emptyTestNote.addChildNote(Contact.newContact("First1", "Last1", null).addAddress(
+        emptyTestNote.addChildNote(newPerson("First1", "Last1").addAddress(
                 new Address().setPhoneNumber("234-5678").setAddress1("123 4th St.").setCity("Menlo Park")));
         emptyTestNote.addChildNote(new Product("Blind Alley", null,
                 new Entity("Fanny", null, Entity.EntityType.ARTIST)).setType(MediaType.SONG));

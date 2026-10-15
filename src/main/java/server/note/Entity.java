@@ -7,9 +7,7 @@ public class Entity extends Note {
     // ToDo: Support user-defined types (e.g. "Band", "Author", "Client", etc.)?
     public enum EntityType { PERSON, BUSINESS, ORGANIZATION, NON_PROFIT, ARTIST };
     private final EntityType type;
-    // ToDo: Define getter/setter for contactInfo
-    // ToDo: Move addresses and phoneNumbers here?
-    private Address address;
+    private String customType;   // Support user-defined entity types
 
     public Entity(String name, String description, EntityType type) {
         super(name, description);
