@@ -118,7 +118,7 @@ public class SearchTest extends TestBase {
     @Test
     public void getNotesByClass() {
         addTestNotes(3, main);
-        Contact contact = Contact.newContact("Jane", "Doe", null);
+        Contact contact = newPerson("Jane", "Doe");
         main.addNote(contact);
         SearchCriteria criteria = new SearchCriteria().setNoteClass(Contact.class);
         List<NoteBase> result = main.findMatchingNotes(criteria);
@@ -182,7 +182,7 @@ public class SearchTest extends TestBase {
     @Test
     public void getNotesByNameAndCategory() {
         Set<String> categories = createNotesWithMultipleCategories(main);
-        String name = "Test Note";
+        String name = "Test Note";   // This is the default name for test notes
         SearchCriteria criteria = new SearchCriteria().setCategories(categories).joinWithAnd().setNameMatch(name);
         List<NoteBase> andResult = main.findMatchingNotes(criteria);
         assertEquals(partitionCount, andResult.size(), "Number of notes with categories and name '" + name + "'");

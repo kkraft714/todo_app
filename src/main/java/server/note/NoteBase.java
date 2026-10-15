@@ -27,10 +27,10 @@ public class NoteBase {
         this.completed = false;
     }
 
-    public String setName(String newName, String newDescription) {
+    private static String setName(String newName, String newDescription) {
         if (newName == null || newName.isEmpty()) {
             if (newDescription == null || newDescription.isEmpty()) {
-                throw new IllegalArgumentException("Note name cannot be null or empty");
+                throw new IllegalArgumentException("Must provide a name or description for a note");
             }
             return newDescription;
         }

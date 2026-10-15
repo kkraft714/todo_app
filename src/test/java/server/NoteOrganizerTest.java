@@ -68,18 +68,18 @@ public class NoteOrganizerTest extends TestBase {
     public void callGetScheduleWithNoScheduleItemsAdded() {
         assertEquals(0, main.getSchedule().size(), "Number of schedule items");
     }
-    
+
     @Test
     public void addProduct() {
         main.addNote(new Product("Blind Alley", null,
-                new Entity("Fanny", null, Entity.EntityType.ARTIST)).setType(MediaType.SONG));
+                new Entity("Fanny", "Rock Band",  Entity.EntityType.ARTIST)).setType(MediaType.SONG));
         assertEquals(1, main.getNotes().size(), "Total number of notes");
         assertEquals(1, main.getNotesForType(Product.class).size(), "Number of Product notes");
     }
 
     @Test
     public void addContact() {
-        main.addNote(Contact.newContact("Jane", "Doe", null));
+        main.addNote(newPerson("Jane", "Doe"));
         assertEquals(1, main.getNotes().size(), "Total number of notes");
         assertEquals(1, main.getNotesForType(Contact.class).size(), "Number of Contact notes");
     }
@@ -144,7 +144,7 @@ public class NoteOrganizerTest extends TestBase {
 
     @Test
     public void deleteNoteRemovesItFromNoteTypes() {
-        Contact contact = Contact.newContact("Jane", "Doe", null);
+        Contact contact = newPerson("Jane", "Doe");
         main.addNote(contact);
         main.addNote(new Note("Plain note"));
         assertEquals(List.of(contact), main.noteTypes.get(Contact.class), "Contacts tracked by type");

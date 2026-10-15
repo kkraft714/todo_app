@@ -70,10 +70,11 @@ public class NoteTest {
 
     @Test
     public void ifFullNameIsMissingContactUsesFirstAndLastName() {
-        Contact contact = Contact.newContact("First", "Last", null);
+        Contact contact = newPerson("First", "Last");
         assertEquals("First Last", contact.getName(), "Contact name is first + last");
     }
 
+    // ToDo: Update this test so I can get rid of the complicate Contact constructor
     @Test
     public void contactCreationFailsIfAllNamesAreNullOrEmpty() {
         String[] names = { null, "" };
@@ -90,7 +91,7 @@ public class NoteTest {
     @Test
     // ToDo: Need separate tests for ordering
     public void createNoteWithEachElementTypeAndVerifyResult() throws MalformedURLException {
-        emptyTestNote.addChildNote(Contact.newContact("First1", "Last1", null).addAddress(
+        emptyTestNote.addChildNote(newPerson("First1", "Last1").addAddress(
                 new Address().setPhoneNumber("234-5678").setAddress1("123 4th St.").setCity("Menlo Park")));
         emptyTestNote.addChildNote(new Product("Blind Alley", null,
                 new Entity("Fanny", null, Entity.EntityType.ARTIST)).setType(MediaType.SONG));

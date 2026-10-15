@@ -6,13 +6,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 // Includes Person, Company etc.
-// ToDo: Combine this with Entity (since only Contact extends it)?
+
+// ToDo: Add list of email addresses!
 public class Contact extends Entity {
     private String firstName;
     private String lastName;
     private ArrayList<Address> addresses;
     private ArrayList<Phone> phoneNumbers;
 
+    public Contact(String displayName, EntityType type) {
+        super(displayName, null, type);
+        this.addresses = new ArrayList<>();
+        this.phoneNumbers = new ArrayList<>();
+    }
     // ToDo: Replace this with builder pattern?
     public Contact(String firstName, String lastName, String fullName, String description, EntityType type) {
         // ToDo: The fullName kludge is kind of ugly - can I clean it up?
@@ -23,6 +29,7 @@ public class Contact extends Entity {
         this.phoneNumbers = new ArrayList<>();
     }
 
+    // ToDo: Change to setDisplayName()?
     private static String setFullName(String full, String first, String last) {
         if ((first == null || first.isEmpty()) && (last == null || last.isEmpty()) && (full == null || full.isEmpty())) {
             throw new IllegalArgumentException("At least one name is required for a contact");
@@ -35,18 +42,15 @@ public class Contact extends Entity {
     public Contact setFirstName(String firstName) { this.firstName = firstName; return this; }
     public String getLastName() { return lastName; }
     public Contact setLastName(String lastName) { this.lastName = lastName; return this; }
+    public Contact setName(String firstName, String lastName) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        return this;
+    }
     public List<Address> getAddresses() { return addresses; }
     public Contact addAddress(Address newAddress) { addresses.add(newAddress); return this; }
     public List<Phone> getPhoneNumbers() { return phoneNumbers; }
     public Contact addPhoneNumber(Phone newPhone) { phoneNumbers.add(newPhone); return this; }
-
-    public static Contact newContact(String firstName, String lastName, String description) {
-        return new Contact(firstName, lastName, null, description, EntityType.PERSON);
-    }
-
-    public static Contact newBusiness(String name, String description) {
-        return new Contact(null, null, name, description, EntityType.BUSINESS);
-    }
 
     // ToDo: Update to add address and phone info
     @Override

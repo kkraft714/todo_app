@@ -41,7 +41,7 @@ public class NoteTestHelper {
         return switch (elementTypeIndex) {
             case 0 -> {
                 contactCount++;
-                yield Contact.newContact("First", "Contact" + contactCount, null).addAddress(
+                yield newPerson("First", "Contact" + contactCount).addAddress(
                         new Address().setPhoneNumber("345-5679").setAddress1("222 2nd St.").setCity("Menlo Park"));
             }
             case 1 -> {
@@ -176,5 +176,16 @@ public class NoteTestHelper {
             }
         }
         return Set.of(MediaType.BOOK.name(), MediaType.FILM.name());
+    }
+
+    // ToDo: Note sure whether these Contact helper methods belong here or in Contact
+    public static Contact newPerson(String firstName, String lastName) {
+        return new Contact(firstName + " " + lastName, null).setName(firstName, lastName);
+    }
+
+    public static Contact newBusiness(String name, String description) {
+        Contact newBusiness = new Contact(name, Entity.EntityType.BUSINESS);
+        newBusiness.setDescription(description);
+        return newBusiness;
     }
 }
