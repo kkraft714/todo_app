@@ -41,6 +41,7 @@ public class NoteTest {
     // ToDo: Add a simple test for just one Note?
     // ToDo: Add test for each Note type
 
+    // ToDo: Combine null/empty name tests
     @Test
     public void noteUsesDescriptionForNameIfNameIsNull() {
         String description = "Description for note with no name";
@@ -68,6 +69,8 @@ public class NoteTest {
             }
         }
     }
+
+    // ToDo: Add null/empty tests for setName() (and setDescription()?)
 
     @Test
     public void ifFullNameIsMissingContactUsesFirstAndLastName() {

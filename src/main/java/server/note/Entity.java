@@ -8,6 +8,7 @@ public class Entity extends Note {
 
     public Entity(String name, String description, EntityType type) {
         super(name, description);
+        // ToDo: Alternately provide a default type (e.g. OTHER) for generic entities
         assert type != null : "Entity type cannot be null";
         this.type = type;
     }

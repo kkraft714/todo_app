@@ -26,7 +26,7 @@ public class Contact extends Entity {
     public String getLastName() { return lastName; }
     public Contact setLastName(String lastName) { this.lastName = lastName; return this; }
     public Contact setContactName(String firstName, String lastName) {
-        validateFirstNameAndLastNameAreSet(firstName, lastName);
+        validateFirstNameOrLastNameIsSet(firstName, lastName);
         this.firstName = firstName;
         this.lastName = lastName;
         // ToDo: Is this case even possible (since a name is required to create a Contact)?
@@ -40,15 +40,14 @@ public class Contact extends Entity {
     public List<Phone> getPhoneNumbers() { return phoneNumbers; }
     public Contact addPhoneNumber(Phone newPhone) { phoneNumbers.add(newPhone); return this; }
 
-    public static void validateFirstNameAndLastNameAreSet(String firstName, String lastName) {
+    public static void validateFirstNameOrLastNameIsSet(String firstName, String lastName) {
         if ((firstName == null || firstName.isEmpty()) && (lastName == null || lastName.isEmpty())) {
             throw new IllegalArgumentException("At least one name is required for a contact");
         }
     }
 
     public static Contact newPerson(String firstName, String lastName) {
-        validateFirstNameAndLastNameAreSet(firstName, lastName);
-        // ToDo: Only use non-null/empty names for the display name
+        validateFirstNameOrLastNameIsSet(firstName, lastName);
         return new Contact(firstName + " " + lastName, Entity.EntityType.PERSON).setContactName(firstName, lastName);
     }
 
