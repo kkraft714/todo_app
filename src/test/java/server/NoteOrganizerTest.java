@@ -6,7 +6,9 @@ import org.junit.jupiter.api.*;
 
 import java.time.LocalDateTime;
 import java.util.*;
+
 import static server.NoteTestHelper.*;
+import static server.note.Contact.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 // ToDo: Figure out JUnit assertThat() with matchers (and replace assertTrue())

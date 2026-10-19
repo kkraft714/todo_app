@@ -7,6 +7,7 @@ import java.net.MalformedURLException;
 import java.util.NoSuchElementException;
 
 import static server.NoteTestHelper.*;
+import static server.note.Contact.*;
 
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -59,7 +60,7 @@ public class NoteTest {
     }
 
     @Test
-    public void noteCreationFailsIfBothNoteAndDescriptionAreUnset() {
+    public void noteCreationFailsIfBothNameAndDescriptionAreUnset() {
         String[] fields = { null, "" };
         for (String name : fields) {
             for (String description : fields) {
@@ -74,18 +75,21 @@ public class NoteTest {
         assertEquals("First Last", contact.getName(), "Contact name is first + last");
     }
 
-    // ToDo: Update this test so I can get rid of the complicate Contact constructor
     @Test
     public void contactCreationFailsIfAllNamesAreNullOrEmpty() {
         String[] names = { null, "" };
         for (String firstName : names) {
             for (String lastName : names) {
-                for (String fullName : names) {
-                    assertThrows(IllegalArgumentException.class,
-                            () -> new Contact(firstName, lastName, fullName, null, Entity.EntityType.PERSON));
-                }
+                assertThrows(IllegalArgumentException.class, () -> newPerson(firstName, lastName));
             }
         }
+    }
+
+    // ToDo: Add tests for setContactName()
+
+    @Test
+    public void contactCreationFailsIfTypeIsNull() {
+        assertThrows(AssertionError.class, () -> new Contact("Name", null));
     }
 
     @Test

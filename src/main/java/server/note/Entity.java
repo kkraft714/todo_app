@@ -1,16 +1,14 @@
 package server.note;
 
-import server.element.Address;
-
 // Includes Contact, Person, Company, Artist, etc.
 public class Entity extends Note {
-    // ToDo: Support user-defined types (e.g. "Band", "Author", "Client", etc.)?
+    // ToDo: Support String customType for user-defined types (e.g. like "Band", "Author", "Client", etc.)?
     public enum EntityType { PERSON, BUSINESS, ORGANIZATION, NON_PROFIT, ARTIST };
     private final EntityType type;
-    private String customType;   // Support user-defined entity types
 
     public Entity(String name, String description, EntityType type) {
         super(name, description);
+        assert type != null : "Entity type cannot be null";
         this.type = type;
     }
 

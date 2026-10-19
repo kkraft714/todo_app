@@ -6,6 +6,7 @@ import org.junit.jupiter.api.*;
 
 import java.util.*;
 import static server.NoteTestHelper.*;
+import static server.note.Contact.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 // ToDo: Add initializeTestData() for more complex test scenarios
@@ -103,7 +104,7 @@ public class SearchTest extends TestBase {
     public void getCategorizedNotesWithOrRelationship() {
         Set<String> categories = createNotesWithMultipleCategories(main);
         SearchCriteria criteria = new SearchCriteria().setCategories(categories);
-        List<NoteBase> orResult = main.findMatchingNotes(criteria);
+        List<NoteBase> orResult = main.findMatchingNotes(criteria);    // Matching is done via OR" by default
         assertEquals(partitionCount*3, orResult.size(), "Number of notes with any queried categories");
     }
 

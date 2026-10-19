@@ -19,6 +19,7 @@ public class NoteBase {
 
     // ToDo: Turn this into a builder as well
     public NoteBase(String newName, String newDescription) {
+        // ToDo: Add validation method for name and description (i.e. not null/empty)
         this.name = setName(newName, newDescription);
         // ToDo: Set description to empty if we use it for the name?
         this.description = newDescription;
@@ -27,6 +28,7 @@ public class NoteBase {
         this.completed = false;
     }
 
+    // Enforce that either name of description must be provided
     private static String setName(String newName, String newDescription) {
         if (newName == null || newName.isEmpty()) {
             if (newDescription == null || newDescription.isEmpty()) {
@@ -38,6 +40,7 @@ public class NoteBase {
     }
 
     public String getName() { return name; }
+    // ToDo: Move name validation to the constructor and throw an exception if for null/empty name?
     public NoteBase setName(String newName) { this.name = setName(newName, description); return this; }
     public String getDescription() { return description; }
     public NoteBase setDescription(String newDescription) { description = newDescription; return this; }
@@ -57,5 +60,5 @@ public class NoteBase {
     public boolean hasAnyCategory(Set<String> cats) {
         return cats == null || cats.isEmpty() || cats.stream().anyMatch(cat -> categories.contains(cat));
     }
-    // ToDo: Support toString() method
+    // ToDo: Support toString() method?
 }

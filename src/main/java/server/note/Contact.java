@@ -19,38 +19,44 @@ public class Contact extends Entity {
         this.addresses = new ArrayList<>();
         this.phoneNumbers = new ArrayList<>();
     }
-    // ToDo: Replace this with builder pattern?
-    public Contact(String firstName, String lastName, String fullName, String description, EntityType type) {
-        // ToDo: The fullName kludge is kind of ugly - can I clean it up?
-        super(setFullName(fullName, firstName, lastName), description, type);
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.addresses = new ArrayList<>();
-        this.phoneNumbers = new ArrayList<>();
-    }
-
-    // ToDo: Change to setDisplayName()?
-    private static String setFullName(String full, String first, String last) {
-        if ((first == null || first.isEmpty()) && (last == null || last.isEmpty()) && (full == null || full.isEmpty())) {
-            throw new IllegalArgumentException("At least one name is required for a contact");
-        }
-        return full == null || full.isEmpty() ? first + " " + last : full;
-    }
 
     // ToDo: Should type be final or do we need a setter?
     public String getFirstName() { return firstName; }
     public Contact setFirstName(String firstName) { this.firstName = firstName; return this; }
     public String getLastName() { return lastName; }
     public Contact setLastName(String lastName) { this.lastName = lastName; return this; }
-    public Contact setName(String firstName, String lastName) {
+    public Contact setContactName(String firstName, String lastName) {
+        validateFirstNameAndLastNameAreSet(firstName, lastName);
         this.firstName = firstName;
         this.lastName = lastName;
+        // ToDo: Is this case even possible (since a name is required to create a Contact)?
+        if (name == null || name.isEmpty()) {
+            setName(firstName + " " + lastName);
+        }
         return this;
     }
     public List<Address> getAddresses() { return addresses; }
     public Contact addAddress(Address newAddress) { addresses.add(newAddress); return this; }
     public List<Phone> getPhoneNumbers() { return phoneNumbers; }
     public Contact addPhoneNumber(Phone newPhone) { phoneNumbers.add(newPhone); return this; }
+
+    public static void validateFirstNameAndLastNameAreSet(String firstName, String lastName) {
+        if ((firstName == null || firstName.isEmpty()) && (lastName == null || lastName.isEmpty())) {
+            throw new IllegalArgumentException("At least one name is required for a contact");
+        }
+    }
+
+    public static Contact newPerson(String firstName, String lastName) {
+        validateFirstNameAndLastNameAreSet(firstName, lastName);
+        // ToDo: Only use non-null/empty names for the display name
+        return new Contact(firstName + " " + lastName, Entity.EntityType.PERSON).setContactName(firstName, lastName);
+    }
+
+    public static Contact newBusiness(String name, String description) {
+        Contact newBusiness = new Contact(name, Entity.EntityType.BUSINESS);
+        newBusiness.setDescription(description);
+        return newBusiness;
+    }
 
     // ToDo: Update to add address and phone info
     @Override

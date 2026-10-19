@@ -7,6 +7,8 @@ import server.note.*;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import static server.note.Contact.*;
+
 public class NoteTestHelper {
     private static final Random rand = new Random();
     private static final int defaultElementCount = 5;
@@ -176,16 +178,5 @@ public class NoteTestHelper {
             }
         }
         return Set.of(MediaType.BOOK.name(), MediaType.FILM.name());
-    }
-
-    // ToDo: Note sure whether these Contact helper methods belong here or in Contact
-    public static Contact newPerson(String firstName, String lastName) {
-        return new Contact(firstName + " " + lastName, null).setName(firstName, lastName);
-    }
-
-    public static Contact newBusiness(String name, String description) {
-        Contact newBusiness = new Contact(name, Entity.EntityType.BUSINESS);
-        newBusiness.setDescription(description);
-        return newBusiness;
     }
 }

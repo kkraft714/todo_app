@@ -2,10 +2,10 @@ package server.element;
 
 // ToDo Resurrect ContactInfo and add email?
 public class Phone {
+    // ToDo: Support String customPhoneType for user-defined phone types?
     public enum PhoneType { MOBILE, HOME, WORK, OTHER };
     private String number;
     private PhoneType type;
-    private String customPhoneType;   // Support user-defined phone types
 
     public Phone(String number, PhoneType type) {
         this.number = number;
