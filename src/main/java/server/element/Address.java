@@ -1,10 +1,13 @@
 package server.element;
 
+import jakarta.persistence.Embeddable;
+
 /**
 ** Contains contact information.
 */
 // ToDo: Support multiple phone numbers and addresses?
 // ToDo: Define separate phone number class with type (mobile, home, work)?
+@Embeddable
 public class Address {
   private String phoneNumber;
   private String email;

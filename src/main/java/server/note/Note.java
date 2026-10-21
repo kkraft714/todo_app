@@ -1,5 +1,7 @@
 package server.note;
 
+import jakarta.persistence.DiscriminatorValue;
+
 import java.util.ArrayList;
 
 /**
@@ -7,7 +9,8 @@ import java.util.ArrayList;
  *
  * The setter methods return the "this" object to allow for chaining.
  */
-// ToDo: Needs to be mapped to DB with Hibernate annotations
+@jakarta.persistence.Entity
+@DiscriminatorValue("NOTE")
 public class Note extends NoteBase {
     protected ArrayList<NoteBase> childNotes;   // ToDo: Rename "children"?
     protected ArrayList<Link> links;

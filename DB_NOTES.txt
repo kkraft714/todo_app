@@ -1,5 +1,5 @@
 
-ToDo: Transfer this to a README file?
+ToDo: Transfer this to a README file (it's currently not checked in)?
 
 Using MySQL:
 

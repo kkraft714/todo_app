@@ -1,9 +1,13 @@
 package server.note;
 
+import jakarta.persistence.DiscriminatorValue;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 // ToDo: Support recurring events?
+@jakarta.persistence.Entity
+@DiscriminatorValue("SCHEDULE_ITEM")
 public class ScheduleItem extends Note {
     // 12-hour timestamp format with AM/PM
     private static final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss a");

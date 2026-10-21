@@ -1,5 +1,6 @@
 package server.note;
 
+import jakarta.persistence.DiscriminatorValue;
 import server.element.*;
 
 import java.util.ArrayList;
@@ -8,6 +9,8 @@ import java.util.List;
 // Includes Person, Company etc.
 
 // ToDo: Add list of email addresses!
+@jakarta.persistence.Entity
+@DiscriminatorValue("CONTACT")
 public class Contact extends Entity {
     private String firstName;
     private String lastName;

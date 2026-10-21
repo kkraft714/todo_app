@@ -1,5 +1,6 @@
 package server.note;
 
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -8,7 +9,16 @@ import java.util.Set;
  * This is the base class for all Note objects.
  */
 // This can be used for leaf-type notes with no child elements
+@jakarta.persistence.Entity
+@Table(name = "note_base")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "note_type", discriminatorType = DiscriminatorType.STRING)
+@DiscriminatorValue("SIMPLE_NOTE")
 public class NoteBase {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     protected String name;
     protected String description;
     // ToDo: Should a child Note inherit its parent's categories (maybe conceptually but not literally)?
@@ -39,6 +49,7 @@ public class NoteBase {
         return newName;
     }
 
+    public long getId() { return id; }
     public String getName() { return name; }
     // ToDo: Move name validation to the constructor and throw an exception if for null/empty name?
     public NoteBase setName(String newName) { this.name = setName(newName, description); return this; }

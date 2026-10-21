@@ -1,5 +1,7 @@
 package server.note;
 
+import jakarta.persistence.DiscriminatorValue;
+
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -9,6 +11,8 @@ import java.net.URL;
  * Represents a web link.
  */
 // ToDo: Support entering a link as free text and storing and displaying it as a URL
+@jakarta.persistence.Entity
+@DiscriminatorValue("LINK")
 public class Link extends NoteBase {
   // ToDo: Define this as a URI instead of URL?
   private URL linkURL;

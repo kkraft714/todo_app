@@ -1,6 +1,9 @@
 package server.element;
 
+import jakarta.persistence.Embeddable;
+
 // ToDo Resurrect ContactInfo and add email?
+@Embeddable
 public class Phone {
     // ToDo: Support String customPhoneType for user-defined phone types?
     public enum PhoneType { MOBILE, HOME, WORK, OTHER };

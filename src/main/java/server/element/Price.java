@@ -2,13 +2,14 @@ package server.element;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.security.PublicKey;
+import jakarta.persistence.Embeddable;
 
 /**
  * Represents an item price.
  */
 // ToDo: Make this an internal class in Product?
 // ToDo: Move to notes (and extend NoteBase)?
+@Embeddable
 public class Price {
     private BigDecimal price;
 

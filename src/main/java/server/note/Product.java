@@ -1,12 +1,16 @@
 package server.note;
 
-import server.categories.InternalCategory;
+import jakarta.persistence.*;
+import server.categories.Category;
 import server.element.Price;
 
-// ToDo: Needs to be mapped to DB with Hibernate annotations
+@jakarta.persistence.Entity
+@DiscriminatorValue("PRODUCT")
 public class Product extends Note {
+    @ManyToOne
+    @JoinColumn(name = "owner_id")
     private Entity owner;
-    private InternalCategory type;
+    private Category type;
     private Price productPrice;
 
     // ToDo: Include ProductType (extends InternalCategory) in constructor
@@ -19,8 +23,8 @@ public class Product extends Note {
 
     public Entity getOwner() { return owner; }
     public Product setOwner(Entity newOwner) { owner = newOwner; return this; }
-    public InternalCategory getType() { return type; }
-    public Product setType(InternalCategory type) {
+    public Category getType() { return type; }
+    public Product setType(Category type) {
         this.type = type;
         this.addCategory(type.toString());
         return this;

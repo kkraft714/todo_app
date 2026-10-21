@@ -1,5 +1,6 @@
 package server;
 
+import server.categories.Category;
 import server.categories.MediaType;
 import server.element.Address;
 import server.note.*;
@@ -49,7 +50,8 @@ public class NoteTestHelper {
             case 1 -> {
                 songCount++;
                 Entity owner = new Entity("The Who", null, Entity.EntityType.ARTIST);
-                yield new Product("Who Song #" + songCount).setOwner(owner).setType(MediaType.SONG).setPrice(5.99);
+                yield new Product("Who Song #" + songCount).setOwner(owner)
+                        .setType(Category.of(MediaType.SONG)).setPrice(5.99);
             }
             case 2 -> {
                 linkCount++;

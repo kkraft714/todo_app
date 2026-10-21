@@ -1,6 +1,10 @@
 package server.note;
 
+import jakarta.persistence.DiscriminatorValue;
+
 // Includes Contact, Person, Company, Artist, etc.
+@jakarta.persistence.Entity
+@DiscriminatorValue("ENTITY")
 public class Entity extends Note {
     // ToDo: Support String customType for user-defined types (e.g. like "Band", "Author", "Client", etc.)?
     public enum EntityType { PERSON, BUSINESS, ORGANIZATION, NON_PROFIT, ARTIST };
