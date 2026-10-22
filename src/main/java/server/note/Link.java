@@ -25,6 +25,8 @@ public class Link extends NoteBase {
 
   public Link(String name, String url) { this(name, null, url); }
 
+  private Link() {}   // No-arg constructor required by Hibernate
+
   public URL getUrl() { return linkURL; }
   public void setURL(String linkURL) {
     try {

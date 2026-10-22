@@ -1,6 +1,7 @@
 package server.database;
 
 import org.hibernate.Session;
+import org.jspecify.annotations.NonNull;
 import server.categories.Category;
 import server.note.*;
 import server.element.*;
@@ -9,42 +10,46 @@ import org.hibernate.boot.*;
 import org.hibernate.boot.registry.*;
 import org.hibernate.cfg.Configuration;
 
-import java.util.List;
-
 import static server.NoteUtils.*;
 
 public class HibernateUtil {
 
-    private static SessionFactory buildSessionFactory(boolean isTestDB) {
-        Configuration config = new Configuration();     // Looks for hibernate.properties
+    public static @NonNull StandardServiceRegistry buildServiceRegistry(boolean isTestDB) {
         try {
-            // Currently we assume a PostgreSQL DB
-            config.setProperty("hibernate.connection.driver_class", "org.postgresql.Driver");
-            config.setProperty("hibernate.hbm2ddl.auto", "create-drop");
-            // Highly recommended for debugging your first test:
-            config.setProperty("hibernate.show_sql", "true");
-            config.setProperty("hibernate.format_sql", "true");            trySettingConfigFromEnvironment(config, isTestDB);
-            LOG.info("Hibernate: Connecting to database using connection string {}",
-                    config.getProperty("hibernate.connection.url"));
-            Metadata metadata;
-            try (StandardServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
-                    .applySettings(config.getProperties()).build()) {
-                MetadataSources sources = new MetadataSources(serviceRegistry);
-                // My operating assumption is that I must add @Embeddable classes before @Entity classes
-                for (Class<?> entity : new Class<?>[]{ Category.class, Address.class, Phone.class,Price.class,
-                        NoteBase.class, Note.class, Entity.class, Contact.class, Link.class, Product.class,
-                        ScheduleItem.class}) {
-                    sources.addAnnotatedClass(entity);
-                }
-                return sources.getMetadataBuilder().build().buildSessionFactory();
-            }
-            catch (Exception ex) {
-                LOG.error("Failed to create Hibernate session factory", ex);
-            }
-        } catch (Throwable ex) {
-            throw new ExceptionInInitializerError(ex);
+            return new StandardServiceRegistryBuilder()
+                    .applySettings(getConfiguration(isTestDB).getProperties()).build();
         }
-        return null;
+        catch (Exception ex) {
+            LOG.error("Failed to create Hibernate service registry", ex);
+            throw ex;
+        }
+    }
+
+    public static SessionFactory getSessionFactory(StandardServiceRegistry registry) {
+        MetadataSources sources = new MetadataSources(registry);
+        // My operating assumption is that I must add @Embeddable classes before @Entity classes
+        for (Class<?> entity : new Class<?>[]{ Category.class, Address.class, Phone.class,Price.class, NoteBase.class,
+                Note.class, Entity.class, Contact.class, Link.class, Product.class, ScheduleItem.class}) {
+            sources.addAnnotatedClass(entity);
+        }
+        return sources.buildMetadata().buildSessionFactory();
+    }
+
+    private static @NonNull Configuration getConfiguration(boolean isTestDB) {
+        Configuration config = new Configuration();    // Looks for hibernate.properties by default
+        // ToDo: Define boolean flag to read from local.hibernate.properties?
+        // Currently we assume a PostgreSQL DB
+        config.setProperty("hibernate.connection.driver_class", "org.postgresql.Driver");
+        if (isTestDB) {
+            config.setProperty("hibernate.hbm2ddl.auto", "create-drop");
+        }
+        // Highly recommended for debugging your first test (ToDo: put under a DEBUG flag?)
+        config.setProperty("hibernate.show_sql", "true");
+        config.setProperty("hibernate.format_sql", "true");
+        trySettingConfigFromEnvironment(config, isTestDB);
+        LOG.info("Hibernate: Connecting to database using connection string {}",
+                config.getProperty("hibernate.connection.url"));
+        return config;
     }
 
     private static void trySettingConfigFromEnvironment(Configuration config, boolean isTestDB) {
@@ -64,12 +69,8 @@ public class HibernateUtil {
         }
     }
 
-    public static SessionFactory getTestSessionFactory() { return buildSessionFactory(true); }
-    public static SessionFactory getProdSessionFactory() { return buildSessionFactory(false); }
-
     public static void runCreationTest(Session testSession, NoteBase noteType) {
         try {
-            testSession.beginTransaction();
             testSession.persist(noteType);
             testSession.getTransaction().commit();
         }

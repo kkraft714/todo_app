@@ -15,14 +15,16 @@ import java.util.List;
 public class Note extends NoteBase {
     // Maps the relationship using the 'parent' field declared in NoteBase
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
-    protected List<NoteBase> childNotes = new ArrayList<>();;   // ToDo: Rename "children"?
+    protected List<NoteBase> childNotes = new ArrayList<>();    // ToDo: Rename "children"?
     @ElementCollection(targetClass = Link.class)
     @CollectionTable(name = "note_links", joinColumns = @JoinColumn(name = "note_id"))
-    protected List<Link> links = new ArrayList<>();;
+    protected List<Link> links = new ArrayList<>();
 
     public Note(String newName, String newDescription) {
         super(newName, newDescription);
     }
+
+    protected Note() {}   // No-arg constructor required by Hibernate
 
     public Note(String newName) { this(newName, null); }
 
@@ -30,7 +32,11 @@ public class Note extends NoteBase {
     public List<NoteBase> getChildNotes() { return childNotes; }
     public NoteBase getChildNote(int index) { return childNotes.get(index); }
     // We call these from wrapper methods in NoteOrganizer in order to update note tracking
-    public Note addChildNote(NoteBase childNote) { childNotes.add(childNote); return this; }
+    public Note addChildNote(NoteBase childNote) {
+        childNote.setParent(this);
+        childNotes.add(childNote);
+        return this;
+    }
     public Note addChildNote(NoteBase childNote, int index) { childNotes.add(index, childNote); return this; }
     public Note removeChildNote(NoteBase childNote) { childNotes.remove(childNote); return this; }
     public Note addLink(Link link) { links.add(link); return this; }

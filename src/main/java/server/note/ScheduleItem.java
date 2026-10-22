@@ -27,6 +27,8 @@ public class ScheduleItem extends Note {
         this(name, description, LocalDateTime.parse(dateString, dateFormat));
     }
 
+    private ScheduleItem() {}   // No-arg constructor required by Hibernate
+
     public LocalDateTime getDate() { return date; }
     public void setDate(LocalDateTime newDate) { this.date = newDate; }
     public void setDate(String dateString) { this.date = convertToDate(dateString); }

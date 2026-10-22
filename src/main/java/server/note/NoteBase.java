@@ -19,21 +19,18 @@ public class NoteBase {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     // 💡 Self-reference back to the parent Note container row, required for Hibernate
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_note_id")
     private Note parent;
-
     protected String name;
     protected String description;
     // ToDo: Should a child Note inherit its parent's categories (maybe conceptually but not literally)?
-    // ToDo: Do I really need to track categories here?
+    // ToDo: Do I need to track categories at the Note level (does a Note need to know its categories)?
     protected Set<String> categories = new HashSet<>();
-    // ToDo: Initialize create here instead of the constructor?
     private final LocalDateTime created = LocalDateTime.now();
     private Boolean completed = false;
 
-    // ToDo: Need to add zero-arg constructors everywhere (@Entity and @Embeddable)
-    // ToDo: Turn this into a builder as well
+    // ToDo: Maybe require name and get rid of complicated "name or description" logic?
     public NoteBase(String newName, String newDescription) {
         // ToDo: Add validation method for name and description (i.e. not null/empty)
         this.name = setName(newName, newDescription);
@@ -42,8 +39,6 @@ public class NoteBase {
     }
 
     protected NoteBase() {}    // Required zero-arg constructor for Hibernate
-
-    public NoteBase getParent() { return parent; }
 
     // Enforce that either name of description must be provided
     private static String setName(String newName, String newDescription) {
@@ -56,7 +51,9 @@ public class NoteBase {
         return newName;
     }
 
-    public long getId() { return id; }
+    public Note getParent() { return parent; }
+    public void setParent(Note parent) { this.parent = parent; }
+    public Long getId() { return id; }
     public String getName() { return name; }
     // ToDo: Move name validation to the constructor and throw an exception if for null/empty name?
     public NoteBase setName(String newName) { this.name = setName(newName, description); return this; }

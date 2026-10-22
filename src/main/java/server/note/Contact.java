@@ -27,6 +27,8 @@ public class Contact extends Entity {
         this.phoneNumbers = new ArrayList<>();
     }
 
+    private Contact() {}    // No-arg constructor required by Hibernate
+
     // ToDo: Should type be final or do we need a setter?
     public String getFirstName() { return firstName; }
     public Contact setFirstName(String firstName) { this.firstName = firstName; return this; }
