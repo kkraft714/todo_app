@@ -18,25 +18,32 @@ public class NoteBase {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    // 💡 Self-reference back to the parent Note container row, required for Hibernate
+    @ManyToOne
+    @JoinColumn(name = "parent_note_id")
+    private Note parent;
 
     protected String name;
     protected String description;
     // ToDo: Should a child Note inherit its parent's categories (maybe conceptually but not literally)?
     // ToDo: Do I really need to track categories here?
-    protected Set<String> categories;
-    private final LocalDateTime created;
-    private Boolean completed;
+    protected Set<String> categories = new HashSet<>();
+    // ToDo: Initialize create here instead of the constructor?
+    private final LocalDateTime created = LocalDateTime.now();
+    private Boolean completed = false;
 
+    // ToDo: Need to add zero-arg constructors everywhere (@Entity and @Embeddable)
     // ToDo: Turn this into a builder as well
     public NoteBase(String newName, String newDescription) {
         // ToDo: Add validation method for name and description (i.e. not null/empty)
         this.name = setName(newName, newDescription);
         // ToDo: Set description to empty if we use it for the name?
         this.description = newDescription;
-        this.categories = new HashSet<>();
-        this.created = LocalDateTime.now();
-        this.completed = false;
     }
+
+    protected NoteBase() {}    // Required zero-arg constructor for Hibernate
+
+    public NoteBase getParent() { return parent; }
 
     // Enforce that either name of description must be provided
     private static String setName(String newName, String newDescription) {

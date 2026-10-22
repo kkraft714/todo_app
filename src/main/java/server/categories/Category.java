@@ -7,12 +7,15 @@ import java.util.Objects;
 
 @Embeddable
 public class Category {
+    // Note that name is required to be unique, since it is used to define equals() and hashCode().
+    // That requirement will have to be enforced when adding categories in NoteOrganizer.
     @NotBlank
     private String name;
 
     protected Category() {}  // Required zero-arg constructor for Hibernate
 
     // Factory method for user-defined string categories
+    // ToDo: Add tests for both kinds of category
     public static Category of(String customName) {
         Category cat = new Category();
         cat.name = customName;
@@ -20,11 +23,7 @@ public class Category {
     }
 
     // Factory method for your internal typed enums
-    public static Category of(InternalCategory type) {
-        Category cat = new Category();
-        cat.name = type.getName(); // Converts internal type to clean String
-        return cat;
-    }
+    public static Category of(InternalCategory type) { return of(type.getName()); }
 
     public String getName() {
         return name;

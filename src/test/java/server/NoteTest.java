@@ -1,9 +1,8 @@
 package server;
 
-import server.element.Address;
+import server.element.*;
 import server.note.*;
-import server.categories.Category;
-import server.categories.MediaType;
+import server.categories.*;
 import java.net.MalformedURLException;
 import java.util.NoSuchElementException;
 
@@ -100,8 +99,8 @@ public class NoteTest {
     @Test
     // ToDo: Need separate tests for ordering
     public void createNoteWithEachElementTypeAndVerifyResult() throws MalformedURLException {
-        emptyTestNote.addChildNote(newPerson("First1", "Last1").addAddress(
-                new Address().setPhoneNumber("234-5678").setAddress1("123 4th St.").setCity("Menlo Park")));
+        emptyTestNote.addChildNote(newPerson("First1", "Last1").addPhoneNumber("234-5678", Phone.PhoneType.MOBILE)
+                .addAddress(new Address().setAddress1("123 4th St.").setCity("Menlo Park")));
         emptyTestNote.addChildNote(new Product("Blind Alley", null,
                 new Entity("Fanny", null, Entity.EntityType.ARTIST)).setType(Category.of(MediaType.SONG)));
         // emptyTestNote.addElement(new Price(5.00));

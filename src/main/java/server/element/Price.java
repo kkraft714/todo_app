@@ -2,7 +2,10 @@ package server.element;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Objects;
+
 import jakarta.persistence.Embeddable;
+import server.categories.Category;
 
 /**
  * Represents an item price.
@@ -13,10 +16,7 @@ import jakarta.persistence.Embeddable;
 public class Price {
     private BigDecimal price;
 
-    // No-arg constructor required by Hibernate
-    protected Price() {
-        this.price = null;
-    }
+    protected Price() { }   // No-arg constructor required by Hibernate
 
     public Price(BigDecimal itemPrice) {
         this.price = itemPrice.setScale(2, RoundingMode.UNNECESSARY);
@@ -28,6 +28,16 @@ public class Price {
 
     public BigDecimal getPrice() { return price; }
     public void setPrice(BigDecimal newPrice) { this.price = newPrice; }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Price)) return false;
+        return Objects.equals(price, ((Price)o).getPrice());
+    }
+
+    @Override
+    public int hashCode() { return Objects.hash(price); }
 
     @Override
     // ToDo: Consider I18N (i.e. other currencies)

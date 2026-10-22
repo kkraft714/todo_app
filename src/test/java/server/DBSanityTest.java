@@ -3,6 +3,7 @@ package server;
 import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.*;
 import org.hibernate.Session;
+import server.note.*;
 
 import static server.database.HibernateUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -18,11 +19,15 @@ public class DBSanityTest {
     private static SessionFactory testSessionFactory;
     private Session testSession;
 
+    // ToDo: Move all this setup and teardown code into TestBase?
     @BeforeAll
     public static void setUpTestSessionFactory() { testSessionFactory = getTestSessionFactory(); }
 
     @BeforeEach
-    public void openNewSession() {
+    public void openNewSession() throws Exception {
+        if (testSessionFactory == null) {
+            throw new Exception("Failed to create Hibernate SessionFactory");
+        }
         testSession = testSessionFactory.openSession();
         testSession.beginTransaction();
     }
@@ -44,6 +49,31 @@ public class DBSanityTest {
         assertFalse(testSession.getProperties().isEmpty(), "Expected non-empty properties for open DB session");
         testSession.close();
         assertFalse(testSession.isOpen(), "Test session in open");
+    }
+
+    private static final NoteBase simpleNote = new NoteBase("Simple Note 1", "Simple NoteBase object");
+    @Test
+    public void createSimpleNote() {
+        runCreationTest(testSession, simpleNote);
+    }
+
+    @Test
+    public void createNote() {
+        Note newNote = new Note("NewNote1", "Testing Note creation");
+        runCreationTest(testSession, newNote);
+    }
+
+    // ToDo: Test adding child Note(s)
+
+    @Test
+    public void createContact() {
+        Contact newPerson = Contact.newPerson("Person1", "LastName");
+        runCreationTest(testSession, newPerson);
+    }
+
+    @Test
+    public void createSimpleNoteAndRetrieveFromDatabase() {
+
     }
 }
 
