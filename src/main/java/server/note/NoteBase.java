@@ -18,7 +18,7 @@ public class NoteBase {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    // 💡 Self-reference back to the parent Note container row, required for Hibernate
+    // Self-reference back to the parent Note container row, required for Hibernate
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_note_id")
     private Note parent;

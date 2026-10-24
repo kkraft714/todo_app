@@ -9,8 +9,6 @@ import server.categories.Category;
 import server.categories.MediaType;
 import server.note.*;
 
-import java.time.LocalDateTime;
-
 import static server.database.HibernateUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -74,51 +72,49 @@ public class DBSanityTest {
     private static final NoteBase simpleNote = new NoteBase(simpleNoteName, "Simple NoteBase object");
     @Test
     public void createSimpleNote() {
-        runCreationTest(testSession, simpleNote);
-        testSession.clear();
-        NoteBase fetchedNote = testSession.find(NoteBase.class, simpleNote.getId());
-        assertNotNull(fetchedNote);
+        NoteBase fetchedNote = saveAndRetrieveNote(testSession, simpleNote);
         assertEquals(simpleNoteName, fetchedNote.getName(), "Simple Note name");
     }
 
     @Test
     public void createNote() {
         String noteName = "New Note 1";
-        Note newNote = new Note(noteName, "Testing Note creation");
-        runCreationTest(testSession, newNote);
-        testSession.clear();
-        Note fetchedNote = testSession.find(Note.class, newNote.getId());
-        assertNotNull(fetchedNote);
+        Note newNote = new Note(noteName, "Testing Note creation");;
+        Note fetchedNote = saveAndRetrieveNote(testSession, newNote);
         assertEquals(newNote.getName(), fetchedNote.getName(), "New Note name");
     }
 
-    // ToDo: Add static noteID to distinguish Note names?
+    // ToDo: Add static noteID and increment it to distinguish Note names?
     @Test
     public void createNoteWithOneChildNote() {
-        String noteName = "NewNote2";
-        Note newNote = new Note(noteName, "Testing adding a child note");
+        Note newNote = new Note("NewNote2", "Testing adding a child note");
         Note childNote = new Note("ChildNote1", "Testing adding a child note");
         newNote.addChildNote(childNote);
-        testSession.persist(childNote);
-        runCreationTest(testSession, newNote);
-        testSession.clear();
-        Note fetchedNote = testSession.find(Note.class, newNote.getId());
-        assertNotNull(fetchedNote);
-        assertEquals(noteName, fetchedNote.getName());
+        Note fetchedNote = saveAndRetrieveNote(testSession, newNote);
+        assertEquals(newNote.getName(), fetchedNote.getName());
         assertEquals(1, fetchedNote.getChildNotes().size(), "Number of child notes");
         // ToDo: Verify child note name as well?
         // System.out.println("Child Note name: " + fetchedNote.getChildNote(0).getName());
     }
 
+    // ToDo: createNoteWithMultipleChildNotes()
+    // ToDo: Create static test Link (like simpleNote)?
+    @Test
+    public void createNoteWithLink() {
+        String url = "http://google.com";    // ToDo: Make this a static constant
+        Note newNote = new Note("NewNote3", "Testing adding a link to a note");
+        newNote.addLink(new Link("Google", null, url));
+        Note fetchedNote = saveAndRetrieveNote(testSession, newNote);
+        assertEquals(1, fetchedNote.getLinks().size(), "Number of Note links");
+        assertEquals(url, fetchedNote.getLink(0).getUrl().toString(), "Link added to Note");
+    }
+
     @Test
     public void createEntity() {
-        // ToDo: Factory out static final Entity type for testing?
+        // ToDo: Factor out static final Entity type for testing?
         Entity artist = new Entity("Grand Funk", null, Entity.EntityType.ARTIST);
-        runCreationTest(testSession, artist);
-        testSession.clear();
-        Note fetchedNote = testSession.find(Entity.class, artist.getId());
-        assertNotNull(fetchedNote);
-        assertEquals(Entity.EntityType.ARTIST, artist.getType(), "Entity type");
+        Entity fetchedNote = saveAndRetrieveNote(testSession, artist);
+        assertEquals(artist.getType(), fetchedNote.getType(), "Entity type");
     }
 
     @Test
@@ -126,47 +122,37 @@ public class DBSanityTest {
         String firstName = "Person1";
         String lastName = "LastName";
         Contact person = Contact.newPerson(firstName, lastName);
-        runCreationTest(testSession, person);
-        testSession.clear();
-        Note fetchedNote = testSession.find(Contact.class, person.getId());
-        assertNotNull(fetchedNote);
+        Note fetchedNote = saveAndRetrieveNote(testSession, person);
         assertEquals(firstName + " " + lastName, fetchedNote.getName(), "Person name");
     }
 
     @Test
     public void createProduct() {
         Entity owner = new Entity("Fanny", null, Entity.EntityType.ARTIST);
-        testSession.persist(owner);
         Product newProduct = new Product("Blind Alley", null, null).setType(Category.of(MediaType.SONG));
         newProduct.setOwner(owner);
-        runCreationTest(testSession, newProduct);
-        testSession.clear();
-        Note fetchedNote = testSession.find(Product.class, newProduct.getId());
-        assertNotNull(fetchedNote);
-        assertEquals(Category.of(MediaType.SONG), newProduct.getType(), "Product category");
+        Product fetchedNote = saveAndRetrieveNote(testSession, newProduct);
+        // ToDo: Also assert on owner ID?
+        assertEquals(newProduct.getType(), fetchedNote.getType(), "Product category");
     }
 
     @Test
     public void createLink() {
-        String linkURL = "http://google.com";
-        Link webLink = new Link("Google", null, linkURL);
-        runCreationTest(testSession, webLink);
-        Link fetchedNote = testSession.find(Link.class, webLink.getId());
-        assertNotNull(fetchedNote);
-        assertEquals(linkURL, webLink.getUrl().toString(), "Link URL");
+        Link webLink = new Link("Google", null, "http://google.com");
+        Link fetchedNote = saveAndRetrieveNote(testSession, webLink);
+        assertEquals(webLink.getUrl(), fetchedNote.getUrl(), "Link URL");
     }
 
     @Test
     public void createScheduleItem() {
-        LocalDateTime eventDate = ScheduleItem.convertToDate("2020-06-12 00:00:00 AM");
-        ScheduleItem event = new ScheduleItem("Deadline", null, eventDate);
-        runCreationTest(testSession, event);
-        ScheduleItem fetchedNote = testSession.find(ScheduleItem.class, event.getId());
-        assertNotNull(fetchedNote);
-        assertEquals(eventDate, event.getDate(), "Event date");
+        ScheduleItem event = new ScheduleItem("Deadline", null, ScheduleItem.convertToDate("2020-06-12 00:00:00 AM"));
+        ScheduleItem fetchedNote = saveAndRetrieveNote(testSession, event);
+        assertEquals(event.getDate(), fetchedNote.getDate(), "Event date");
     }
 }
 
+// ToDo: Test adding addresses and phone numbers to Contact
+// ToDo: Test adding links to a note
 // ToDo: Add deletion tests
 // ToDo: Test deleting one child note from a list of multiple
 // ToDo: Test cascading deletes (deleting parent entity also deletes children)
@@ -174,3 +160,5 @@ public class DBSanityTest {
 // ToDo: Add tests for complex queries
 // ToDo: Add tests for verifying managed entities (dbSession.getManagedEntities())
 //       Verify there is at least one managed entity?
+// ToDo: Add commit tests (using separate sessions for create and retrieve) - Put them in a separate class?
+// ToDo: Come up with some negative tests (null Note, etc.)

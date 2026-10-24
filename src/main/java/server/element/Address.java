@@ -1,7 +1,6 @@
 package server.element;
 
 import jakarta.persistence.Embeddable;
-
 import java.util.Objects;
 
 /**

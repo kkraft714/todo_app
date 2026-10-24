@@ -1,5 +1,6 @@
 package server.database;
 
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.jspecify.annotations.NonNull;
 import server.categories.Category;
@@ -69,10 +70,17 @@ public class HibernateUtil {
         }
     }
 
-    public static void runCreationTest(Session testSession, NoteBase noteType) {
+    @SuppressWarnings("unchecked")
+    public static <T extends NoteBase> T saveAndRetrieveNote(Session testSession, NoteBase noteType) {
         try {
+            // ToDo: We are assuming that a transaction has been opened here (confirm that?)
             testSession.persist(noteType);
-            testSession.getTransaction().commit();
+            testSession.flush();    // Forces a write to the DB
+            testSession.clear();    // Empties the cache to force retrieval from the DB
+            Class<T> noteClass = (Class<T>) Hibernate.getClass(noteType);
+            T fetchedNote = testSession.find(noteClass, noteType.getId());
+            assert fetchedNote != null : "Failed to fetch " + noteType.getClass() + " with ID " + noteType.getId();
+            return fetchedNote;
         }
         catch (Exception ex) {
             if (testSession.getTransaction() != null && testSession.getTransaction().isActive()) {

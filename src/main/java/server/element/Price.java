@@ -3,9 +3,7 @@ package server.element;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Objects;
-
 import jakarta.persistence.Embeddable;
-import server.categories.Category;
 
 /**
  * Represents an item price.

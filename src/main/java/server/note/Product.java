@@ -7,7 +7,7 @@ import server.element.Price;
 @jakarta.persistence.Entity
 @DiscriminatorValue("PRODUCT")
 public class Product extends Note {
-    @ManyToOne
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "owner_id")
     private Entity owner;
     private Category type;

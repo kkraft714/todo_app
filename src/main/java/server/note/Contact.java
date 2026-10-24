@@ -2,12 +2,10 @@ package server.note;
 
 import jakarta.persistence.*;
 import server.element.*;
-
 import java.util.ArrayList;
 import java.util.List;
 
 // Includes Person, Company etc.
-
 // ToDo: Add list of email addresses (define Email class?)!
 @jakarta.persistence.Entity
 @DiscriminatorValue("CONTACT")

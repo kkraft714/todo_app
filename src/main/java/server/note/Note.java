@@ -16,8 +16,8 @@ public class Note extends NoteBase {
     // Maps the relationship using the 'parent' field declared in NoteBase
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
     protected List<NoteBase> childNotes = new ArrayList<>();    // ToDo: Rename "children"?
-    @ElementCollection(targetClass = Link.class)
-    @CollectionTable(name = "note_links", joinColumns = @JoinColumn(name = "note_id"))
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinColumn(name = "note_id")
     protected List<Link> links = new ArrayList<>();
 
     public Note(String newName, String newDescription) {
@@ -28,8 +28,8 @@ public class Note extends NoteBase {
 
     public Note(String newName) { this(newName, null); }
 
-    // ToDo: Add addLink() and addElement() methods (or addSubNote() or addChildNote()?)
     public List<NoteBase> getChildNotes() { return childNotes; }
+    // ToDo: Add version that takes Note instead of index?
     public NoteBase getChildNote(int index) { return childNotes.get(index); }
     // We call these from wrapper methods in NoteOrganizer in order to update note tracking
     public Note addChildNote(NoteBase childNote) {
@@ -38,8 +38,16 @@ public class Note extends NoteBase {
         return this;
     }
     public Note addChildNote(NoteBase childNote, int index) { childNotes.add(index, childNote); return this; }
-    public Note removeChildNote(NoteBase childNote) { childNotes.remove(childNote); return this; }
+    public NoteBase removeChildNote(NoteBase childNote) {
+        childNote.setParent(null);
+        childNotes.remove(childNote);
+        return childNote;
+    }
     public Note addLink(Link link) { links.add(link); return this; }
+    public List<Link> getLinks() { return links; }
+    public Link getLink(int index) { return links.get(index); }
+    // ToDo: This doesn't seem to work?
+    public Link getLink(Link link) { return links.stream().filter(l -> l == link).findFirst().orElse(null); }
     public boolean hasChildNotes() { return !childNotes.isEmpty(); }
 
     // ToDo: Add more info to this (e.g. categories, tags, elements)?

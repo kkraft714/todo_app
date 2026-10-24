@@ -1,7 +1,6 @@
 package server.categories;
 
 import jakarta.persistence.Embeddable;
-
 import java.util.Objects;
 
 @Embeddable
