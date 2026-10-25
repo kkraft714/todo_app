@@ -1,21 +1,24 @@
 package server.database;
 
-import org.hibernate.Hibernate;
-import org.hibernate.Session;
+import org.hibernate.*;
 import org.jspecify.annotations.NonNull;
 import server.categories.Category;
 import server.note.*;
 import server.element.*;
-import org.hibernate.SessionFactory;
 import org.hibernate.boot.*;
 import org.hibernate.boot.registry.*;
 import org.hibernate.cfg.Configuration;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 
 import static server.NoteUtils.*;
 
 public class HibernateUtil {
 
-    public static @NonNull StandardServiceRegistry buildServiceRegistry(boolean isTestDB) {
+    // ToDo: Define getTestServiceRegistry()?
+    public static @NonNull StandardServiceRegistry getServiceRegistry(boolean isTestDB) {
         try {
             return new StandardServiceRegistryBuilder()
                     .applySettings(getConfiguration(isTestDB).getProperties()).build();
@@ -38,7 +41,6 @@ public class HibernateUtil {
 
     private static @NonNull Configuration getConfiguration(boolean isTestDB) {
         Configuration config = new Configuration();    // Looks for hibernate.properties by default
-        // ToDo: Define boolean flag to read from local.hibernate.properties?
         // Currently we assume a PostgreSQL DB
         config.setProperty("hibernate.connection.driver_class", "org.postgresql.Driver");
         if (isTestDB) {
@@ -54,6 +56,9 @@ public class HibernateUtil {
     }
 
     private static void trySettingConfigFromEnvironment(Configuration config, boolean isTestDB) {
+        if (setConfigFromLocalFile(config)) {
+            return;
+        }
         String username = System.getenv("DB_USERNAME");
         String password = System.getenv("DB_PASSWORD");
         if (isSet(username) && isSet(password)) {
@@ -68,6 +73,24 @@ public class HibernateUtil {
             // ToDo: Am I logging this twice?
             LOG.info("Set the JDBC URL to {}", jdbcUrl);
         }
+    }
+
+    private static boolean setConfigFromLocalFile(Configuration config) {
+        String hibernateConfigFile = System.getenv("HIBERNATE_CONFIG_FILE");
+        try (InputStream input = HibernateUtil.class.getClassLoader().getResourceAsStream(hibernateConfigFile)) {
+            if (input == null) {
+                return false;
+            }
+            LOG.info("Loading Hibernate properties from config file {}", hibernateConfigFile);
+            Properties configProperties = new Properties();
+            configProperties.load(input);
+            config.setProperties(configProperties);
+            return true;
+        }
+        catch (Exception ex) {
+            LOG.error("Failed to load Hibernate config file '{}'", hibernateConfigFile, ex);
+        }
+        return false;
     }
 
     @SuppressWarnings("unchecked")

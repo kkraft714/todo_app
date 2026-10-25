@@ -11,11 +11,6 @@ public class Phone {
     private String number;
     private PhoneType type;
 
-    public Phone(String number, PhoneType type) {
-        this.number = number;
-        this.type = type;
-    }
-
     public Phone() {}   // No-arg constructor required by Hibernate
 
     public String getNumber() { return number; }
@@ -26,8 +21,7 @@ public class Phone {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Phone)) return false;
-        Phone p = (Phone)o;
+        if (!(o instanceof Phone p)) return false;
         return Objects.equals(number, p.getNumber()) && Objects.equals(type, p.getType());
     }
 

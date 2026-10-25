@@ -38,6 +38,7 @@ public class Note extends NoteBase {
         return this;
     }
     public Note addChildNote(NoteBase childNote, int index) { childNotes.add(index, childNote); return this; }
+    // ToDo: Delete childNote from DB in this case?
     public NoteBase removeChildNote(NoteBase childNote) {
         childNote.setParent(null);
         childNotes.remove(childNote);

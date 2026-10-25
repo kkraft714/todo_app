@@ -2,6 +2,7 @@ package server.note;
 
 import jakarta.persistence.*;
 import server.categories.Category;
+import server.categories.MediaType;
 import server.element.Price;
 
 @jakarta.persistence.Entity
@@ -21,7 +22,7 @@ public class Product extends Note {
 
     public Product(String name) { super(name, null); }
 
-    private Product() {}    // No-arg constructor required by Hibernate
+    protected Product() {}    // No-arg constructor required by Hibernate
 
     public Entity getOwner() { return owner; }
     public Product setOwner(Entity newOwner) { owner = newOwner; return this; }
@@ -32,6 +33,7 @@ public class Product extends Note {
         this.addCategory(type.getName());
         return this;
     }
+    public Product setType(MediaType type) { setType(Category.of(type)); return this; }
     public Price getPrice() { return productPrice; }
     public Product setPrice(Price productPrice) { this.productPrice = productPrice; return this; }
     public Product setPrice(double price) { this.productPrice = new Price(price); return this; }
