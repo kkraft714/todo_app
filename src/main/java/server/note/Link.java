@@ -35,7 +35,7 @@ public class Link extends NoteBase {
       throw new RuntimeException("Failed to create link for URL: " + linkURL, ex);
     }
   }
-  public String getURLString() { return linkURL.toString(); }
+  public String getURLString() { return linkURL != null ? linkURL.toString() : null; }
 
   // ToDo: Add testLink() and set broken = true if it can't be accessed?
   public boolean isBroken() { return broken; }

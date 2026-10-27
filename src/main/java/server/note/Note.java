@@ -14,8 +14,10 @@ import java.util.List;
 @DiscriminatorValue("NOTE")
 public class Note extends NoteBase {
     // Maps the relationship using the 'parent' field declared in NoteBase
+    @OrderColumn
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
     protected List<NoteBase> childNotes = new ArrayList<>();    // ToDo: Rename "children"?
+    @OrderColumn
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "note_id")
     protected List<Link> links = new ArrayList<>();

@@ -1,14 +1,17 @@
 package server.element;
 
 import jakarta.persistence.Embeddable;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+
 import java.util.Objects;
 
-// ToDo Resurrect ContactInfo and add email?
 @Embeddable
 public class Phone {
     // ToDo: Support String customPhoneType for user-defined phone types?
     public enum PhoneType { MOBILE, HOME, WORK, OTHER };
     private String number;
+    @Enumerated(EnumType.STRING)
     private PhoneType type;
 
     public Phone() {}   // No-arg constructor required by Hibernate

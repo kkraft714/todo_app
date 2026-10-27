@@ -28,7 +28,7 @@ public class DBSanityTest {
 
     // ToDo: Move all this setup and teardown code into TestBase?
     @BeforeAll
-    public static void setUpTestSessionFactory() {
+    public static void setUpTestSessionFactory() throws Exception {
         testServiceRegistry = getServiceRegistry(true);
         testSessionFactory = getSessionFactory(testServiceRegistry);
     }
@@ -120,7 +120,6 @@ public class DBSanityTest {
         }
     }
 
-    // ToDo: Add tests for child notes of classes extending Note
     @Test
     public void createNoteWithLink() {
         Note newNote = new Note("NewNote3", "Testing adding a link to a note");
@@ -128,7 +127,7 @@ public class DBSanityTest {
         newNote.addLink(newLink);
         Note fetchedNote = saveAndRetrieveNote(testSession, newNote);
         assertEquals(1, fetchedNote.getLinks().size(), "Number of Note links");
-        assertEquals(newLink.getURLString(), fetchedNote.getLink(0).getUrl().toString(), "Link added to Note");
+        assertEquals(newLink.getUrl(), fetchedNote.getLink(0).getUrl(), "Link added to Note");
     }
 
     @Test
@@ -218,10 +217,13 @@ public class DBSanityTest {
 
     protected static int eventNumber = 1;
     protected static ScheduleItem getTestScheduleItem() {
-        return new ScheduleItem("Event#" + eventNumber, null, LocalDateTime.now().plusDays(eventNumber));
+        return new ScheduleItem("Event#" + eventNumber, null, LocalDateTime.now().plusDays(eventNumber++));
     }
 }
 
+// ToDo: Add Contact test with multiple Addresses, Phones, and, Emails (and assertEquals() on full lists)
+// ToDo: Add DB configuration tests (combinations of config files and environment variables)
+//  - Test non-existent config file
 // ToDo: Add deletion tests
 // ToDo: Test deleting one child note from a list of multiple
 // ToDo: Test cascading deletes (deleting parent entity also deletes children)

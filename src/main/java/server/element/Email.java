@@ -1,12 +1,16 @@
 package server.element;
 
 import jakarta.persistence.Embeddable;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+
 import java.util.Objects;
 
 @Embeddable
 public class Email {
     public enum EmailType { PERSONAL, WORK, OTHER };
     private String address;
+    @Enumerated(EnumType.STRING)
     private EmailType type;
 
     public Email() {}   // No-arg constructor required by Hibernate
