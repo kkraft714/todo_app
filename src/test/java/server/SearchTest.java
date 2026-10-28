@@ -3,13 +3,14 @@ package server;
 import server.note.*;
 import server.categories.MediaType;
 import org.junit.jupiter.api.*;
-
 import java.util.*;
-import static server.NoteTestHelper.*;
+
 import static server.note.Contact.*;
+import static server.NoteTestHelper.*;
+import static server.database.HibernateUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-// ToDo: Add initializeTestData() for more complex test scenarios
+// ToDo: Add initializeTestData()/setUpTestData() for more complex test scenarios
 //  - Note with 2 sub-note levels
 //  - Note with many sub-notes
 //  - Notes with and without categories
@@ -22,13 +23,13 @@ public class SearchTest extends TestBase {
         Note newNote = NoteTestHelper.createGenericTestNote();
         String mediaType = MediaType.SONG.toString();
         newNote.addCategory(mediaType);
-        main.addNote(newNote);
+        // ToDo: Can I remove the category and Note tracking in main since I am querying the DB?
+        // main.addNote(newNote);   // Currently this has no effect on whether the test passes!
         SearchCriteria criteria = new SearchCriteria().setCategory(mediaType);
-        List<NoteBase> notes = main.findMatchingNotes(criteria);
+        Note fetchedNote = saveAndRetrieveNote(testSession, newNote);
+        List<? extends NoteBase> notes = findMatchingNotesInDB(testSession, criteria);
         assertEquals(1, notes.size(), "Number of notes with media type " + mediaType);
-        assertTrue(notes.contains(newNote), "Note list contains new note with media type " + mediaType);
-        // ToDo: Why do I have this remove assertion here?
-        assertTrue(notes.remove(newNote), "New note with media type " + mediaType + " is in list");
+        assertTrue(notes.contains(fetchedNote), "Note list contains new note with media type " + mediaType);
     }
 
     @Test

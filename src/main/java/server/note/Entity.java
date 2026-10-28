@@ -4,7 +4,7 @@ import jakarta.persistence.DiscriminatorValue;
 
 // Includes Contact, Person, Company, Artist, etc.
 // Need to use fully-qualified name to distinguish the annotation from this class
-// ToDo: Override equals() and hashCode() for this class?
+// ToDo: Override equals() and hashCode() for this (and other Note/Entity classes)?
 @jakarta.persistence.Entity
 @DiscriminatorValue("ENTITY")
 public class Entity extends Note {

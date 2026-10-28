@@ -4,14 +4,17 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import org.hibernate.search.mapper.pojo.mapping.definition.annotation.*;
 
 /**
  * This is the base class for all Note objects. It can be used for leaf-type notes with no child elements.
  */
 // ToDo: Per Gemini I should override hashCode() and equals() for @Entity classes as well
+    // ToDo: Provide separate logger here for Note classes (instead of server.NoteUtils.LOG)?
 @jakarta.persistence.Entity
 @Table(name = "note_base")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@Indexed
 @DiscriminatorColumn(name = "note_type", discriminatorType = DiscriminatorType.STRING)
 @DiscriminatorValue("SIMPLE_NOTE")
 public class NoteBase {
@@ -22,10 +25,12 @@ public class NoteBase {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_note_id")
     private Note parent;
+    // ToDo: Annotate this with @KeywordField for pattern or contains() searches?
     protected String name;
     protected String description;
     // ToDo: Should a child Note inherit its parent's categories (maybe conceptually but not literally)?
     // ToDo: Do I need to track categories at the Note level (does a Note need to know its categories)?
+    @KeywordField
     protected Set<String> categories = new HashSet<>();
     private final LocalDateTime created = LocalDateTime.now();
     private Boolean completed = false;

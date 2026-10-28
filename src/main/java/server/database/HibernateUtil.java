@@ -1,21 +1,26 @@
 package server.database;
 
 import org.hibernate.*;
+import org.hibernate.search.engine.search.predicate.SearchPredicate;
+import org.hibernate.search.engine.search.predicate.dsl.BooleanPredicateClausesStep;
+import org.hibernate.search.mapper.orm.Search;
+import org.hibernate.search.mapper.orm.session.SearchSession;
 import org.jspecify.annotations.NonNull;
+import server.SearchCriteria;
 import server.note.*;
 import org.hibernate.boot.*;
 import org.hibernate.boot.registry.*;
 import org.hibernate.cfg.Configuration;
 
 import java.io.InputStream;
+import java.util.List;
 import java.util.Properties;
 
 import static server.NoteUtils.*;
 
 public class HibernateUtil {
 
-    // ToDo: Define getTestServiceRegistry()?
-    public static @NonNull StandardServiceRegistry getServiceRegistry(boolean isTestDB) throws Exception {
+    public static @NonNull StandardServiceRegistry getServiceRegistry(boolean isTestDB) {
         try {
             return new StandardServiceRegistryBuilder()
                     .applySettings(getConfiguration(isTestDB).getProperties()).build();
@@ -36,7 +41,7 @@ public class HibernateUtil {
         return sources.buildMetadata().buildSessionFactory();
     }
 
-    private static @NonNull Configuration getConfiguration(boolean isTestDB) throws Exception {
+    private static @NonNull Configuration getConfiguration(boolean isTestDB) {
         Configuration config = new Configuration();    // Looks for hibernate.properties by default
         // Currently we assume a PostgreSQL DB
         config.setProperty("hibernate.connection.driver_class", "org.postgresql.Driver");
@@ -45,13 +50,18 @@ public class HibernateUtil {
         config.setProperty("hibernate.format_sql", "true");
         trySettingConfigFromEnvironment(config, isTestDB);
         if (isTestDB) {
+            // ToDo: Confirm we are NOT pointing at the production DB here!
+            // Create and drop the DB for each test run
             config.setProperty("hibernate.hbm2ddl.auto", "create-drop");
-            // ToDo: Confirm we are NOT pointing at the production DB if create-drop is set!
+            // Force sync for DB test results
+            // config.setProperty("hibernate.search.automatic_indexing.synchronization.strategy", "sync");
+            // Cache the Lucene search results in memory instead of on disk
+            config.setProperty("hibernate.search.backend.directory.type", "local-heap");
         }
         else {
-            String hbm2ddlAuto = System.getProperty("hibernate.hbm2ddl.auto");
+            String hbm2ddlAuto = config.getProperty("hibernate.hbm2ddl.auto");
             if (isSet(hbm2ddlAuto) && hbm2ddlAuto.equalsIgnoreCase("create-drop")) {
-                throw new Exception("Cannot allow hibernate.hbm2ddl.auto=create-drop for production DB!");
+                throw new IllegalStateException("Cannot allow hibernate.hbm2ddl.auto=create-drop on production DB!");
             }
         }
         LOG.info("Hibernate: Connecting to database using connection string {}",
@@ -101,24 +111,44 @@ public class HibernateUtil {
         return false;
     }
 
-    // ToDo: This should be moved into a file under the test package
     @SuppressWarnings("unchecked")
-    public static <T extends NoteBase> T saveAndRetrieveNote(Session testSession, NoteBase noteType) {
-        try {
-            // ToDo: We are assuming that a transaction has been opened here (confirm that?)
-            testSession.persist(noteType);
-            testSession.flush();    // Forces a write to the DB
-            testSession.clear();    // Empties the cache to force retrieval from the DB
-            Class<T> noteClass = (Class<T>) Hibernate.getClass(noteType);
-            T fetchedNote = testSession.find(noteClass, noteType.getId());
-            assert fetchedNote != null : "Failed to fetch " + noteType.getClass() + " with ID " + noteType.getId();
-            return fetchedNote;
-        }
-        catch (Exception ex) {
-            if (testSession.getTransaction() != null && testSession.getTransaction().isActive()) {
-                testSession.getTransaction().rollback();
+    public static <T extends NoteBase> T retrieveNoteFromDB(Session session, T note) {
+        Class<T> noteClass = (Class<T>) Hibernate.getClass(note);
+        return session.find(noteClass, note.getId());
+    }
+
+    public static boolean hasOpenTransaction(Session session) {
+        return session != null && session.getTransaction() != null && session.getTransaction().isActive();
+    }
+
+    public static List<? extends NoteBase> findMatchingNotesInDB(Session session, SearchCriteria criteria) {
+        // Search.session(session).indexingPlan().execute();
+        return Search.session(session).search(criteria.getNoteClass()).where(
+                factory -> factory.bool().with(predicate -> {
+            if (isSet(criteria.getNameMatch())) {
+                // I tried factoring out the duplicate code but it looks difficult/impossible
+                if (criteria.isPatternMatch()) {
+                    predicate.must(factory.regexp().field("name").matching(criteria.getNamePattern()));
+                }
+                else {
+                    predicate.must(factory.wildcard().field("name")
+                            .matching("*" + criteria.getNameMatch().toLowerCase() + "*"));
+                }
             }
-            throw ex;  // Fail test
-        }
+            if (!criteria.getCategories().isEmpty()) {
+                if (criteria.isJoinWithAnd()) {
+                    for (String category : criteria.getCategories()) {
+                        predicate.must(factory.match().field("categories").matching(category));
+                    }
+                }
+                else {
+                    predicate.must(factory.bool().with(innerBool -> {
+                        for (String category : criteria.getCategories()) {
+                            innerBool.should(factory.match().field("categories").matching(category));
+                        }
+                    }));
+                }
+            }
+        })).fetchAllHits();
     }
 }

@@ -1,18 +1,11 @@
 package server;
 
-import org.hibernate.SessionFactory;
-import org.hibernate.boot.registry.StandardServiceRegistry;
-import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.junit.jupiter.api.*;
-import org.hibernate.Session;
-import server.categories.MediaType;
 import server.element.*;
 import server.note.*;
-
-import java.time.LocalDateTime;
 import java.util.List;
 
-import static server.database.HibernateUtil.*;
+import static server.NoteTestHelper.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -21,46 +14,19 @@ import static org.junit.jupiter.api.Assertions.*;
  * Note that you may have to try running this command more than once
  */
 // ToDo: Move into server.database package?
-public class DBSanityTest {
-    private static StandardServiceRegistry testServiceRegistry;
-    private static SessionFactory testSessionFactory;
-    private Session testSession;
-
-    // ToDo: Move all this setup and teardown code into TestBase?
-    @BeforeAll
-    public static void setUpTestSessionFactory() throws Exception {
-        testServiceRegistry = getServiceRegistry(true);
-        testSessionFactory = getSessionFactory(testServiceRegistry);
-    }
-
-    @BeforeEach
-    public void openNewSession() throws Exception {
-        if (testSessionFactory == null) {
-            throw new Exception("Failed to create Hibernate SessionFactory");
-        }
-        testSession = testSessionFactory.openSession();
-        testSession.beginTransaction();
-    }
-
-    @AfterEach
-    public void closeSession() {
-        if (testSession != null && testSession.isOpen()) {
-            if (testSession.getTransaction().isActive()) {
-                testSession.getTransaction().rollback();   // Rollback transaction so test DB stays clean
-            }
-            testSession.close();
-        }
-    }
-
-    @AfterAll
-    public static void closeSessionFactory() {
-        if (testSessionFactory != null) {
-            testSessionFactory.close();
-        }
-        if (testServiceRegistry != null) {
-            StandardServiceRegistryBuilder.destroy(testServiceRegistry);
-        }
-    }
+// ToDo: Add Contact test with multiple Addresses, Phones, and, Emails (and assertEquals() on full lists)
+// ToDo: Add DB configuration tests (combinations of config files and environment variables)
+//  - Test non-existent config file
+// ToDo: Add deletion tests
+// ToDo: Test deleting one child note from a list of multiple
+// ToDo: Test cascading deletes (deleting parent entity also deletes children)
+// ToDo: Add tests for CRUD operations on each entity type (Note, Contact, MediaItem, etc.)
+// ToDo: Add tests for complex queries
+// ToDo: Add commit tests (using separate sessions for create and retrieve) - Put them in a separate class?
+// ToDo: Come up with some negative tests (null Note, etc.)
+// ToDo: Add tests for verifying managed entities (dbSession.getManagedEntities())
+//       Verify there is at least one managed entity?
+public class DBSanityTest extends TestBase {
 
     @Test
     public void testDBConnection() {
@@ -179,57 +145,4 @@ public class DBSanityTest {
         ScheduleItem fetchedNote = saveAndRetrieveNote(testSession, event);
         assertEquals(event.getDate(), fetchedNote.getDate(), "Event date");
     }
-
-    // ================ Helper methods ================ (ToDo: Move these into a base test class)
-    // ToDo: Support these methods for each Note type
-    protected static NoteBase getSimpleNote() {
-        return new NoteBase("Simple Note 1", "Simple NoteBase object");
-    }
-
-    private static int noteNumber = 1;
-    protected static Note getTestNote() {
-        return new Note("Note#" + noteNumber, "Testing note #" + noteNumber++);
-    }
-
-    private static int personNumber = 1;
-    protected static Contact getTestPerson() {
-        return Contact.newPerson("FirstName" + personNumber, "LastName" + personNumber++);
-    }
-
-    private static int businessNumber = 1;
-    private static Contact getTestBusiness() {
-        return Contact.newBusiness("Business#" + businessNumber, "Description for business #" + businessNumber++);
-    }
-
-    protected static Link getGoogleLink() {
-        return new Link("Google", null, "http://google.com");
-    }
-
-    protected static Entity getTestArtist() {
-        return new Entity("Grand Funk", null, Entity.EntityType.ARTIST);
-    }
-
-    private static int productNumber = 1;
-    protected static Product getTestProduct() {
-        return new Product("Product#" + productNumber++)
-                .setOwner(getTestArtist()).setPrice(5.99).setType(MediaType.SONG);
-    }
-
-    protected static int eventNumber = 1;
-    protected static ScheduleItem getTestScheduleItem() {
-        return new ScheduleItem("Event#" + eventNumber, null, LocalDateTime.now().plusDays(eventNumber++));
-    }
 }
-
-// ToDo: Add Contact test with multiple Addresses, Phones, and, Emails (and assertEquals() on full lists)
-// ToDo: Add DB configuration tests (combinations of config files and environment variables)
-//  - Test non-existent config file
-// ToDo: Add deletion tests
-// ToDo: Test deleting one child note from a list of multiple
-// ToDo: Test cascading deletes (deleting parent entity also deletes children)
-// ToDo: Add tests for CRUD operations on each entity type (Note, Contact, MediaItem, etc.)
-// ToDo: Add tests for complex queries
-// ToDo: Add commit tests (using separate sessions for create and retrieve) - Put them in a separate class?
-// ToDo: Come up with some negative tests (null Note, etc.)
-// ToDo: Add tests for verifying managed entities (dbSession.getManagedEntities())
-//       Verify there is at least one managed entity?

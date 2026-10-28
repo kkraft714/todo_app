@@ -1,5 +1,7 @@
 package server;
 
+import org.hibernate.Session;
+import org.hibernate.search.mapper.orm.Search;
 import server.categories.Category;
 import server.categories.MediaType;
 import server.element.Address;
@@ -10,6 +12,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 import static server.note.Contact.*;
+import static server.database.HibernateUtil.*;
 
 public class NoteTestHelper {
     private static final Random rand = new Random();
@@ -181,5 +184,63 @@ public class NoteTestHelper {
             }
         }
         return Set.of(MediaType.BOOK.name(), MediaType.FILM.name());
+    }
+
+    public static NoteBase getSimpleNote() {
+        return new NoteBase("Simple Note 1", "Simple NoteBase object");
+    }
+
+    public static Note getTestNote() {
+        return new Note("Note#" + noteNumber, "Testing note #" + noteNumber++);
+    }
+
+    private static int personNumber = 1;
+    protected static Contact getTestPerson() {
+        return Contact.newPerson("FirstName" + personNumber, "LastName" + personNumber++);
+    }
+
+    private static int businessNumber = 1;
+    public static Contact getTestBusiness() {
+        return Contact.newBusiness("Business#" + businessNumber, "Description for business #" + businessNumber++);
+    }
+
+    public static Link getGoogleLink() {
+        return new Link("Google", null, "http://google.com");
+    }
+
+    public static Entity getTestArtist() {
+        return new Entity("Grand Funk", null, Entity.EntityType.ARTIST);
+    }
+
+    private static int productNumber = 1;
+    public static Product getTestProduct() {
+        return new Product("Product#" + productNumber++)
+                .setOwner(getTestArtist()).setPrice(5.99).setType(MediaType.SONG);
+    }
+
+    private static int eventNumber = 1;
+    public static ScheduleItem getTestScheduleItem() {
+        return new ScheduleItem("Event#" + eventNumber, null, LocalDateTime.now().plusDays(eventNumber++));
+    }
+
+    public static <T extends NoteBase> T saveAndRetrieveNote(Session testSession, T noteType) {
+        if (!hasOpenTransaction(testSession)) {
+            throw new IllegalStateException("No open transaction for current session");
+        }
+        try {
+            testSession.persist(noteType);
+            testSession.flush();    // Forces a write to the DB
+            Search.session(testSession).indexingPlan().execute();  // Indexes the entities before calling clear()
+            testSession.clear();    // Empties the cache to force retrieval from the DB
+            T fetchedNote = retrieveNoteFromDB(testSession, noteType);
+            assert fetchedNote != null : "Failed to fetch " + noteType.getClass() + " with ID " + noteType.getId();
+            return fetchedNote;
+        }
+        catch (Exception ex) {
+            if (testSession.getTransaction() != null && testSession.getTransaction().isActive()) {
+                testSession.getTransaction().rollback();
+            }
+            throw ex;  // Fail test
+        }
     }
 }

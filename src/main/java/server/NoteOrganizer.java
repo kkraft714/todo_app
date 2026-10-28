@@ -7,6 +7,7 @@ import server.note.*;
 
 import java.util.*;
 
+// ToDo: Can I remove the list of Notes and category tracking here since we are storing Note in the DB, not memory?
 // ToDo: Track contacts by type (e.g. people and businesses)?
 // ToDo: Can just load all Notes from the DB each time (because presumably it's a small app)?
 //  Have a mechanism to complete/deactivate notes and don't load them by default
