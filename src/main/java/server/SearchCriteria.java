@@ -1,5 +1,7 @@
 package server;
 
+import server.categories.Category;
+import server.categories.InternalCategory;
 import server.note.NoteBase;
 
 import java.util.regex.Pattern;
@@ -9,7 +11,7 @@ import java.util.Set;
 // ToDo: Add option to search by date created or date modified (or date range)?
 public class SearchCriteria {
     // ToDo: Add searchChildNotes property if I support it?
-    private final Set<String> categories = new HashSet<>();
+    private final Set<Category> categories = new HashSet<>();
     private Class<? extends NoteBase> noteClass = NoteBase.class;
     private String nameMatch;
     private boolean doPatternMatch = false;
@@ -21,8 +23,10 @@ public class SearchCriteria {
     public SearchCriteria() {}
 
     // Builders/setters
-    public SearchCriteria setCategory(String category) { categories.add(category); return this; }
-    public SearchCriteria setCategories(Set<String> newCategories) { categories.addAll(newCategories); return this; }
+    public SearchCriteria setCategory(Category cat) { categories.add(cat); return this; }
+    public SearchCriteria setCategory(String cat) { setCategory(Category.of(cat)); return this; }
+    public SearchCriteria setCategory(InternalCategory cat) { setCategory(Category.of(cat)); return this; }
+    public SearchCriteria setCategories(Set<Category> newCategories) { categories.addAll(newCategories); return this; }
     public SearchCriteria setNoteClass(Class<? extends NoteBase> noteClass) { this.noteClass = noteClass; return this; }
     // Name match is case-insensitive
     public SearchCriteria setNameMatch(String nameMatch) {
@@ -42,7 +46,7 @@ public class SearchCriteria {
     public boolean isPatternMatch() { return doPatternMatch; }
     public boolean isJoinWithAnd() { return joinWithAnd; }
     public Class<? extends NoteBase> getNoteClass() { return noteClass; }
-    public Set<String> getCategories() { return categories; }
+    public Set<Category> getCategories() { return categories; }
     boolean hasCategories() { return !categories.isEmpty(); }
     boolean nameMatch(String name) { return (doPatternMatch && matchPattern.matcher(name).matches())
             || (!doPatternMatch && name.toLowerCase().contains(nameMatch.toLowerCase())); }
@@ -50,7 +54,7 @@ public class SearchCriteria {
     public boolean match(NoteBase note) {
         boolean nameMatches = nameMatch == null || nameMatch(note.getName());
         boolean classMatch = noteClass == null || noteClass.isAssignableFrom(note.getClass());
-        boolean categoryMatch = joinWithAnd ? note.hasAllCategories(categories) : note.hasAnyCategory(categories);
-        return nameMatches && classMatch && categoryMatch;
+        // boolean categoryMatch = joinWithAnd ? note.hasAllCategories(categories) : note.hasAnyCategory(categories);
+        return nameMatches && classMatch; //  && categoryMatch;
     }
 }

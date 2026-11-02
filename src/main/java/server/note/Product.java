@@ -13,6 +13,8 @@ public class Product extends Note {
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "owner_id")
     private Entity owner;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "category_id", nullable = true)
     private Category type;
     private Price productPrice;
 
