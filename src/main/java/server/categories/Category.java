@@ -2,7 +2,7 @@ package server.categories;
 
 import jakarta.persistence.*;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.KeywordField;
-i
+
 import java.util.Objects;
 
 @Entity

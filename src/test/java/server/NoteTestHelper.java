@@ -236,27 +236,14 @@ public class NoteTestHelper extends HibernateUtil {
         return new ScheduleItem("Event#" + eventNumber, null, LocalDateTime.now().plusDays(eventNumber++));
     }
 
-    public static <T extends NoteBase> T saveAndRetrieveNote(Session testSession, T note) {
-        if (!hasOpenTransaction(testSession)) {
-            throw new IllegalStateException("No open transaction for current session");
-        }
-        try {
+    public static <T extends NoteBase> T commitAndRetrieveNote(T note) {
+        AtomicReference<T> fetchedNote = new AtomicReference<>();
+        trxMgr.runTransaction(testSession -> {
             testSession.persist(note);
             testSession.flush();
-            // ToDo: Need a separate session for this? Or separate save and query code?
-            T fetchedNote = retrieveNoteFromDB(testSession, note);
-            assert fetchedNote != null : "Failed to fetch " + note.getClass() + " with ID " + note.getId();
-            return fetchedNote;
-        }
-        catch (Exception ex) {
-            Thread.currentThread().interrupt();
-            if (testSession.getTransaction() != null && testSession.getTransaction().isActive()) {
-                testSession.getTransaction().rollback();
-            }
-            // This is required to avoid handling an InterruptedException from the startAndWait() call, above
-            Assertions.fail("Failed to save or retrieve Note: " + note.getName(), ex);
-            // throw ex;  // Fail test
-        }
-        return null;
+            fetchedNote.set(retrieveNoteFromDB(testSession, note));
+        });
+        assert fetchedNote.get() != null : "Failed to fetch " + note.getClass() + " with ID " + note.getId();
+        return fetchedNote.get();
     }
 }

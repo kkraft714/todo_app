@@ -133,7 +133,6 @@ public class SearchTest extends TestBase {
     @Test
     public void getCategorizedNotesWithAndRelationship() {
         Set<Category> categories = commitNotesWithMultipleCategories();
-        // Set<Category> categories = createNotesWithMultipleCategories(main);
         runTestTransaction(session -> {
             SearchCriteria criteria = new SearchCriteria().setCategories(categories).joinWithAnd();
             List<? extends NoteBase> andResult = findMatchingNotesInDB(session, criteria);

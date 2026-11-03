@@ -34,6 +34,7 @@ public class NoteBase {
     @JoinColumn(name = "parent_note_id")
     private Note parent;
     // ToDo: Annotate this with @KeywordField for pattern or contains() searches?
+    //  - Per Gemini @FullTextField enables case-insensitivity by default
     protected String name;
     protected String description;
     // ToDo: Should a child Note inherit its parent's categories (maybe conceptually but not literally)?

@@ -12,6 +12,7 @@ import static server.NoteTestHelper.*;
 import static server.note.Contact.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+// ToDo: Update these tests to be based on the DB
 // ToDo: Figure out JUnit assertThat() with matchers (and replace assertTrue())
 // ToDo: Switch to TestNG Test annotations and framework (instead of JUnit)?
 //   If so use the description attribute to document the tests

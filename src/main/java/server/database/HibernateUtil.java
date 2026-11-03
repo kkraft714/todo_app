@@ -228,6 +228,8 @@ public class HibernateUtil {
     }
 
     // ToDo: If I'm desperate I could just load the Notes from the DB and search in memory
+    // ToDo: Can I use the NoteBase hasCategory(), hasAllCategories(), and hasAnyCategory() methods here?
+    // ToDo: Will getNoteClass() automatically include subclasses in the search result?
     public static List<? extends NoteBase> findMatchingNotesInDB(Session session, SearchCriteria criteria) {
         // Extracted query variable for debugging and added .extension(LuceneExtension.get())
         var searchQuery = Search.session(session).search(criteria.getNoteClass()).extension(LuceneExtension.get()).where(
