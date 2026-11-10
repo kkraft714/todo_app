@@ -33,7 +33,7 @@ public class NoteBase {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_note_id")
     private Note parent;
-    @KeywordField(name = "name")
+    @KeywordField
     protected String name;
     protected String description;
     // ToDo: Should a child Note inherit its parent's categories (maybe conceptually but not literally)?

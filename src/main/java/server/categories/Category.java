@@ -1,18 +1,17 @@
 package server.categories;
 
 import jakarta.persistence.*;
-import org.apache.logging.log4j.core.config.plugins.validation.constraints.NotBlank;
 import org.hibernate.search.mapper.pojo.mapping.definition.annotation.KeywordField;
+import jakarta.validation.constraints.NotBlank;
 
 import java.util.Objects;
 
 @Embeddable
-@Table(name = "categories")
 public class Category {
     // Note that name is required to be unique, since it is used to define equals() and hashCode().
     @KeywordField   // For exact matches - use @FullTextField to allow pattern matching
     @NotBlank(message = "Category name cannot be blank")
-    @Column(name = "category_name")
+    @Column(name = "category_name")    // Note: this can't have "unique = true"
     private String categoryName;
     protected Category() {}  // Required zero-arg constructor for Hibernate
 

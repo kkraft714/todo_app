@@ -26,7 +26,7 @@ public class HibernateUtil {
     private static SessionFactory getSessionFactory(boolean isTest) {
         MetadataSources sources = new MetadataSources(getServiceRegistry(isTest));
         // All @Entity classes must be included here (looks like I don't need to include @Embeddable classes)
-        for (Class<?> entity : new Class<?>[]{ Category.class, NoteBase.class, Note.class, Entity.class, Contact.class,
+        for (Class<?> entity : new Class<?>[]{ NoteBase.class, Note.class, Entity.class, Contact.class,
                 Link.class, Product.class, ScheduleItem.class }) {
             sources.addAnnotatedClass(entity);
         }
@@ -170,9 +170,7 @@ public class HibernateUtil {
         // Extracted query variable for debugging and added .extension(LuceneExtension.get())
         var searchQuery = Search.session(session).search(criteria.getNoteClass()).extension(LuceneExtension.get()).where(
                 factory -> factory.bool().with(predicate -> {
-            boolean additionalCriteria = false;
             if (isSet(criteria.getNameMatch())) {
-                additionalCriteria = true;
                 var namePredicate = criteria.isPatternMatch()
                         ? factory.regexp().field("name").matching(criteria.getNamePattern())
                         : factory.wildcard().field("name").matching("*" + criteria.getNameMatch() + "*");
@@ -180,7 +178,6 @@ public class HibernateUtil {
                 predicate.must(namePredicate.toPredicate());
             }
             if (!criteria.getCategories().isEmpty()) {
-                additionalCriteria = true;
                 if (criteria.isJoinWithAnd()) {
                     for (Category cat : criteria.getCategories()) {
                         predicate.must(factory.match().field("categories.categoryName").matching(cat.getName()));
@@ -188,7 +185,6 @@ public class HibernateUtil {
                 }
                 else {
                     System.out.println("Criteria class = " + criteria.getNoteClass());
-                    // List<String> categoryNames = criteria.getCategories().stream().map(Category::getName).toList();
                     predicate.must(factory.bool().with(outerBool -> {
                         for (Category cat : criteria.getCategories()) {
                             // 2. Spawn a separate ToParentBlockJoinQuery for EACH distinct category
@@ -201,7 +197,8 @@ public class HibernateUtil {
                     }));
                 }
             }
-            if (!additionalCriteria) {
+            // If name and categories aren't set this just uses class (which defaults to NoteBase)
+            if (!isSet(criteria.getNameMatch()) && criteria.getCategories().isEmpty()) {
                 predicate.must(factory.matchAll());
             }
         })).toQuery();

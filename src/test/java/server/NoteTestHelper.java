@@ -238,7 +238,6 @@ public class NoteTestHelper extends HibernateUtil {
         return new ScheduleItem("Event#" + eventNumber, null, LocalDateTime.now().plusDays(eventNumber++));
     }
 
-    // Note that this method does handle categories!
     public static <T extends NoteBase> T commitAndRetrieveNote(T note) {
         AtomicReference<T> fetchedNote = new AtomicReference<>();
         trxMgr.runTransaction(testSession -> {

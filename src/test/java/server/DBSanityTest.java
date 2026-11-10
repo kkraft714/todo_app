@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 // ToDo: Add Contact test with multiple Addresses, Phones, and, Emails (and assertEquals() on full lists)
 // ToDo: Add DB configuration tests (combinations of config files and environment variables)
 //  - Test non-existent config file
+// ToDo: Try adding a duplicate category (looks like it's currently allowed)
 // ToDo: Test deleting one child note from a list of multiple
 // ToDo: Test cascading deletes (deleting parent entity also deletes children)
 // ToDo: Add tests for CRUD operations on each entity type (Note, Contact, MediaItem, etc.)
@@ -30,11 +31,12 @@ public class DBSanityTest extends TestBase {
     @Test
     public void testDBConnection() {
         // This is a basic session sanity test
-        Session testSession = testSessionFactory.openSession();
-        assertTrue(testSession.isOpen(), "Test session in open");
-        assertFalse(testSession.getProperties().isEmpty(), "Expected non-empty properties for open DB session");
-        testSession.close();
-        assertFalse(testSession.isOpen(), "Test session in open");
+        try (Session testSession = testSessionFactory.openSession()) {
+            assertTrue(testSession.isOpen(), "Test session is open");
+            assertFalse(testSession.getProperties().isEmpty(), "Expected non-empty properties for open DB session");
+        } catch (Exception e) {
+            fail("Failed to open DB session: " + e.getMessage());
+        }
     }
 
     @Test
@@ -87,6 +89,7 @@ public class DBSanityTest extends TestBase {
     }
 
     @Test
+    @Disabled("Need to implement")
     public void createNoteWithCategory() {
 
     }

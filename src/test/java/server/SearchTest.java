@@ -142,10 +142,8 @@ public class SearchTest extends TestBase {
     @Test
     public void getNotesByClass() {
         Contact contact = newPerson("Jane", "Doe");
+        commitObjectToDB(contact);
         commitNewTestNotes(3);
-        runTestTransaction(session -> {;
-            persistObjectToDB(session, contact);
-        });
         runTestTransaction(session -> {
             SearchCriteria criteria = new SearchCriteria().setNoteClass(Contact.class);
             List<? extends NoteBase> result = findMatchingNotesInDB(session, criteria);
@@ -248,6 +246,7 @@ public class SearchTest extends TestBase {
     public void getNotesByNameClassAndCategory() {
         createScheduleItemTestBed();
         // ToDo: It would be really nice to have some kind of generic Note creation factory
+        //  - For now just create ScheduleItem notes in memory, add the categories, and then commit
         runTestTransaction(session -> {
             ScheduleItem item6 = new ScheduleItem(baseName + " 6", null, "2020-07-07 09:00:00 PM");
             item6.addCategories(testCategories);
