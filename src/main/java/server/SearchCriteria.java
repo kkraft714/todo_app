@@ -4,6 +4,7 @@ import server.categories.Category;
 import server.categories.InternalCategory;
 import server.note.NoteBase;
 
+import java.util.List;
 import java.util.regex.Pattern;
 import java.util.HashSet;
 import java.util.Set;
@@ -41,12 +42,16 @@ public class SearchCriteria {
     public SearchCriteria setDoPatternMatch(boolean patternMatch) { this.doPatternMatch = patternMatch; return this; }
     public SearchCriteria doPatternMatch() { return setDoPatternMatch(true); }
 
-    public String getNameMatch() { return nameMatch; }
+    public String getNameMatch() {
+        return nameMatch != null ? "%" + nameMatch.toLowerCase() + "%" : null;  // Pre-updated for SQL LIKE queries
+    }
     public String getNamePattern() { return matchPattern.pattern(); }
     public boolean isPatternMatch() { return doPatternMatch; }
     public boolean isJoinWithAnd() { return joinWithAnd; }
     public Class<? extends NoteBase> getNoteClass() { return noteClass; }
     public Set<Category> getCategories() { return categories; }
+    // Helper method for SQL queries in findMatchingNotesInDB()
+    public List<String> getCategoryNames() { return categories.stream().map(Category::getName).toList(); }
     public boolean hasCategories() { return !categories.isEmpty(); }
     boolean nameMatch(String name) { return (doPatternMatch && matchPattern.matcher(name).matches())
             || (!doPatternMatch && name.toLowerCase().contains(nameMatch.toLowerCase())); }

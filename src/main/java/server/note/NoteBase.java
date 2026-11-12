@@ -37,7 +37,7 @@ public class NoteBase {
     protected String name;
     protected String description;
     // ToDo: Should a child Note inherit its parent's categories (maybe conceptually but not literally)?
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection   // fetch = FetchType.LAZY by default
     @CollectionTable(name = "categories", joinColumns = @JoinColumn(name = "note_id"))
     @IndexedEmbedded(structure = ObjectStructure.FLATTENED)
     protected Set<Category> categories = new HashSet<>();

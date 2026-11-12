@@ -22,7 +22,6 @@ public class TestBase {
 
     @BeforeEach
     public void initialize() throws Exception {
-        main = new NoteOrganizer();
         if (testSessionFactory == null) {
             throw new Exception("Failed to create Hibernate SessionFactory");
         }
