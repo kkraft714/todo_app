@@ -51,7 +51,7 @@ public class SearchCriteria {
     boolean nameMatch(String name) { return (doPatternMatch && matchPattern.matcher(name).matches())
             || (!doPatternMatch && name.toLowerCase().contains(nameMatch.toLowerCase())); }
 
-    // In this version the DB does the class matching
+    // In this version the DB would do the class matching
     public boolean match(NoteBase note) {
         boolean nameMatches = nameMatch == null || nameMatch(note.getName());
         // boolean classMatch = noteClass == null || noteClass.isAssignableFrom(note.getClass());

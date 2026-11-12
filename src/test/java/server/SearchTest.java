@@ -117,12 +117,9 @@ public class SearchTest extends TestBase {
     @Test
     public void getCategorizedNotesWithAndRelationship() {
         Set<Category> categories = commitNotesWithMultipleCategories();
-        // runTestTransaction(session -> {
             SearchCriteria criteria = new SearchCriteria().setCategories(categories).joinWithAnd();
-            // List<? extends NoteBase> andResult = findMatchingNotesInDB(session, criteria);
-            List<? extends NoteBase> andResult = findMatchingNotesInDB(criteria);
-            assertEquals(partitionCount, andResult.size(), "Number of notes with all queried categories");
-        // });
+            assertEquals(partitionCount, findMatchingNotesInDB(criteria).size(),
+                    "Number of notes with all queried categories");
     }
 
     @Test
@@ -204,7 +201,6 @@ public class SearchTest extends TestBase {
         Set<Category> categories = commitNotesWithMultipleCategories();
         SearchCriteria criteria = new SearchCriteria().setCategories(categories).joinWithAnd()
                 .setNameMatch(pattern).doPatternMatch();
-            List<? extends NoteBase> andResult = findMatchingNotesInDB(criteria);
             assertEquals(partitionCount, findMatchingNotesInDB(criteria).size(),
                     "Number of notes with categories and name matching pattern '" + pattern + "'");
     }
@@ -213,15 +209,15 @@ public class SearchTest extends TestBase {
     static final String baseName = "Event";
     @Test
     public void getNotesByNameClassAndCategory() {
-        createScheduleItemTestBed();
+        createScheduleItemTestBed();   // These Notes have no category assigned
         // ToDo: It would be really nice to have some kind of generic Note creation factory
         //  - For now just create ScheduleItem notes in memory, add the categories, and then commit
         ScheduleItem item6 = new ScheduleItem(baseName + " 6", null, "2020-07-07 09:00:00 PM");
         commitNoteWithCategories(item6, testCategories);
         ScheduleItem item7 = new ScheduleItem(baseName + " 7", null, "2020-07-08 09:00:00 PM");
-        commitNoteWithCategories(item7, testCategories);
+        commitNoteWithCategories(item7, Set.of(Category.of("Category1")));
         ScheduleItem item8 = new ScheduleItem(baseName + " 8", null, "2020-07-09 09:00:00 PM");
-        commitNoteWithCategories(item8, testCategories);
+        commitNoteWithCategories(item8, Set.of(Category.of("Category2")));
         SearchCriteria criteria = new SearchCriteria().setNoteClass(ScheduleItem.class)
                 .setCategories(testCategories).setNameMatch(baseName);
         assertEquals(3, findMatchingNotesInDB(criteria).size(), "Number of ScheduleItem notes with categories "

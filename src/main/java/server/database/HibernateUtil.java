@@ -62,6 +62,7 @@ public class HibernateUtil {
         if (isTestDB) {
             // ToDo: Confirm we are NOT pointing at the production DB here!
             // Create and drop the DB for each test run
+            config.setProperty("hibernate.enable_lazy_load_no_trans", "true");
             config.setProperty("hibernate.hbm2ddl.auto", "create-drop");
             // Cache the Lucene search results in memory instead of on disk
             // ToDo: Might not need this
@@ -145,9 +146,7 @@ public class HibernateUtil {
     }
 
     public static void commitObjectToDB(Object obj) {
-        trxMgr.runTransaction(session -> {
-            session.persist(obj);
-        });
+        trxMgr.runTransaction(session -> { session.persist(obj); });
     }
 
     public static Set<NoteBase> retrieveNotesForCategory(Category cat) {
@@ -163,16 +162,16 @@ public class HibernateUtil {
         });
     }
 
-    @SuppressWarnings("unchecked")
+    // ToDo: Must give runTransaction() methods different names to avoid the two return calls
     public static <T extends NoteBase> T retrieveNoteFromDB(T note) {
         return trxMgr.runTransaction(session -> {
-            Class <T> noteClass = (Class<T>) Hibernate.getClass(note);
-            return session.find(noteClass, note.getId());
+            return session.find(Hibernate.getClass(note), note.getId());
         });
     }
 
 /*
     // This is cleaner than the direct DB search but, according to Gemini, much slower and more error-prone
+    // (although it did pass all the search tests)
     public static List<? extends NoteBase> findMatchingNotesInDB(SearchCriteria criteria) {
         List<NoteBase> result = new ArrayList<>();
         trxMgr.runTransaction(session -> {
@@ -190,10 +189,9 @@ public class HibernateUtil {
     // ToDo: The name search is currently case-sensitive (make it case-insensitive?)
     // Note: getNoteClass() automatically includes subclasses in the search result due to the SINGLE_TABLE model
     public static List<? extends NoteBase> findMatchingNotesInDB(SearchCriteria criteria) {
-        List<NoteBase> result = new ArrayList<>();
         // Extracted query variable for debugging and added .extension(LuceneExtension.get())
         // System.out.println("Criteria class = " + criteria.getNoteClass());
-        trxMgr.runTransaction(session -> {
+        return trxMgr.runTransaction(session -> {
             var searchQuery = Search.session(session).search(criteria.getNoteClass()).extension(LuceneExtension.get()).where(
                     factory -> factory.bool().with(predicate -> {
                 if (isSet(criteria.getNameMatch())) {
@@ -223,9 +221,8 @@ public class HibernateUtil {
             System.out.println("=== GENERATED NATIVE LUCENE QUERY ===");
             System.out.println(searchQuery.queryString());
             System.out.println("=====================================");
-            result.addAll(searchQuery.fetchAllHits());
+            return new ArrayList<>(searchQuery.fetchAllHits());
         });
-        return result;
     }
 
     // Helper class for overriding equals (required by Hibernate)
