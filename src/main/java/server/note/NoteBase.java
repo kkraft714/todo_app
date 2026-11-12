@@ -4,12 +4,8 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import jakarta.persistence.Entity;
-import org.hibernate.search.engine.backend.types.ObjectStructure;
-import org.hibernate.search.mapper.pojo.automaticindexing.ReindexOnUpdate;
-import org.hibernate.search.mapper.pojo.mapping.definition.annotation.*;
 import server.categories.Category;
 import server.categories.InternalCategory;
 
@@ -22,7 +18,6 @@ import static server.database.HibernateUtil.*;
 @Entity
 @Table(name = "note_base")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@Indexed
 @DiscriminatorColumn(name = "note_type", discriminatorType = DiscriminatorType.STRING)
 @DiscriminatorValue("SIMPLE_NOTE")
 public class NoteBase {
@@ -33,13 +28,11 @@ public class NoteBase {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_note_id")
     private Note parent;
-    @KeywordField
     protected String name;
     protected String description;
     // ToDo: Should a child Note inherit its parent's categories (maybe conceptually but not literally)?
     @ElementCollection   // fetch = FetchType.LAZY by default
     @CollectionTable(name = "categories", joinColumns = @JoinColumn(name = "note_id"))
-    @IndexedEmbedded(structure = ObjectStructure.FLATTENED)
     protected Set<Category> categories = new HashSet<>();
     private final LocalDateTime created = LocalDateTime.now();
     private Boolean completed = false;
