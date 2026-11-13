@@ -31,7 +31,7 @@ public class NoteBase {
     protected String name;
     protected String description;
     // ToDo: Should a child Note inherit its parent's categories (maybe conceptually but not literally)?
-    @ElementCollection   // fetch = FetchType.LAZY by default
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "categories", joinColumns = @JoinColumn(name = "note_id"))
     protected Set<Category> categories = new HashSet<>();
     private final LocalDateTime created = LocalDateTime.now();
@@ -68,7 +68,6 @@ public class NoteBase {
     public NoteBase setDescription(String newDescription) { description = newDescription; return this; }
     // ToDo: Add Javadoc
     public Set<Category> getCategories() { return categories; }
-    // Note that these category methods do NOT update the NoteOrganizer category tracker!
     public NoteBase addCategory(Category cat) { categories.add(cat); return this; }
     public NoteBase addCategory(String cat) { categories.add(Category.of(cat)); return this; }
     public NoteBase addCategory(InternalCategory cat) { categories.add(Category.of(cat)); return this; }
@@ -77,13 +76,6 @@ public class NoteBase {
     public LocalDateTime getDateCreated() { return created; }
     public boolean getCompleted() { return completed != null && completed; }
     public NoteBase setCompleted(boolean isCompleted) { completed = isCompleted; return this; }
-
-    public boolean hasCategory(String category) { return categories.contains(category); }
-    // ToDo: Need Javadoc (e.g. no categories automatically returns true)
-    public boolean hasAllCategories(Set<Category> cats) { return cats == null || categories.containsAll(cats); }
-    public boolean hasAnyCategory(Set<Category> cats) {
-        return cats == null || cats.isEmpty() || cats.stream().anyMatch(cat -> categories.contains(cat));
-    }
 
     @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
     @Override

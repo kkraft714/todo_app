@@ -51,9 +51,12 @@ public class HibernateUtil {
         // Currently we assume a PostgreSQL DB
         config.setProperty("hibernate.connection.driver_class", "org.postgresql.Driver");
         config.setProperty("hibernate.current_session_context_class", "thread");
-        // Highly recommended for debugging your first test (ToDo: put under a DEBUG flag?)
-        // config.setProperty("hibernate.show_sql", "true");
-        // config.setProperty("hibernate.format_sql", "true");
+        boolean sqlDebug = false;    // ToDo: Make this a configuration parameter
+        if (sqlDebug) {
+            config.setProperty("hibernate.show_sql", "true");
+            config.setProperty("hibernate.format_sql", "true");
+            config.setProperty("logging.level.org.hibernate.orm.jdbc.bind", "trace");
+        }
         trySettingConfigFromEnvironment(config, isTestDB);
         if (isTestDB) {
             // ToDo: Confirm we are NOT pointing at the production DB here!
@@ -62,8 +65,6 @@ public class HibernateUtil {
             config.setProperty("hibernate.enable_lazy_load_no_trans", "true");
             // Create and drop the DB for each test run
             config.setProperty("hibernate.hbm2ddl.auto", "create-drop");
-            // Cache the Lucene search results in memory instead of on disk
-            config.setProperty("hibernate.search.backend.directory.type", "local-heap");
         }
         else {
             String hbm2ddlAuto = config.getProperty("hibernate.hbm2ddl.auto");
@@ -188,7 +189,7 @@ public class HibernateUtil {
                     ));
                 } else {
                     // Standard case-insensitive LIKE '%match%'
-                    predicates.add(cb.like(cb.lower(root.get("name")), criteria.getNameMatch()));
+                    predicates.add(cb.like(cb.lower(root.get("name")), criteria.getSQLNameMatch()));
                 }
             }
 
@@ -204,12 +205,6 @@ public class HibernateUtil {
                     predicates.add(root.join("categories").get("categoryName").in(criteria.getCategoryNames()));
                 }
             }
-            /*
-            // ToDo: Figure out how to print out query for debugging
-            System.out.println("=== GENERATED NATIVE LUCENE QUERY ===");
-            System.out.println(searchQuery.queryString());
-            System.out.println("=====================================");
-             */
             // Apply all predicates (if empty, it automatically matches all rows of targetClass)
             cq.select(root).distinct(true).where(predicates.toArray(new Predicate[0]));
             return session.createQuery(cq).getResultList();

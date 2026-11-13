@@ -9,6 +9,8 @@ import java.util.regex.Pattern;
 import java.util.HashSet;
 import java.util.Set;
 
+import static server.NoteUtils.isSet;
+
 // ToDo: Add option to search by date created or date modified (or date range)?
 public class SearchCriteria {
     // ToDo: Add searchChildNotes property if I support it?
@@ -20,6 +22,7 @@ public class SearchCriteria {
     // Currently this only applies to categories
     // Support a more lax search criteria (false/OR) by default
     boolean joinWithAnd = false;    // Whether to search using AND or OR criteria
+    boolean completed = false;
 
     public SearchCriteria() {}
 
@@ -33,18 +36,19 @@ public class SearchCriteria {
     public SearchCriteria setNameMatch(String nameMatch) {
         this.nameMatch = nameMatch;
         // ToDo: Only set matchPattern if doPatternMatch == true?
-        this.matchPattern = nameMatch == null || nameMatch.isEmpty() ?
-                null : Pattern.compile(nameMatch, Pattern.CASE_INSENSITIVE);
+        this.matchPattern = !isSet(nameMatch) ? null : Pattern.compile(nameMatch, Pattern.CASE_INSENSITIVE);
         return this;
     }
     public SearchCriteria setJoinWithAnd(boolean joinWithAnd) { this.joinWithAnd = joinWithAnd; return this; }
     public SearchCriteria joinWithAnd() { return setJoinWithAnd(true); }
     public SearchCriteria setDoPatternMatch(boolean patternMatch) { this.doPatternMatch = patternMatch; return this; }
     public SearchCriteria doPatternMatch() { return setDoPatternMatch(true); }
+    public SearchCriteria setCompleted(boolean value) { this.completed = value; return this; }
+    public SearchCriteria isCompleted() { return setCompleted(true); }
 
-    public String getNameMatch() {
-        return nameMatch != null ? "%" + nameMatch.toLowerCase() + "%" : null;  // Pre-updated for SQL LIKE queries
-    }
+    public String getNameMatch() { return nameMatch; }
+    // Pre-processed for SQL LIKE queries
+    public String getSQLNameMatch() { return isSet(nameMatch) ? "%" + nameMatch.toLowerCase() + "%" : null; }
     public String getNamePattern() { return matchPattern.pattern(); }
     public boolean isPatternMatch() { return doPatternMatch; }
     public boolean isJoinWithAnd() { return joinWithAnd; }
@@ -53,15 +57,4 @@ public class SearchCriteria {
     // Helper method for SQL queries in findMatchingNotesInDB()
     public List<String> getCategoryNames() { return categories.stream().map(Category::getName).toList(); }
     public boolean hasCategories() { return !categories.isEmpty(); }
-    boolean nameMatch(String name) { return (doPatternMatch && matchPattern.matcher(name).matches())
-            || (!doPatternMatch && name.toLowerCase().contains(nameMatch.toLowerCase())); }
-
-    // In this version the DB would do the class matching
-    public boolean match(NoteBase note) {
-        boolean nameMatches = nameMatch == null || nameMatch(note.getName());
-        // boolean classMatch = noteClass == null || noteClass.isAssignableFrom(note.getClass());
-        boolean categoryMatch = joinWithAnd ? note.hasAllCategories(categories) : note.hasAnyCategory(categories);
-        // return nameMatches && classMatch; //  && categoryMatch;
-        return nameMatches && categoryMatch;
-    }
 }
