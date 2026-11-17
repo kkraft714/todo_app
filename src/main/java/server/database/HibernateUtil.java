@@ -119,16 +119,6 @@ public class HibernateUtil {
         return false;
     }
 
-    // The methods in this class persist the objects to the DB, and the TransactionManager handles commit/rollback.
-    public static void commitNoteWithCategories(NoteBase note, Set<Category> categories) {
-        trxMgr.runTransaction(session -> {
-            if (!categories.isEmpty()) {
-                note.addCategories(categories);
-            }
-            session.persist(note);
-        });
-    }
-
     public static Set<Category> retrieveCategoriesFromDB() {
         return trxMgr.runTransaction(session -> {
             return session.createQuery("SELECT DISTINCT c FROM NoteBase n JOIN n.categories c", Category.class)
@@ -138,16 +128,20 @@ public class HibernateUtil {
 
     // ToDo: Add query for returning ScheduleItems in timestamp order
     // public List<ScheduleItem> retrieveScheduleFromDB() { }
-
     // ToDo: Rewrite categoryExists()
 
-    public static void persistObjectToDB(Session session, Object obj) {
-        session.persist(obj);
-        session.flush();
-    }
-
-    public static void commitObjectToDB(Object obj) {
-        trxMgr.runTransaction(session -> { session.persist(obj); });
+    public static <T extends NoteBase> T commitNoteToDB(T note) {
+        return trxMgr.runTransaction(session -> {
+           T result;
+            if (note.getId() == null) {
+                session.persist(note);
+                result = note;
+            }
+            else {
+                result = session.merge(note);   // Returns a managed copy
+            }
+            return result;
+        });
     }
 
     public static Set<NoteBase> retrieveNotesForCategory(Category cat) {
