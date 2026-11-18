@@ -205,7 +205,6 @@ public class SearchTest extends TestBase {
                     "Number of notes with categories and name matching pattern '" + pattern + "'");
     }
 
-    static final Set<Category> testCategories = Set.of(Category.of("Category1"), Category.of("Category2"));
     static final String baseName = "Event";
     @Test
     public void getNotesByNameClassAndCategory() {

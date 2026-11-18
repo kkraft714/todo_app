@@ -119,6 +119,7 @@ public class HibernateUtil {
         return false;
     }
 
+    // ToDo: Add retrieveNotesFromDB() to get all Note objects?
     public static Set<Category> retrieveCategoriesFromDB() {
         return trxMgr.runTransaction(session -> {
             return session.createQuery("SELECT DISTINCT c FROM NoteBase n JOIN n.categories c", Category.class)
@@ -131,16 +132,16 @@ public class HibernateUtil {
     // ToDo: Rewrite categoryExists()
 
     public static <T extends NoteBase> T commitNoteToDB(T note) {
-        return trxMgr.runTransaction(session -> {
-           T result;
-            if (note.getId() == null) {
-                session.persist(note);
-                result = note;
-            }
-            else {
-                result = session.merge(note);   // Returns a managed copy
-            }
-            return result;
+        return trxMgr.runTransaction(session -> { return session.merge(note); });
+    }
+
+    public static void removeNoteFromDB(NoteBase note) {
+        if (note == null || note.getId() == null) { return; }
+        trxMgr.runTransaction(session -> {
+           NoteBase fetchedNote = session.find(NoteBase.class, note.getId());
+           if (fetchedNote != null) {
+               session.remove(fetchedNote);
+           }
         });
     }
 

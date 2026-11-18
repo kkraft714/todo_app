@@ -10,6 +10,7 @@ import server.note.*;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static server.note.Contact.*;
 
 public class NoteTestHelper extends HibernateUtil {
@@ -174,6 +175,12 @@ public class NoteTestHelper extends HibernateUtil {
         return Contact.newBusiness("Business#" + businessNumber, "Description for business #" + businessNumber++);
     }
 
+    public static void assertContactHasExpectedNumberOfAddressesPhoneNumbersAndEmails(int expected, Contact contact) {
+        assertEquals(expected, contact.getAddresses().size(), "Number of addresses");
+        assertEquals(expected, contact.getPhoneNumbers().size(), "Number of Phone numbers");
+        assertEquals(expected, contact.getEmails().size(), "Number of Emails");
+    }
+
     public static Link getGoogleLink() {
         return new Link("Google", null, "http://google.com");
     }
@@ -202,6 +209,7 @@ public class NoteTestHelper extends HibernateUtil {
         return newNotes;
     }
 
+    // ToDo: Replace this with commitNoteToDB()?
     public static <T extends NoteBase> T commitAndRetrieveTestNote(T note) {
         T fetchedNote = commitNoteToDB(note);
         assert fetchedNote != null : "Failed to fetch " + note.getClass() + " with ID " + note.getId();
