@@ -165,6 +165,7 @@ public class HibernateUtil {
         });
     }
 
+    // ToDo: Add support (and tests) for isCompleted() predicate
     // Note: getNoteClass() automatically includes subclasses in the search result due to the SINGLE_TABLE model
     public static <T extends NoteBase> List<T> findMatchingNotesInDB(SearchCriteria criteria) {
         return trxMgr.runTransaction(session -> {

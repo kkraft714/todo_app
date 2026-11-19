@@ -25,8 +25,7 @@ public class SearchTest extends TestBase {
         Category cat = Category.of(MediaType.SONG);
         Note newNote = NoteTestHelper.createGenericTestNote();
         newNote.addCategory(cat);
-        commitNoteToDB(newNote);
-        Note fetchedNote = retrieveNoteFromDB(newNote);
+        Note fetchedNote = commitNoteToDB(newNote);
         SearchCriteria criteria = new SearchCriteria().setCategory(cat);
         List<? extends NoteBase> notes = findMatchingNotesInDB(criteria);
         assertEquals(1, notes.size(), "Number of notes with media type " + cat);
@@ -124,8 +123,7 @@ public class SearchTest extends TestBase {
 
     @Test
     public void getNotesByClass() {
-        Contact contact = newPerson("Jane", "Doe");
-        commitNoteToDB(contact);
+        Contact contact = commitNoteToDB(newPerson("Jane", "Doe"));
         commitAndRetrieveTestNotes(3);
         SearchCriteria criteria = new SearchCriteria().setNoteClass(Contact.class);
         List<? extends NoteBase> result = findMatchingNotesInDB(criteria);
@@ -155,11 +153,8 @@ public class SearchTest extends TestBase {
     @Test
     public void getMatchingChildNoteOfNonMatchingParent() {
         String mediaType = MediaType.SONG.toString();
-        Note parent = new Note("Parent");
-        Note child = new Note("Child");
-        child.addCategory(mediaType);
-        parent.addChildNote(child);
-        commitNoteToDB(parent);
+        NoteBase child = commitNoteToDB(new Note("Child").addCategory(mediaType));
+        commitNoteToDB(new Note("Parent").addChildNote(child));
         SearchCriteria criteria = new SearchCriteria().setCategory(mediaType);
         assertEquals(List.of(child), findMatchingNotesInDB(criteria), "Child notes searched");
     }
