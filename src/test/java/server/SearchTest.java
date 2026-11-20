@@ -16,8 +16,8 @@ import static org.junit.jupiter.api.Assertions.*;
 //  - Notes with and without categories
 //  - Sub-notes with and without categories
 //  - Notes and sub-notes with different class types
-// ToDo: Add tests for various note types, categories, and child notes (need to set up test data)
-//  * Search in sub-notes
+//  - Note marked "completed"
+// ToDo: Move into server.database test package?
 public class SearchTest extends TestBase {
     // ToDo: Set up data providers for search tests after moving to TestNG
     @Test
@@ -65,7 +65,7 @@ public class SearchTest extends TestBase {
         commitTestNotesWithCategories(numberOfCategorizedNotes, null);    // Create notes with random categories
         // This is identical to the above test except for this line adding uncategorized notes
         commitTestNotesWithCategories(numberOfUncategorizedNotes, Set.of());        // Create uncategorized notes
-            assertEquals(numberOfCategorizedNotes + numberOfUncategorizedNotes, retrieveNotes().size(),
+            assertEquals(numberOfCategorizedNotes + numberOfUncategorizedNotes, retrieveAllNotesFromDB().size(),
                     "Total number of notes");
             int total = 0;
             for (Category cat : retrieveCategoriesFromDB()) {

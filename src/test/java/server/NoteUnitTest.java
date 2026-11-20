@@ -12,8 +12,8 @@ import static server.note.Contact.*;
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-// Todo: Change the name to make this a unit test (and add to a test suite)?
-public class NoteTest {
+// Todo: Add to a unit test suite?
+public class NoteUnitTest {
     // ToDo: MP: Why are these test objects static?
     private static final int defaultElementCount = 5;
     private static Note noteWithRandomElements;
@@ -190,10 +190,6 @@ public class NoteTest {
         // assertEquals(expectedMessage, ex.getMessage(), "Exception message equals " + expectedMessage);
     }
 
-    // ToDo: Test adding and removing more than one of the same kind of element
-    // ToDo: Test adding and removing categories (coupled with main program)?
-    // ToDo: Test adding tags and categories?
-    // ToDo: More negative tests?
     // ToDo: Test adding duplicate notes?
-    // ToDo: Test adding a Link element with an invalid URL
+    // ToDo: Test adding a Link element with an invalid URL (test the Link creation and URL validator code)
 }
