@@ -22,7 +22,7 @@ This causes conflicts if:
 Always branch off fresh `main`:
 ```bash
 git checkout main
-git pull origin main
+git pull origin main (note that if you are already in main 'git pull' should be sufficient)
 git checkout -b my-feature
 ```
 

@@ -119,7 +119,20 @@ public class HibernateUtil {
         return false;
     }
 
-    // ToDo: Add retrieveNotesFromDB() to get all Note objects?
+    public static List<NoteBase> retrieveAllNotesFromDB() {
+        return trxMgr.runTransaction(session -> {
+            return session.createSelectionQuery("FROM NoteBase", NoteBase.class).getResultList();
+        });
+    }
+
+    public static List<ScheduleItem> retrieveScheduleFromDB() {
+        return trxMgr.runTransaction(session -> {
+            return session.createSelectionQuery("FROM ScheduleItem S ORDER BY S.date ASC", ScheduleItem.class)
+                    .getResultList();
+        });
+    }
+
+    // ToDo: Rewrite categoryExists()
     public static Set<Category> retrieveCategoriesFromDB() {
         return trxMgr.runTransaction(session -> {
             return session.createQuery("SELECT DISTINCT c FROM NoteBase n JOIN n.categories c", Category.class)
@@ -127,20 +140,27 @@ public class HibernateUtil {
         });
     }
 
-    // ToDo: Add query for returning ScheduleItems in timestamp order
-    // public List<ScheduleItem> retrieveScheduleFromDB() { }
-    // ToDo: Rewrite categoryExists()
-
     public static <T extends NoteBase> T commitNoteToDB(T note) {
         return trxMgr.runTransaction(session -> { return session.merge(note); });
     }
 
     public static void removeNoteFromDB(NoteBase note) {
-        if (note == null || note.getId() == null) { return; }
+        if (note == null || note.getId() == null) {
+            if (note == null) {
+                LOG.error("Note is null: Cannot remove from DB");
+            }
+            else {
+                LOG.error("Unable to remove Note that has not been saved to DB: '{}'", note.getName());
+            }
+            return;
+        }
         trxMgr.runTransaction(session -> {
            NoteBase fetchedNote = session.find(NoteBase.class, note.getId());
            if (fetchedNote != null) {
                session.remove(fetchedNote);
+           }
+           else {
+               LOG.error("Unable locate Note with ID {} for removal from DB", note.getId());
            }
         });
     }

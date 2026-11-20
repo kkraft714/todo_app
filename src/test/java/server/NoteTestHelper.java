@@ -15,8 +15,7 @@ import static server.note.Contact.*;
 
 public class NoteTestHelper extends HibernateUtil {
     private static final Random rand = new Random();
-    private static final int defaultElementCount = 5;
-    private static int noteNumber = 0;
+    private static int noteNumber = 1;
 
 
     // ======================== Note Test Helper Methods ======================
@@ -90,6 +89,7 @@ public class NoteTestHelper extends HibernateUtil {
         note.getChildNotes().clear();
     }
 
+    // ToDo: Update this method to write to DB?
     protected static List<NoteBase> createTestNotes(int noteCount) {
         List<NoteBase> newNotes = new ArrayList<>(noteCount);
         for (int i = 0; i < noteCount; i++) {
@@ -162,7 +162,7 @@ public class NoteTestHelper extends HibernateUtil {
     }
 
     public static Note getTestNote() {
-        return new Note("Note#" + noteNumber, "Testing note #" + noteNumber++);
+        return new Note("Note #" + noteNumber, "Test note #" + noteNumber++);
     }
 
     private static int personNumber = 1;
@@ -201,18 +201,7 @@ public class NoteTestHelper extends HibernateUtil {
     }
 
     protected static List<NoteBase> commitAndRetrieveTestNotes(int noteCount) {
-        List<NoteBase> newNotes = new ArrayList<>(noteCount);
-        List<? extends NoteBase> notes = createTestNotes(noteCount);
-        for (NoteBase note : notes) {
-            newNotes.add(commitAndRetrieveTestNote(note));
-        }
-        return newNotes;
-    }
-
-    // ToDo: Replace this with commitNoteToDB()?
-    public static <T extends NoteBase> T commitAndRetrieveTestNote(T note) {
-        T fetchedNote = commitNoteToDB(note);
-        assert fetchedNote != null : "Failed to fetch " + note.getClass() + " with ID " + note.getId();
-        return fetchedNote;
+        // ToDo: Is there some way to include the assertion that none of the commit calls returned null/failed?
+        return createTestNotes(noteCount).stream().map(HibernateUtil::commitNoteToDB).toList();
     }
 }

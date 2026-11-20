@@ -13,8 +13,9 @@ import java.util.List;
 @jakarta.persistence.Entity
 @DiscriminatorValue("NOTE")
 public class Note extends NoteBase {
+    // ToDo: Need to add a position field to NoteBase and reference it in @OrderColumn to order the Notes
+    @OrderColumn
     // Maps the relationship using the 'parent' field declared in NoteBase
-    @OrderColumn    // ToDo: Recommends using @OrderBy instead
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     protected List<NoteBase> childNotes = new ArrayList<>();    // ToDo: Rename "children"?
     @OrderColumn
