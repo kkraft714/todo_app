@@ -65,7 +65,7 @@ public class SearchTest extends TestBase {
         commitTestNotesWithCategories(numberOfCategorizedNotes, null);    // Create notes with random categories
         // This is identical to the above test except for this line adding uncategorized notes
         commitTestNotesWithCategories(numberOfUncategorizedNotes, Set.of());        // Create uncategorized notes
-            assertEquals(numberOfCategorizedNotes + numberOfUncategorizedNotes, retrieveNotes().size(),
+            assertEquals(numberOfCategorizedNotes + numberOfUncategorizedNotes, retrieveAllNotesFromDB().size(),
                     "Total number of notes");
             int total = 0;
             for (Category cat : retrieveCategoriesFromDB()) {

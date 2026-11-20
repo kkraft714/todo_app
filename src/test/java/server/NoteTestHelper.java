@@ -20,9 +20,7 @@ public class NoteTestHelper extends HibernateUtil {
 
     // ======================== Note Test Helper Methods ======================
     // ToDo: Will static variables work if the tests are run in parallel?
-    public static void resetNoteNumber() {
-        noteNumber = 0;
-    }
+    public static void resetNoteNumber() { noteNumber = 1; }
 
     protected static Note createGenericTestNote() {
         return createGenericTestNote(null);
@@ -89,16 +87,6 @@ public class NoteTestHelper extends HibernateUtil {
         note.getChildNotes().clear();
     }
 
-    // ToDo: Update this method to write to DB?
-    protected static List<NoteBase> createTestNotes(int noteCount) {
-        List<NoteBase> newNotes = new ArrayList<>(noteCount);
-        for (int i = 0; i < noteCount; i++) {
-            newNotes.add(createGenericTestNote());
-        }
-        return newNotes;
-    }
-
-
     public static void commitTestNotesWithNames(List<String> names) {
         for (String name : names) {
             commitNoteToDB(new Note(name));
@@ -121,19 +109,6 @@ public class NoteTestHelper extends HibernateUtil {
         commitNoteToDB(new ScheduleItem("Event 3", null, "2020-07-03 10:00:00 AM"));
         commitNoteToDB(new ScheduleItem("Event 2", null, "2020-07-02 05:00:00 PM"));
         commitNoteToDB(new ScheduleItem("Event 5", null, "2020-07-03 10:00:01 AM"));
-    }
-
-    // ToDo: Add negative test case for this (ScheduleItem list out of order)?
-    // ToDo: Update this to read from the DB?
-    public static boolean verifyScheduleItemOrder(List<ScheduleItem> schedule) {
-        LocalDateTime lastDate = LocalDateTime.MAX;
-        for (ScheduleItem item : schedule) {
-            if (lastDate.isBefore(item.getDate())) {
-                return false;
-            }
-            lastDate = item.getDate();
-        }
-        return true;
     }
 
     static final int partitionCount = 4;
@@ -200,8 +175,16 @@ public class NoteTestHelper extends HibernateUtil {
         return new ScheduleItem("Event#" + eventNumber, null, LocalDateTime.now().plusDays(eventNumber++));
     }
 
+    protected static List<NoteBase> createTestNotes(int noteCount) {
+        List<NoteBase> newNotes = new ArrayList<>(noteCount);
+        for (int i = 0; i < noteCount; i++) {
+            newNotes.add(createGenericTestNote());
+        }
+        return newNotes;
+    }
+
     protected static List<NoteBase> commitAndRetrieveTestNotes(int noteCount) {
-        // ToDo: Is there some way to include the assertion that none of the commit calls returned null/failed?
-        return createTestNotes(noteCount).stream().map(HibernateUtil::commitNoteToDB).toList();
+        return createTestNotes(noteCount).stream().map(note -> Objects.requireNonNull(commitNoteToDB(note),
+                "Failed to commit Note to DB: " + note.getName())).toList();
     }
 }

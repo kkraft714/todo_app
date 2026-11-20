@@ -61,8 +61,6 @@ public class HibernateUtil {
         if (isTestDB) {
             // ToDo: Confirm we are NOT pointing at the production DB here!
             //  - confirm that DB name includes "test"?
-            // This is required to avoid lazily initialization errors in the test code
-            config.setProperty("hibernate.enable_lazy_load_no_trans", "true");
             // Create and drop the DB for each test run
             config.setProperty("hibernate.hbm2ddl.auto", "create-drop");
         }
@@ -160,7 +158,7 @@ public class HibernateUtil {
                session.remove(fetchedNote);
            }
            else {
-               LOG.error("Unable locate Note with ID {} for removal from DB", note.getId());
+               LOG.error("Unable to locate Note with ID {} for removal from DB", note.getId());
            }
         });
     }
@@ -169,12 +167,6 @@ public class HibernateUtil {
         return trxMgr.runTransaction(session -> {
             return session.createQuery("SELECT N FROM NoteBase N JOIN N.categories c WHERE c.categoryName = :name", NoteBase.class)
                     .setParameter("name", cat.getName()).getResultStream().collect(Collectors.toSet());
-        });
-    }
-
-    public static List<? extends NoteBase> retrieveNotes() {
-        return trxMgr.runTransaction(session -> {
-            return session.createQuery("SELECT n FROM NoteBase n", NoteBase.class).getResultList();
         });
     }
 

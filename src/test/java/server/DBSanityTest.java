@@ -29,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
 //  - Test non-existent config file
 // ToDo: Try adding a duplicate category (looks like it's currently allowed)
 // ToDo: Add tests for Note ordering
+// ToDo: Add more remove tests?
 // ToDo: Come up with some negative tests (null Note, etc.)
 @SuppressWarnings("ReassignedVariable")
 public class DBSanityTest extends TestBase {
@@ -176,6 +177,7 @@ public class DBSanityTest extends TestBase {
         assertEquals(event.getDate(), fetchedNote.getDate(), "Event date");
     }
 
+    // ToDo: Test ScheduleItems with the same date
     @Test
     public void scheduleItemsAreRetrievedInTimestampOrder() {
         createScheduleItemTestBed();    // This creates the ScheduleItems with dates in non-timestamp order
