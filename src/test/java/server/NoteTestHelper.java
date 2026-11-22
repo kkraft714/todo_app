@@ -15,15 +15,12 @@ import static server.note.Contact.*;
 
 public class NoteTestHelper extends HibernateUtil {
     private static final Random rand = new Random();
-    private static final int defaultElementCount = 5;
-    private static int noteNumber = 0;
+    private static int noteNumber = 1;
 
 
     // ======================== Note Test Helper Methods ======================
     // ToDo: Will static variables work if the tests are run in parallel?
-    public static void resetNoteNumber() {
-        noteNumber = 0;
-    }
+    public static void resetNoteNumber() { noteNumber = 1; }
 
     protected static Note createGenericTestNote() {
         return createGenericTestNote(null);
@@ -90,15 +87,6 @@ public class NoteTestHelper extends HibernateUtil {
         note.getChildNotes().clear();
     }
 
-    protected static List<NoteBase> createTestNotes(int noteCount) {
-        List<NoteBase> newNotes = new ArrayList<>(noteCount);
-        for (int i = 0; i < noteCount; i++) {
-            newNotes.add(createGenericTestNote());
-        }
-        return newNotes;
-    }
-
-
     public static void commitTestNotesWithNames(List<String> names) {
         for (String name : names) {
             commitNoteToDB(new Note(name));
@@ -121,19 +109,6 @@ public class NoteTestHelper extends HibernateUtil {
         commitNoteToDB(new ScheduleItem("Event 3", null, "2020-07-03 10:00:00 AM"));
         commitNoteToDB(new ScheduleItem("Event 2", null, "2020-07-02 05:00:00 PM"));
         commitNoteToDB(new ScheduleItem("Event 5", null, "2020-07-03 10:00:01 AM"));
-    }
-
-    // ToDo: Add negative test case for this (ScheduleItem list out of order)?
-    // ToDo: Update this to read from the DB?
-    public static boolean verifyScheduleItemOrder(List<ScheduleItem> schedule) {
-        LocalDateTime lastDate = LocalDateTime.MAX;
-        for (ScheduleItem item : schedule) {
-            if (lastDate.isBefore(item.getDate())) {
-                return false;
-            }
-            lastDate = item.getDate();
-        }
-        return true;
     }
 
     static final int partitionCount = 4;
@@ -162,7 +137,7 @@ public class NoteTestHelper extends HibernateUtil {
     }
 
     public static Note getTestNote() {
-        return new Note("Note#" + noteNumber, "Testing note #" + noteNumber++);
+        return new Note("Note #" + noteNumber, "Test note #" + noteNumber++);
     }
 
     private static int personNumber = 1;
@@ -200,19 +175,16 @@ public class NoteTestHelper extends HibernateUtil {
         return new ScheduleItem("Event#" + eventNumber, null, LocalDateTime.now().plusDays(eventNumber++));
     }
 
-    protected static List<NoteBase> commitAndRetrieveTestNotes(int noteCount) {
+    protected static List<NoteBase> createTestNotes(int noteCount) {
         List<NoteBase> newNotes = new ArrayList<>(noteCount);
-        List<? extends NoteBase> notes = createTestNotes(noteCount);
-        for (NoteBase note : notes) {
-            newNotes.add(commitAndRetrieveTestNote(note));
+        for (int i = 0; i < noteCount; i++) {
+            newNotes.add(createGenericTestNote());
         }
         return newNotes;
     }
 
-    // ToDo: Replace this with commitNoteToDB()?
-    public static <T extends NoteBase> T commitAndRetrieveTestNote(T note) {
-        T fetchedNote = commitNoteToDB(note);
-        assert fetchedNote != null : "Failed to fetch " + note.getClass() + " with ID " + note.getId();
-        return fetchedNote;
+    protected static List<NoteBase> commitAndRetrieveTestNotes(int noteCount) {
+        return createTestNotes(noteCount).stream().map(note -> Objects.requireNonNull(commitNoteToDB(note),
+                "Failed to commit Note to DB: " + note.getName())).toList();
     }
 }
