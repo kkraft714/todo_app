@@ -22,11 +22,11 @@ public class NoteTestHelper extends HibernateUtil {
     // ToDo: Will static variables work if the tests are run in parallel?
     public static void resetNoteNumber() { noteNumber = 1; }
 
-    protected static Note createGenericTestNote() {
+    public static Note createGenericTestNote() {
         return createGenericTestNote(null);
     }
 
-    static final String defaultBaseName = "Test Note";
+    public static final String defaultBaseName = "Test Note";
     protected static Note createGenericTestNote(String baseName) {
         noteNumber++;
         // ToDo: MP: Use a GUID instead of adding noteNumber?
@@ -111,7 +111,7 @@ public class NoteTestHelper extends HibernateUtil {
         commitNoteToDB(new ScheduleItem("Event 5", null, "2020-07-03 10:00:01 AM"));
     }
 
-    static final int partitionCount = 4;
+    public static final int partitionCount = 4;
     // Creates notes for testing AND and OR category queries
     // ToDo: Document this method (I think the idea is to return notes with BOOK, FILM, both, or no tags)
     public static Set<Category> commitNotesWithMultipleCategories() {
@@ -141,7 +141,7 @@ public class NoteTestHelper extends HibernateUtil {
     }
 
     private static int personNumber = 1;
-    protected static Contact getTestPerson() {
+    public static Contact getTestPerson() {
         return Contact.newPerson("FirstName" + personNumber, "LastName" + personNumber++);
     }
 
@@ -175,7 +175,7 @@ public class NoteTestHelper extends HibernateUtil {
         return new ScheduleItem("Event#" + eventNumber, null, LocalDateTime.now().plusDays(eventNumber++));
     }
 
-    protected static List<NoteBase> createTestNotes(int noteCount) {
+    public static List<NoteBase> createTestNotes(int noteCount) {
         List<NoteBase> newNotes = new ArrayList<>(noteCount);
         for (int i = 0; i < noteCount; i++) {
             newNotes.add(createGenericTestNote());
@@ -183,7 +183,7 @@ public class NoteTestHelper extends HibernateUtil {
         return newNotes;
     }
 
-    protected static List<NoteBase> commitAndRetrieveTestNotes(int noteCount) {
+    public static List<NoteBase> commitAndRetrieveTestNotes(int noteCount) {
         return createTestNotes(noteCount).stream().map(note -> Objects.requireNonNull(commitNoteToDB(note),
                 "Failed to commit Note to DB: " + note.getName())).toList();
     }

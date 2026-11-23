@@ -13,12 +13,11 @@ import java.util.List;
 @jakarta.persistence.Entity
 @DiscriminatorValue("NOTE")
 public class Note extends NoteBase {
-    // ToDo: Need to add a position field to NoteBase and reference it in @OrderColumn to order the Notes
-    @OrderColumn
+    @OrderBy("position ASC")    // For UI Note ordering
     // Maps the relationship using the 'parent' field declared in NoteBase
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     protected List<NoteBase> childNotes = new ArrayList<>();    // ToDo: Rename "children"?
-    @OrderColumn
+    @OrderBy("position ASC")    // For UI Note ordering
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "note_id")
     protected List<Link> links = new ArrayList<>();

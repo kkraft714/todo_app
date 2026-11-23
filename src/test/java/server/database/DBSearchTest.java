@@ -1,5 +1,7 @@
-package server;
+package server.database;
 
+import server.NoteTestHelper;
+import server.SearchCriteria;
 import server.categories.Category;
 import server.note.*;
 import server.categories.MediaType;
@@ -17,8 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 //  - Sub-notes with and without categories
 //  - Notes and sub-notes with different class types
 //  - Note marked "completed"
-// ToDo: Move into server.database test package?
-public class SearchTest extends TestBase {
+public class DBSearchTest extends DBTestBase {
     // ToDo: Set up data providers for search tests after moving to TestNG
     @Test
     public void commitSingleNoteWithCategory() {

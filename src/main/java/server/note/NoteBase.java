@@ -8,6 +8,7 @@ import java.util.Set;
 import jakarta.persistence.Entity;
 import server.categories.Category;
 import server.categories.InternalCategory;
+import ui.request.MoveNoteRequest;
 
 import static server.database.HibernateUtil.*;
 
@@ -36,6 +37,7 @@ public class NoteBase {
     protected Set<Category> categories = new HashSet<>();
     private final LocalDateTime created = LocalDateTime.now();
     private Boolean completed = false;
+    private Double position;    // Position in list display on UI
 
     // ToDo: Maybe require name and get rid of complicated "name or description" logic?
     public NoteBase(String newName, String newDescription) {
@@ -77,6 +79,25 @@ public class NoteBase {
     public boolean isCompleted() { return completed != null && completed; }
     public NoteBase setCompleted(boolean isCompleted) { completed = isCompleted; return this; }
     public NoteBase setCompleted() { return setCompleted(true); }
+
+    private static final double positionInterval = 10000.00;
+    public void updatePosition(MoveNoteRequest request) {
+        Double above = request.noteAbovePosition;
+        Double below = request.noteBelowPosition;
+        if (above == null && below == null) {   // This is the first note in the list
+            position = positionInterval;
+        }
+        else if (above == null) {    // This note has been moved to the top of the list
+            position = below - positionInterval;
+        }
+        else if (below == null) {    // This note has been moved to the bottom of the list
+            position = above + positionInterval;
+        }
+        else {  // Calculate a position between the two notes
+            // ToDo: If the interval between notes gets to small may need to "defrag" positions in the DB
+            position = above + (below - above)/2.0;
+        }
+    }
 
     @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
     @Override

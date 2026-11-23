@@ -19,10 +19,10 @@ This causes conflicts if:
 ## Kevin's side (upstream lead)
 
 ### Starting work
-Always branch off fresh `main`:
+Always branch off fresh `main` (note that if you are already in `main` 'git pull' should be sufficient):
 ```bash
 git checkout main
-git pull origin main (note that if you are already in main 'git pull' should be sufficient)
+git pull origin main
 git checkout -b my-feature
 ```
 
