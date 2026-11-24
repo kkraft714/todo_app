@@ -5,10 +5,9 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
-import jakarta.persistence.Entity;
 import server.categories.Category;
 import server.categories.InternalCategory;
-import ui.request.MoveNoteRequest;
+import ui.request.NotePositionRequest;
 
 import static server.database.HibernateUtil.*;
 
@@ -16,14 +15,13 @@ import static server.database.HibernateUtil.*;
  * This is the base class for all Note objects. It can be used for leaf-type notes with no child elements.
  */
 // ToDo: Provide separate logger here for Note classes (instead of server.NoteUtils.LOG)?
-@Entity
+@jakarta.persistence.Entity    // Import includes full path due to conflict with the Entity class
 @Table(name = "note_base")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "note_type", discriminatorType = DiscriminatorType.STRING)
 @DiscriminatorValue("SIMPLE_NOTE")
 public class NoteBase {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     // Self-reference back to the parent Note container row, required for Hibernate
     @ManyToOne(fetch = FetchType.LAZY)
@@ -79,25 +77,8 @@ public class NoteBase {
     public boolean isCompleted() { return completed != null && completed; }
     public NoteBase setCompleted(boolean isCompleted) { completed = isCompleted; return this; }
     public NoteBase setCompleted() { return setCompleted(true); }
-
-    private static final double positionInterval = 10000.00;
-    public void updatePosition(MoveNoteRequest request) {
-        Double above = request.noteAbovePosition;
-        Double below = request.noteBelowPosition;
-        if (above == null && below == null) {   // This is the first note in the list
-            position = positionInterval;
-        }
-        else if (above == null) {    // This note has been moved to the top of the list
-            position = below - positionInterval;
-        }
-        else if (below == null) {    // This note has been moved to the bottom of the list
-            position = above + positionInterval;
-        }
-        else {  // Calculate a position between the two notes
-            // ToDo: If the interval between notes gets to small may need to "defrag" positions in the DB
-            position = above + (below - above)/2.0;
-        }
-    }
+    public Double getPosition() { return position; }
+    public void setPosition(Double position) { this.position = position; }
 
     @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
     @Override

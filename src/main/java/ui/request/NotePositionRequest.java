@@ -1,6 +1,6 @@
 package ui.request;
 
-public class MoveNoteRequest {
+public class NotePositionRequest {
     public Double noteAbovePosition;
     public Double noteBelowPosition;
 }

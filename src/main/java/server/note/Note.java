@@ -16,11 +16,11 @@ public class Note extends NoteBase {
     @OrderBy("position ASC")    // For UI Note ordering
     // Maps the relationship using the 'parent' field declared in NoteBase
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    protected List<NoteBase> childNotes = new ArrayList<>();    // ToDo: Rename "children"?
+    private final List<NoteBase> childNotes = new ArrayList<>();    // ToDo: Rename "children"?
     @OrderBy("position ASC")    // For UI Note ordering
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinColumn(name = "note_id")
-    protected List<Link> links = new ArrayList<>();
+    @JoinColumn(name = "note_id")     // Allows the Note->Link relationship to be one-way
+    private final List<Link> links = new ArrayList<>();
 
     public Note(String newName, String newDescription) {
         super(newName, newDescription);
