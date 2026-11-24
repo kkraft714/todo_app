@@ -3,6 +3,7 @@ package server.database;
 import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.*;
 import server.categories.Category;
+import server.note.User;
 
 import java.util.Set;
 
@@ -10,6 +11,7 @@ import static server.NoteTestHelper.*;
 
 public class DBTestBase {
     static SessionFactory testSessionFactory;
+    static User testUser;    // ToDo: Temporary placeholder
     static final String defaultCategoryName = "NewCategory";
     static final Set<Category> testCategories = Set.of(Category.of("Category1"), Category.of("Category2"));
 
@@ -24,6 +26,9 @@ public class DBTestBase {
             throw new Exception("Failed to create Hibernate SessionFactory");
         }
         testSessionFactory.getSchemaManager().truncateMappedObjects();  // Clean up the DB before each test
+        // ToDo: May not need this?
+        testUser = getTestUser();
+        // testUser = trxMgr.runTransaction(session -> { return session.merge(getTestUser()); });
     }
 
     @AfterEach

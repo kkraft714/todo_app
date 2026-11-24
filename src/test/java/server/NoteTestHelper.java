@@ -103,7 +103,7 @@ public class NoteTestHelper extends HibernateUtil {
     }
 
     // Add 5 ScheduleItem notes in non-date order
-    public static void createScheduleItemTestBed() {
+    public static void createFiveScheduleItemTestBed() {
         commitNoteToDB(new ScheduleItem("Event 4", null, "2020-07-03 10:00:01 AM"));
         commitNoteToDB(new ScheduleItem("Event 1", null, "2020-07-01 09:00:00 PM"));
         commitNoteToDB(new ScheduleItem("Event 3", null, "2020-07-03 10:00:00 AM"));
@@ -148,6 +148,24 @@ public class NoteTestHelper extends HibernateUtil {
     private static int businessNumber = 1;
     public static Contact getTestBusiness() {
         return Contact.newBusiness("Business#" + businessNumber, "Description for business #" + businessNumber++);
+    }
+
+    public static User getTestUser() { return new User("Kevin Kraft"); }
+    // ToDo: Temporary for testing (assumes the DB only has one user)
+    public static User retrieveTestUserFromDB() {
+        return trxMgr.runTransaction(session -> {
+            return session.createSelectionQuery("FROM User", User.class).getResultList().getFirst();
+        });
+    }
+    public static List<NoteBase> createFiveNoteTestBed() {
+        User testBedUser = getTestUser();
+        for (NoteBase note : createTestNotes(5)) {
+            testBedUser.addNoteAtEndOfList(note);
+        }
+        return trxMgr.runTransaction(session ->  {
+            User fetchedUser = commitUserToDB(testBedUser);
+            return fetchedUser.getNotes();
+        });
     }
 
     public static void assertContactHasExpectedNumberOfAddressesPhoneNumbersAndEmails(int expected, Contact contact) {

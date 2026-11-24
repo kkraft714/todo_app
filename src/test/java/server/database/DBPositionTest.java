@@ -1,8 +1,20 @@
 package server.database;
 
+import server.note.User;
+import ui.request.NotePositionRequest;
+import org.junit.jupiter.api.Test;
+
+import static server.NoteTestHelper.*;
+import static org.junit.jupiter.api.Assertions.*;
+
 public class DBPositionTest extends DBTestBase {
+    @Test
+    public void addFirstNote() {
+        testUser.addNote(getSimpleNote(), new NotePositionRequest(null, null));
+        commitUserToDB(testUser);
+        assertEquals(1, retrieveTestUserFromDB().getNotes().size(), "Number of notes for user " + testUser.getName());
+    }
     // ToDo: Tests:
-    //  - Add first note
     //  - Add two notes
     //  - Add note at top
     //  - Add note at bottom

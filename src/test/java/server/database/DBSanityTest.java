@@ -44,6 +44,8 @@ public class DBSanityTest extends DBTestBase {
         }
     }
 
+    // ToDo: Add sanity test(s) for User
+
     @Test
     public void createSimpleNote() {
         NoteBase simpleNote = getSimpleNote();
@@ -179,7 +181,7 @@ public class DBSanityTest extends DBTestBase {
     // ToDo: Test ScheduleItems with the same date
     @Test
     public void scheduleItemsAreRetrievedInTimestampOrder() {
-        createScheduleItemTestBed();    // This creates the ScheduleItems with dates in non-timestamp order
+        createFiveScheduleItemTestBed();    // This creates the ScheduleItems with dates in non-timestamp order
         List<ScheduleItem> schedule = retrieveScheduleFromDB();
         for (int i = 1; i < schedule.size(); i++) {
             LocalDateTime date1 = schedule.get(i - 1).getDate();

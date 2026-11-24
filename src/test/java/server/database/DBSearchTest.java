@@ -162,7 +162,7 @@ public class DBSearchTest extends DBTestBase {
 
     @Test
     public void getNotesByNameAndClass() {
-        createScheduleItemTestBed();
+        createFiveScheduleItemTestBed();
         String name = "Test Name 1";
         commitNoteToDB(new ScheduleItem(name, null, "2020-07-01 09:00:00 PM"));
         SearchCriteria criteria = new SearchCriteria().setNoteClass(ScheduleItem.class).setNameMatch(name);
@@ -172,7 +172,7 @@ public class DBSearchTest extends DBTestBase {
 
     @Test
     public void getNotesByNamePatternAndClass() {
-        createScheduleItemTestBed();
+        createFiveScheduleItemTestBed();
         SearchCriteria criteria = new SearchCriteria().setNoteClass(ScheduleItem.class);
         assertEquals(5, findMatchingNotesInDB(criteria).size(), "Total number of ScheduleItem notes");
         String pattern = "Event [1-3]";
@@ -204,7 +204,7 @@ public class DBSearchTest extends DBTestBase {
     static final String baseName = "Event";
     @Test
     public void getNotesByNameClassAndCategory() {
-        createScheduleItemTestBed();   // This creates 5 ScheduleItem notes with no category assigned
+        createFiveScheduleItemTestBed();   // This creates 5 ScheduleItem notes with no category assigned
         commitNoteToDB(new ScheduleItem(baseName + " 6", null, "2020-07-07 09:00:00 PM").addCategories(testCategories));
         commitNoteToDB(new ScheduleItem(baseName + " 7", null, "2020-07-08 09:00:00 PM").addCategory("Category1"));
         commitNoteToDB(new ScheduleItem(baseName + " 8", null, "2020-07-09 09:00:00 PM").addCategory("Category2"));
@@ -217,7 +217,7 @@ public class DBSearchTest extends DBTestBase {
 
     @Test
     public void getNotesByNamePatternClassAndCategory() {
-        createScheduleItemTestBed();   // This creates 5 ScheduleItem notes with no category assigned
+        createFiveScheduleItemTestBed();   // This creates 5 ScheduleItem notes with no category assigned
         String pattern = "Event \\d";
         commitNoteToDB(new ScheduleItem(baseName + " 6", null, "2020-07-07 09:00:00 PM").addCategories(testCategories));
         commitNoteToDB(new ScheduleItem(baseName + " 7", null, "2020-07-08 09:00:00 PM").addCategories(testCategories));

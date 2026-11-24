@@ -7,7 +7,6 @@ import java.util.Set;
 
 import server.categories.Category;
 import server.categories.InternalCategory;
-import ui.request.NotePositionRequest;
 
 import static server.database.HibernateUtil.*;
 
