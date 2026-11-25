@@ -32,6 +32,7 @@ public class User {
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
     public List<NoteBase> getNotes() { return notes; }
+    // ToDo: Could I rewrite this as addNoteAtIndex(note, index)?
     public void addNote(NoteBase note, NotePositionRequest request) {
         notes.add(note);
         setNotePosition(note, request);
@@ -40,13 +41,14 @@ public class User {
         NoteBase noteAbove = !notes.isEmpty() ? notes.getLast() : null;
         addNote(note, new NotePositionRequest(noteAbove, null));
     }
+
     // ToDo: Support addNote() with index (and recalculate positions)
     // ToDo: Need removeNote()
 
     private static final double positionInterval = 10000.00;
     private static final double minimumInterval = 1e-9;    // 0.000000001
     // Handles adding or moving a note
-    private void setNotePosition(NoteBase note, NotePositionRequest request) {
+    public void setNotePosition(NoteBase note, NotePositionRequest request) {
         Double above = request.noteAbovePosition;
         Double below = request.noteBelowPosition;
         if (above == null && below == null) {   // This is the first note in the list
@@ -67,5 +69,6 @@ public class User {
             }
             note.setPosition(newPosition);
         }
+        System.out.println("Set position for Note '" + note.getName() + "' to " + note.getPosition());
     }
 }

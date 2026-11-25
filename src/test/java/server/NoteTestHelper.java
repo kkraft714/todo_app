@@ -15,12 +15,12 @@ import static server.note.Contact.*;
 
 public class NoteTestHelper extends HibernateUtil {
     private static final Random rand = new Random();
-    private static int noteNumber = 1;
+    private static int noteNumber = 0;
 
 
     // ======================== Note Test Helper Methods ======================
     // ToDo: Will static variables work if the tests are run in parallel?
-    public static void resetNoteNumber() { noteNumber = 1; }
+    public static void resetNoteNumber() { noteNumber = 0; }
 
     public static Note createGenericTestNote() {
         return createGenericTestNote(null);
@@ -157,15 +157,12 @@ public class NoteTestHelper extends HibernateUtil {
             return session.createSelectionQuery("FROM User", User.class).getResultList().getFirst();
         });
     }
-    public static List<NoteBase> createFiveNoteTestBed() {
+    public static User createFiveNoteTestBed() {
         User testBedUser = getTestUser();
         for (NoteBase note : createTestNotes(5)) {
             testBedUser.addNoteAtEndOfList(note);
         }
-        return trxMgr.runTransaction(session ->  {
-            User fetchedUser = commitUserToDB(testBedUser);
-            return fetchedUser.getNotes();
-        });
+        return commitUserToDB(testBedUser);
     }
 
     public static void assertContactHasExpectedNumberOfAddressesPhoneNumbersAndEmails(int expected, Contact contact) {

@@ -118,6 +118,10 @@ public class HibernateUtil {
         return false;
     }
 
+    public static User retrieveUserFromDB(User user) {
+        return trxMgr.runTransaction(session -> { return session.find(User.class, user.getId()); });
+    }
+
     public static List<NoteBase> retrieveAllNotesFromDB() {
         return trxMgr.runTransaction(session -> {
             return session.createSelectionQuery("FROM NoteBase", NoteBase.class).getResultList();
