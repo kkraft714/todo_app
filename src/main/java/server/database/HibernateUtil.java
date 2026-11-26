@@ -118,6 +118,7 @@ public class HibernateUtil {
         return false;
     }
 
+    // ToDo: Add null check (assertion?)
     public static User retrieveUserFromDB(User user) {
         return trxMgr.runTransaction(session -> { return session.find(User.class, user.getId()); });
     }

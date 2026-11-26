@@ -32,43 +32,40 @@ public class User {
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
     public List<NoteBase> getNotes() { return notes; }
-    // ToDo: Could I rewrite this as addNoteAtIndex(note, index)?
-    public void addNote(NoteBase note, NotePositionRequest request) {
-        notes.add(note);
-        setNotePosition(note, request);
+    public void addNote(NoteBase note, int index) {
+        // ToDo: Check for valid index?
+        if (notes.remove(note) && index > notes.size()) { index = notes.size(); }   // Handle MOVE case
+        note.setPosition(calculateNewPosition(index));
+        LOG.debug("Set position for Note '{}' to {}", note.getName(), note.getPosition());
+        notes.add(index, note);
     }
-    public void addNoteAtEndOfList(NoteBase note) {
-        NoteBase noteAbove = !notes.isEmpty() ? notes.getLast() : null;
-        addNote(note, new NotePositionRequest(noteAbove, null));
-    }
+    // ToDo: Should I add notes at the start or the end of the list by default?
+    public void addNoteAtEndOfList(NoteBase note) { addNote(note, notes.size()); }
 
-    // ToDo: Support addNote() with index (and recalculate positions)
     // ToDo: Need removeNote()
 
     private static final double positionInterval = 10000.00;
     private static final double minimumInterval = 1e-9;    // 0.000000001
     // Handles adding or moving a note
-    public void setNotePosition(NoteBase note, NotePositionRequest request) {
-        Double above = request.noteAbovePosition;
-        Double below = request.noteBelowPosition;
-        if (above == null && below == null) {   // This is the first note in the list
-            note.setPosition(positionInterval);
+    private double calculateNewPosition(int index) {
+        if (notes.isEmpty()) {    // This is the first note in the list
+            return positionInterval;
         }
-        else if (above == null) {    // This note has been moved to the top of the list
-            note.setPosition(below - positionInterval);
+        else if (index == 0) {  // This note is at to the top of the list
+            return notes.getFirst().getPosition() - positionInterval;
         }
-        else if (below == null) {    // This note has been moved to the bottom of the list
-            note.setPosition(above + positionInterval);
+        else if (index == notes.size()) {   // This note is at the bottom of the list
+            return notes.get(index - 1).getPosition() + positionInterval;
         }
-        else {  // Calculate a position between the two notes
-            // ToDo: If the interval between notes gets too small may need to "defrag" note positions in the DB
-            double newPosition = above + (below - above)/2.0;
-            if (newPosition < minimumInterval) {     // ToDo: Test triggering this?
-                LOG.warn("Interval between note positions has exceeded the minimum threshold of {}"
+        else {    // Calculate a position between the two notes
+            double positionAbove = notes.get(index - 1).getPosition();
+            // If I use "index + 1" I get an IndexOutOfBoundsException due to the remove() call
+            double increment = (notes.get(index).getPosition() - positionAbove)/2.0;
+            if (increment < minimumInterval) {     // ToDo: Test triggering this?
+                LOG.warn("Interval between note positions is less than the minimum threshold of {}"
                         + " (need to defragment)", minimumInterval);
             }
-            note.setPosition(newPosition);
+            return positionAbove + increment;
         }
-        System.out.println("Set position for Note '" + note.getName() + "' to " + note.getPosition());
     }
 }

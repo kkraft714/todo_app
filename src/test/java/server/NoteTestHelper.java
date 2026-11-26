@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static server.database.HibernateUtil.retrieveUserFromDB;
 import static server.note.Contact.*;
 
 public class NoteTestHelper extends HibernateUtil {
@@ -188,6 +189,11 @@ public class NoteTestHelper extends HibernateUtil {
     private static int eventNumber = 1;
     public static ScheduleItem getTestScheduleItem() {
         return new ScheduleItem("Event#" + eventNumber, null, LocalDateTime.now().plusDays(eventNumber++));
+    }
+
+    public static User commitAndRetrieveTestUser(User user) {
+        User savedUser = commitUserToDB(user);
+        return retrieveUserFromDB(savedUser);
     }
 
     public static List<NoteBase> createTestNotes(int noteCount) {
