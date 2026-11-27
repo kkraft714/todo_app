@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
-import jakarta.persistence.Entity;
 import server.categories.Category;
 import server.categories.InternalCategory;
 
@@ -15,14 +14,13 @@ import static server.database.HibernateUtil.*;
  * This is the base class for all Note objects. It can be used for leaf-type notes with no child elements.
  */
 // ToDo: Provide separate logger here for Note classes (instead of server.NoteUtils.LOG)?
-@Entity
+@jakarta.persistence.Entity    // Import includes full path due to conflict with the Entity class
 @Table(name = "note_base")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "note_type", discriminatorType = DiscriminatorType.STRING)
 @DiscriminatorValue("SIMPLE_NOTE")
 public class NoteBase {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     // Self-reference back to the parent Note container row, required for Hibernate
     @ManyToOne(fetch = FetchType.LAZY)
@@ -36,6 +34,7 @@ public class NoteBase {
     protected Set<Category> categories = new HashSet<>();
     private final LocalDateTime created = LocalDateTime.now();
     private Boolean completed = false;
+    private Double position;    // Position in list display on UI
 
     // ToDo: Maybe require name and get rid of complicated "name or description" logic?
     public NoteBase(String newName, String newDescription) {
@@ -77,6 +76,8 @@ public class NoteBase {
     public boolean isCompleted() { return completed != null && completed; }
     public NoteBase setCompleted(boolean isCompleted) { completed = isCompleted; return this; }
     public NoteBase setCompleted() { return setCompleted(true); }
+    public Double getPosition() { return position; }
+    public void setPosition(Double position) { this.position = position; }
 
     @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
     @Override

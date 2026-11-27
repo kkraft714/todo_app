@@ -11,22 +11,23 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static server.database.HibernateUtil.retrieveUserFromDB;
 import static server.note.Contact.*;
 
 public class NoteTestHelper extends HibernateUtil {
     private static final Random rand = new Random();
-    private static int noteNumber = 1;
+    private static int noteNumber = 0;
 
 
     // ======================== Note Test Helper Methods ======================
     // ToDo: Will static variables work if the tests are run in parallel?
-    public static void resetNoteNumber() { noteNumber = 1; }
+    public static void resetNoteNumber() { noteNumber = 0; }
 
-    protected static Note createGenericTestNote() {
+    public static Note createGenericTestNote() {
         return createGenericTestNote(null);
     }
 
-    static final String defaultBaseName = "Test Note";
+    public static final String defaultBaseName = "Test Note";
     protected static Note createGenericTestNote(String baseName) {
         noteNumber++;
         // ToDo: MP: Use a GUID instead of adding noteNumber?
@@ -103,7 +104,7 @@ public class NoteTestHelper extends HibernateUtil {
     }
 
     // Add 5 ScheduleItem notes in non-date order
-    public static void createScheduleItemTestBed() {
+    public static void createFiveScheduleItemTestBed() {
         commitNoteToDB(new ScheduleItem("Event 4", null, "2020-07-03 10:00:01 AM"));
         commitNoteToDB(new ScheduleItem("Event 1", null, "2020-07-01 09:00:00 PM"));
         commitNoteToDB(new ScheduleItem("Event 3", null, "2020-07-03 10:00:00 AM"));
@@ -111,7 +112,7 @@ public class NoteTestHelper extends HibernateUtil {
         commitNoteToDB(new ScheduleItem("Event 5", null, "2020-07-03 10:00:01 AM"));
     }
 
-    static final int partitionCount = 4;
+    public static final int partitionCount = 4;
     // Creates notes for testing AND and OR category queries
     // ToDo: Document this method (I think the idea is to return notes with BOOK, FILM, both, or no tags)
     public static Set<Category> commitNotesWithMultipleCategories() {
@@ -141,13 +142,28 @@ public class NoteTestHelper extends HibernateUtil {
     }
 
     private static int personNumber = 1;
-    protected static Contact getTestPerson() {
+    public static Contact getTestPerson() {
         return Contact.newPerson("FirstName" + personNumber, "LastName" + personNumber++);
     }
 
     private static int businessNumber = 1;
     public static Contact getTestBusiness() {
         return Contact.newBusiness("Business#" + businessNumber, "Description for business #" + businessNumber++);
+    }
+
+    public static User getTestUser() { return new User("Kevin Kraft"); }
+    // ToDo: Temporary for testing (assumes the DB only has one user)
+    public static User retrieveTestUserFromDB() {
+        return trxMgr.runTransaction(session -> {
+            return session.createSelectionQuery("FROM User", User.class).getResultList().getFirst();
+        });
+    }
+    public static User createFiveNoteTestBed() {
+        User testBedUser = getTestUser();
+        for (NoteBase note : createTestNotes(5)) {
+            testBedUser.addNoteAtEndOfList(note);
+        }
+        return commitUserToDB(testBedUser);
     }
 
     public static void assertContactHasExpectedNumberOfAddressesPhoneNumbersAndEmails(int expected, Contact contact) {
@@ -175,7 +191,12 @@ public class NoteTestHelper extends HibernateUtil {
         return new ScheduleItem("Event#" + eventNumber, null, LocalDateTime.now().plusDays(eventNumber++));
     }
 
-    protected static List<NoteBase> createTestNotes(int noteCount) {
+    public static User commitAndRetrieveTestUser(User user) {
+        User savedUser = commitUserToDB(user);
+        return retrieveUserFromDB(savedUser);
+    }
+
+    public static List<NoteBase> createTestNotes(int noteCount) {
         List<NoteBase> newNotes = new ArrayList<>(noteCount);
         for (int i = 0; i < noteCount; i++) {
             newNotes.add(createGenericTestNote());
@@ -183,7 +204,7 @@ public class NoteTestHelper extends HibernateUtil {
         return newNotes;
     }
 
-    protected static List<NoteBase> commitAndRetrieveTestNotes(int noteCount) {
+    public static List<NoteBase> commitAndRetrieveTestNotes(int noteCount) {
         return createTestNotes(noteCount).stream().map(note -> Objects.requireNonNull(commitNoteToDB(note),
                 "Failed to commit Note to DB: " + note.getName())).toList();
     }

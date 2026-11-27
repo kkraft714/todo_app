@@ -1,9 +1,9 @@
-package server;
+package server.database;
 
 import org.hibernate.Session;
 import org.junit.jupiter.api.*;
+import server.SearchCriteria;
 import server.categories.Category;
-import server.database.HibernateUtil;
 import server.element.*;
 import server.note.*;
 
@@ -22,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.*;
 // ToDo: Switch to TestNG Test annotations and framework (instead of JUnit)?
 //   If so use the description attribute to document the tests
 
-// ToDo: Move into server.database test package?
 // ToDo: Add test for a 3-level note (i.e. a note with a child note that has a child)
 // ToDo: Add Contact test with multiple Addresses, Phones, and, Emails (and assertEquals() on full lists)
 // ToDo: Add DB configuration tests (combinations of config files and environment variables)
@@ -32,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.*;
 // ToDo: Add more remove tests?
 // ToDo: Come up with some negative tests (null Note, etc.)
 @SuppressWarnings("ReassignedVariable")
-public class DBSanityTest extends TestBase {
+public class DBSanityTest extends DBTestBase {
 
     @Test
     public void testDBConnection() {
@@ -44,6 +43,8 @@ public class DBSanityTest extends TestBase {
             fail("Failed to open DB session: " + e.getMessage());
         }
     }
+
+    // ToDo: Add sanity test(s) for User
 
     @Test
     public void createSimpleNote() {
@@ -180,7 +181,7 @@ public class DBSanityTest extends TestBase {
     // ToDo: Test ScheduleItems with the same date
     @Test
     public void scheduleItemsAreRetrievedInTimestampOrder() {
-        createScheduleItemTestBed();    // This creates the ScheduleItems with dates in non-timestamp order
+        createFiveScheduleItemTestBed();    // This creates the ScheduleItems with dates in non-timestamp order
         List<ScheduleItem> schedule = retrieveScheduleFromDB();
         for (int i = 1; i < schedule.size(); i++) {
             LocalDateTime date1 = schedule.get(i - 1).getDate();

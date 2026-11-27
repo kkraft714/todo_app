@@ -1,11 +1,11 @@
 package server.database;
 
-import jakarta.persistence.criteria.*;
-import org.hibernate.*;
-import org.jspecify.annotations.NonNull;
 import server.SearchCriteria;
 import server.categories.Category;
 import server.note.*;
+
+import jakarta.persistence.criteria.*;
+import org.hibernate.*;
 import org.hibernate.boot.*;
 import org.hibernate.boot.registry.*;
 import org.hibernate.cfg.Configuration;
@@ -13,6 +13,7 @@ import org.hibernate.cfg.Configuration;
 import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
+import org.jspecify.annotations.NonNull;
 
 import static server.NoteUtils.*;
 
@@ -25,7 +26,7 @@ public class HibernateUtil {
     private static SessionFactory getSessionFactory(boolean isTest) {
         MetadataSources sources = new MetadataSources(getServiceRegistry(isTest));
         // All @Entity classes must be included here (looks like I don't need to include @Embeddable classes)
-        for (Class<?> entity : new Class<?>[]{ NoteBase.class, Note.class, Entity.class, Contact.class,
+        for (Class<?> entity : new Class<?>[]{ User.class, NoteBase.class, Note.class, Entity.class, Contact.class,
                 Link.class, Product.class, ScheduleItem.class }) {
             sources.addAnnotatedClass(entity);
         }
@@ -117,6 +118,11 @@ public class HibernateUtil {
         return false;
     }
 
+    // ToDo: Add null check (assertion?)
+    public static User retrieveUserFromDB(User user) {
+        return trxMgr.runTransaction(session -> { return session.find(User.class, user.getId()); });
+    }
+
     public static List<NoteBase> retrieveAllNotesFromDB() {
         return trxMgr.runTransaction(session -> {
             return session.createSelectionQuery("FROM NoteBase", NoteBase.class).getResultList();
@@ -136,6 +142,10 @@ public class HibernateUtil {
             return session.createQuery("SELECT DISTINCT c FROM NoteBase n JOIN n.categories c", Category.class)
                     .getResultStream().collect(Collectors.toSet());
         });
+    }
+
+    public static User commitUserToDB(User user) {
+        return trxMgr.runTransaction(session -> { return session.merge(user); });
     }
 
     public static <T extends NoteBase> T commitNoteToDB(T note) {
