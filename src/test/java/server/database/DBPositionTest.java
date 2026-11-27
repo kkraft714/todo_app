@@ -88,7 +88,7 @@ public class DBPositionTest extends DBTestBase {
     @Test
     public void moveNoteToMiddleOfList() {
         User testBedUser = createFiveNoteTestBed();
-        // Move first note in between 3rd and 4th (index 2 and 3)
+        // Move 1st note in between 3rd and 4th (index 2 and 3)
         NoteBase noteAbove = testBedUser.getNotes().get(2);
         NoteBase noteBelow = testBedUser.getNotes().get(3);
         NoteBase noteToMove = testBedUser.getNotes().getFirst();
@@ -100,11 +100,11 @@ public class DBPositionTest extends DBTestBase {
     }
 
     @Test
-    public void noteAreRetrievedFromDBInPositionOrder() {
+    public void notesAreRetrievedFromDBInPositionOrder() {
         // Add notes out of position order
         for (double position : new double[] {3.0, 5.0, 1.0, 4.0, 2.0}) {
             Note newNote = getTestNote();
-            // Skipped the automatic User position handling here
+            // Skipping the automated User position handling here
             newNote.setPosition(position);
             testUser.getNotes().add(newNote);
         }

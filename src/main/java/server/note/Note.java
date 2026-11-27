@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static server.NoteUtils.insertNote;
+
 /**
  * This is the base class for all Note elements.
  *
@@ -13,13 +15,13 @@ import java.util.List;
 @jakarta.persistence.Entity
 @DiscriminatorValue("NOTE")
 public class Note extends NoteBase {
-    @OrderBy("position ASC")    // For UI Note ordering
     // Maps the relationship using the 'parent' field declared in NoteBase
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    private final List<NoteBase> childNotes = new ArrayList<>();    // ToDo: Rename "children"?
     @OrderBy("position ASC")    // For UI Note ordering
+    private final List<NoteBase> childNotes = new ArrayList<>();    // ToDo: Rename "children"?
     @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "note_id")     // Allows the Note->Link relationship to be one-way
+    @OrderBy("position ASC")    // For UI Note ordering
     private final List<Link> links = new ArrayList<>();
 
     public Note(String newName, String newDescription) {
@@ -35,18 +37,20 @@ public class Note extends NoteBase {
     public NoteBase getChildNote(int index) { return childNotes.get(index); }
     // We call these from wrapper methods in NoteOrganizer in order to update note tracking
     public <T extends NoteBase> Note addChildNote(T childNote) {
-        childNote.setParent(this);
-        childNotes.add(childNote);
+        // ToDo: Adding to end of list by default for now;
+        insertNote(childNote, childNotes.size(), childNotes);
+        childNote.setParent(this);  // Must be called AFTER insertNote()!
         return this;
     }
-    public Note addChildNote(NoteBase childNote, int index) { childNotes.add(index, childNote); return this; }
+    public Note addChildNote(NoteBase childNote, int index) { insertNote(childNote, index, childNotes); return this; }
     @SuppressWarnings("unchecked")
     public <T extends NoteBase> T removeChildNote(NoteBase childNote) {
         childNote.setParent(null);
         childNotes.remove(childNote);
         return (T)childNote;
     }
-    public Note addLink(Link link) { links.add(link); return this; }
+    public Note addLink(Link link) { addLink(link, 0); return this; }
+    public Note addLink(Link link, int index) { insertNote(link, index, links); return this; }
     public List<Link> getLinks() { return links; }
     public Link getLink(int index) { return links.get(index); }
     // ToDo: This doesn't seem to work?
